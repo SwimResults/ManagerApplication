@@ -1,106 +1,30 @@
-:host {
+.app {
   display: grid;
-  grid-template-columns: 50% 50%;
-  justify-items: stretch;
-  align-items: stretch;
+  width: 100%;
+  height: 100vh;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "status status";
+  grid-template-columns: 50px 1fr;
+  grid-template-rows: 50px auto 50px;
 
-  & > :nth-child(3) {
-    grid-column: span 2;
-  }
-}
-
-.live-timing-control {
-  display: grid;
-  grid-template-columns: 80px 70px 70px auto;
-  grid-gap: 6px;
-  align-items: center;
-
-  button {
-    height: 30px;
-    width: 70px;
+  app-header {
+    grid-area: header;
+    background-color: var(--color-bg-second);
   }
 
-  .status-box {
-    text-align: right;
-  }
-}
-
-.status-box {
-  display: inline-block;
-  background-color: white;
-  border: 1px solid gray;
-  font-size: 20px;
-  font-weight: bolder;
-  padding: 0 4px;
-
-  &.success {
-    color: green
+  app-sidebar {
+    grid-area: sidebar;
+    background-color: var(--color-bg-second);
   }
 
-  &.warn {
-    color: orange
+  main {
+    grid-area: main;
   }
 
-  &.info {
-    color: cornflowerblue;
-  }
-
-  &.error {
-    color: red
-  }
-}
-
-.live-status {
-  display: grid;
-  grid-template-columns: calc((100% - 70px) / 2) 70px calc((100% - 70px) / 2);
-  font-weight: bolder;
-
-  :last-child {
-    text-align: right;
-  }
-}
-
-table {
-  background-color: white;
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 1px solid;
-  padding: 2px 4px;
-}
-
-.form-field {
-  label {
-    display: inline-block;
-    margin: 4px 0;
-  }
-
-  input,
-  select {
-    float: right;
-  }
-}
-
-.btn-right {
-  width: 80px;
-  margin-left: calc(100% - 80px);
-}
-
-.connection-status {
-  display: grid;
-  grid-template-columns: 94px auto 1fr;
-  &::after {
-    content: ''
-  }
-}
-
-.language-settings {
-  button {
-    margin-left: 4px;
-  }
-
-  button:first-child {
-    margin-left: 0;
+  app-status-bar {
+    grid-area: status;
+    background-color: var(--color-bg-second);
   }
 }

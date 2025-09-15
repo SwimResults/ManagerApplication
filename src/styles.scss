@@ -1,13 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
 
 :root {
-  --color-bg: #f0f0f0;
+
+
+  .light-mode {
+    // light mode
+    --color-bg: #f0f0f0;
+    --color-bg-second: #bfbfbf;
+    --color-text-main: #000;
+  }
+
+  .dark-mode {
+    // dark mode
+    //--color-bg: #1b1b1b;
+    //--color-bg-second: #303030;
+    //--color-text-main: #dadada;
+  }
 }
 
 body {
   background-color: var(--color-bg);
   font-family: "Microsoft Sans Serif", sans-serif;
   font-size: 14px;
+  padding: 0;
+  margin: 0;
+  color: var(--color-text-main);
 }
 
 hr {
