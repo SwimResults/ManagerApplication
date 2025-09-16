@@ -2,7 +2,7 @@
 
 ## Overview
 
-This tool can be used by meeting organisers and result services to interact with their meeting in swimresults and provide data.
+This tool can be used by meeting organisers and result services to interact with their meeting in SwimResults and to provide data.
 
 ![image](https://github.com/user-attachments/assets/13c5fbe9-b6d9-4037-9507-238536c92bc8)
 
@@ -11,12 +11,23 @@ This tool can be used by meeting organisers and result services to interact with
 
 ### Implemented
 
-- *nothing yet*
+- Live Timing with ALGE
 
 ### Planned
 
-- Live Timing with Alge
-- File List Editor
+- Create a Meeting
+- Modify Meeting Details, Settings and Layout
+- Import DSV and LENEX files
+- Manage Participants
+- Manage Event
+- Manage Heat/Start
+- Edit File List
+- Edit Schedule
+- Upload Certificates
+- View Billing
+- Chat with SwimResults Team
+- Receive Data Consistency Warnings
+- Live Timing with OMEGA
 
 ## Technology
 
