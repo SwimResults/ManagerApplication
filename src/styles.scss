@@ -35,3 +35,9 @@ hr {
 button {
   cursor: pointer;
 }
+
+input {
+  background-color: var(--color-bg);
+  border: 1px solid gray;
+  border-radius: 2px;
+}
