@@ -4,6 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {SidebarComponent} from './layout/sidebar/sidebar.component';
 import {StatusBarComponent} from './layout/status-bar/status-bar.component';
 import {HeaderComponent} from './layout/header/header.component';
+import {MatIconRegistry} from '@angular/material/icon';
 
 @Component({
   selector: 'app-root',
@@ -13,5 +14,9 @@ import {HeaderComponent} from './layout/header/header.component';
   standalone: true
 })
 export class AppComponent {
-
+  constructor(
+    iconRegistry: MatIconRegistry
+  ) {
+    iconRegistry.setDefaultFontSetClass("material-symbols-rounded");
+  }
 }
