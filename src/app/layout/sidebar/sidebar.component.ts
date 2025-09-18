@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import {MatIcon} from '@angular/material/icon';
+import {IconButtonComponent} from '../element/icon-button/icon-button.component';
 
 @Component({
   selector: 'app-sidebar',
   imports: [
-    MatIcon
+    IconButtonComponent
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'

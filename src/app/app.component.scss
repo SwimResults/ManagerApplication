@@ -2,12 +2,14 @@
   display: grid;
   width: 100%;
   height: 100vh;
+  position: relative;
   grid-template-areas:
     "header header"
     "sidebar main"
     "status status";
-  grid-template-columns: 50px 1fr;
-  grid-template-rows: 50px auto 50px;
+  grid-template-columns: 42px 1fr;
+  grid-template-rows: 52px auto 36px;
+  grid-gap: 2px;
 
   app-header {
     grid-area: header;
@@ -21,6 +23,8 @@
 
   main {
     grid-area: main;
+    height: 100%;
+    overflow: auto;
   }
 
   app-status-bar {
