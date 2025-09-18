@@ -87,5 +87,9 @@ select {
   padding: 2px 8px;
 }
 
+hr {
+  border-color: var(--color-border);
+}
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

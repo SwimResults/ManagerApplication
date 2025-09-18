@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "SwimResultsHelperApplication": {
+    "SwimResultsManager": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -18,7 +18,7 @@
           "builder": "@angular/build:application",
           "options": {
             "outputPath": {
-              "base": "dist/swim-results-helper-application"
+              "base": "dist/swim-results-manager"
             },
             "index": "src/index.html",
             "polyfills": [
@@ -67,10 +67,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "SwimResultsHelperApplication:build:production"
+              "buildTarget": "SwimResultsManager:build:production"
             },
             "development": {
-              "buildTarget": "SwimResultsHelperApplication:build:development"
+              "buildTarget": "SwimResultsManager:build:development"
             }
           },
           "defaultConfiguration": "development"

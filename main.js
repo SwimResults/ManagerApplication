@@ -12,10 +12,11 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
-    }
+    },
+    title: "SwimResults Manager"
   })
 
-  win.loadURL(`file://${__dirname}/dist/swim-results-helper-application/index.html`)
+  win.loadURL(`file://${__dirname}/dist/swim-results-manager/browser/index.html`)
 
 
   //let socket = dgram.createSocket({ type: 'udp4', reuseAddr: true, reusePort: true });
