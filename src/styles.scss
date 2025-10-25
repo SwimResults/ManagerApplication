@@ -53,6 +53,13 @@ body {
     --color-text-prominent: #ffffff;
     --color-btn: var(--color-bg-second);
     --color-border: #2e2e3c;
+
+    --color-indicator-success: lime;
+    --color-indicator-info: cornflowerblue;
+    --color-indicator-error: red;
+    --color-indicator-warning: #ffd500;
+
+    --as-gutter-background-color: var(--color-border);
   }
 }
 

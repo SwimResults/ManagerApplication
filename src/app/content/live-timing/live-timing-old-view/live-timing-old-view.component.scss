@@ -35,19 +35,19 @@
   border-radius: 4px;
 
   &.success {
-    color: green
+    color: var(--color-indicator-success);
   }
 
   &.warn {
-    color: orange
+    color: var(--color-indicator-warning);
   }
 
   &.info {
-    color: cornflowerblue;
+    color: var(--color-indicator-info);
   }
 
   &.error {
-    color: red
+    color: var(--color-indicator-error);
   }
 }
 
