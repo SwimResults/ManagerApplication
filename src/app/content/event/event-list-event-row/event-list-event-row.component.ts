@@ -20,4 +20,12 @@ export class EventListEventRowComponent {
         if (!this.heatInfo) return "";
         return this.heatInfo?.first_heat.isDelayed(true)  ? 'late' : 'on-time';
     }
+
+    editEventTime() {
+
+    }
+
+    deleteEvent() {
+
+    }
 }

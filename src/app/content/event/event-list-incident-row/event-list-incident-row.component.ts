@@ -12,4 +12,12 @@ import {TranslatePipe} from '@ngx-translate/core';
 })
 export class EventListIncidentRowComponent {
     @Input() incident!: IncidentImpl
+
+    editIncident() {
+
+    }
+
+    deleteIncident() {
+
+    }
 }

@@ -1,0 +1,13 @@
+<div class="heading-buttons">
+    @for (button of buttons; track button.label) {
+        <button (click)="button.clickCallback?.()">
+            @if (button.icon) {
+                <mat-icon>{{ button.icon }}</mat-icon>
+            }
+            {{ button.label }}
+        </button>
+    }
+</div>
+
+<h1>{{ heading }}</h1>
+

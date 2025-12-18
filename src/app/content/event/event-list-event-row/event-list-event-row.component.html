@@ -21,4 +21,13 @@
     <td class="live-{{getLiveTimeClass()}}">
         {{heatInfo.first_heat.getStartDelayEstimationTime()}}
     </td>
+} @else {
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
 }
+
+<td>
+    <button (click)="editEventTime()">Zeit ändern</button>
+    <button (click)="deleteEvent()">Löschen</button>
+</td>

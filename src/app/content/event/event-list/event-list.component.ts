@@ -6,12 +6,15 @@ import {IncidentImpl} from '../../../core/model/meeting/incident.model';
 import {EventListEventRowComponent} from '../event-list-event-row/event-list-event-row.component';
 import {EventListIncidentRowComponent} from '../event-list-incident-row/event-list-incident-row.component';
 import {EventListHeatImpl} from '../../../core/model/start/event-list-heat.model';
+import {HeadingButton, HeadingRowComponent} from '../../../layout/element/heading-row/heading-row.component';
+import {DialogService} from '../../../core/service/dialog/dialog.service';
 
 @Component({
     selector: 'sr-event-list',
     imports: [
         EventListEventRowComponent,
-        EventListIncidentRowComponent
+        EventListIncidentRowComponent,
+        HeadingRowComponent
     ],
     templateUrl: './event-list.component.html',
     styleUrl: './event-list.component.scss'
@@ -22,10 +25,24 @@ export class EventListComponent implements OnInit {
     private eventService = inject(EventService);
     private meetingService = inject(MeetingService);
     private heatService = inject(HeatService);
+    private dialogService = inject(DialogService);
 
     parts: MeetingPart[] = [];
     incidents: Map<number, IncidentImpl[]> = new Map<number, IncidentImpl[]>()
     heatInfos: Map<number, EventListHeatImpl> = new Map<number, EventListHeatImpl>();
+
+    headingButtons: HeadingButton[] = [
+        {
+            label: "Wettkampf erstellen",
+            icon: "flag",
+            clickCallback: this.createEvent
+        },
+        {
+            label: "Ereignis erstellen",
+            icon: "flag",
+            clickCallback: this.createIncident.bind(this)
+        }
+    ];
 
     ngOnInit() {
         this.eventService.getEventsAsPartsByMeeting(this.meeting.meet_id).subscribe(
@@ -53,5 +70,14 @@ export class EventListComponent implements OnInit {
                 this.incidents.get(event)?.push(new IncidentImpl(incident));
             }
         })
+    }
+
+    createEvent() {
+
+    }
+
+    createIncident() {
+        console.log("open dialog")
+        this.dialogService.openIncidentEditDialog();
     }
 }

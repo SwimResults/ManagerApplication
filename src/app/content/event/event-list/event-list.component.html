@@ -1,3 +1,8 @@
+<sr-heading-row
+    heading="Zeitplan"
+    [buttons]="headingButtons"
+></sr-heading-row>
+
 <table>
     <tr>
         <th>WK</th>
@@ -6,6 +11,7 @@
         <th>Läufe</th>
         <th>Geplant</th>
         <th>Tatsächlich</th>
+        <th>Aktionen</th>
     </tr>
     @for (part of parts; track part.number) {
         <tr>

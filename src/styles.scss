@@ -101,6 +101,10 @@ button {
     border: none;
     border-radius: 8px;
     padding: 4px 8px;
+
+    .mat-icon {
+        vertical-align: middle;
+    }
 }
 
 input,
