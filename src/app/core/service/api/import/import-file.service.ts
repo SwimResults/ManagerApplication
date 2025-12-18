@@ -7,8 +7,8 @@ import {ApiService} from "../api.service";
 export interface ImportFileRequest {
     url: string,
     text: string,
-    file_extension: "pdf" | "dsv" | "pdf_txt",
-    file_type: "definition" | "start_list" | "result_list",
+    file_extension: string,
+    file_type: string,
     exclude_events: number[],
     include_events: number[],
     meeting: string

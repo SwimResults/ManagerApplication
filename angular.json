@@ -34,9 +34,16 @@
                             }
                         ],
                         "styles": [
-                            "src/styles.scss"
+                            "src/styles.scss",
+                            "src/colors.scss",
+                            "src/material.scss"
                         ],
                         "scripts": [],
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "."
+                            ]
+                        },
                         "browser": "src/main.ts"
                     },
                     "configurations": {
@@ -101,9 +108,16 @@
                             }
                         ],
                         "styles": [
-                            "src/styles.scss"
+                            "src/styles.scss",
+                            "src/colors.scss",
+                            "src/material.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "."
+                            ]
+                        }
                     }
                 }
             }

@@ -1,14 +1,18 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import {Component, Input, OnInit, inject} from '@angular/core';
 import {EventService, FileService} from "../../../../core/service/api";
 import {MeetingImpl} from "../../../../core/model/meeting/meeting.model";
 import {MeetingEvent} from "../../../../core/model/meeting/meeting-event.model";
-import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ImportFileRequest, ImportFileService} from "../../../../core/service/api/import/import-file.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ImportTextDialogComponent} from "./import-text-dialog.component";
 import {MatIcon} from '@angular/material/icon';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {TranslateModule} from '@ngx-translate/core';
+import {BtnComponent} from '../../../../layout/element/buttons/btn/btn.component';
+import {GroupBoxComponent} from '../../../../layout/group-box/group-box.component';
+import {MatFormField, MatLabel} from '@angular/material/form-field';
+import {MatInput} from '@angular/material/input';
 
 interface FileList {
     name: string,
@@ -21,7 +25,7 @@ interface FileList {
     selector: 'sr-import-tool',
     templateUrl: './import-tool.component.html',
     styleUrls: ['./import-tool.component.scss'],
-    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule]
+    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, MatFormField, MatLabel, FormsModule, MatInput]
 })
 export class ImportToolComponent implements OnInit {
     private eventService = inject(EventService);
@@ -46,20 +50,14 @@ export class ImportToolComponent implements OnInit {
     events: MeetingEvent[] = [];
     files: FileList[] = [];
 
-    importForm: FormGroup
+    importUrl: string = "";
+    importFileType: string = "";
+    importListType: string = "";
+    importExclude: string = "";
+    importInclude: string = "";
 
     runningImport: boolean = false;
     runningCertificationToggle: boolean = false;
-
-    constructor() {
-        this.importForm = this.fb.group({
-            url: [],
-            fileType: [],
-            listType: [],
-            exclude: [],
-            include: []
-        })
-    }
 
     ngOnInit() {
         this.fetchEvents();
@@ -105,8 +103,8 @@ export class ImportToolComponent implements OnInit {
         console.log("starting import...");
 
         const excludes: number[] = [];
-        if (this.importForm.value.exclude) {
-            const exs = this.importForm.value.exclude.split(",");
+        if (this.importExclude) {
+            const exs = this.importExclude.split(",");
             for (const ex of exs) {
                 excludes.push(Number(ex))
             }
@@ -114,27 +112,27 @@ export class ImportToolComponent implements OnInit {
 
 
         const includes: number[] = [];
-        if (this.importForm.value.include) {
-            const incs = this.importForm.value.include.split(",");
+        if (this.importInclude) {
+            const incs = this.importInclude.split(",");
             for (const inc of incs) {
                 includes.push(Number(inc))
             }
         }
 
         const data: ImportFileRequest = {
-            url: this.importForm.value.url,
+            url: this.importUrl,
             text: "",
-            file_extension: this.importForm.value.fileType.toUpperCase(),
-            file_type: this.importForm.value.listType.toUpperCase(),
+            file_extension: this.importFileType.toUpperCase(),
+            file_type: this.importListType.toUpperCase(),
             exclude_events: excludes,
             include_events: includes,
             meeting: this.meetingId
         }
 
-        if (this.importForm.value.fileType === 'pdf_txt') {
+        if (this.importFileType === 'pdf_txt') {
             this.importService.readToPdfBeforeImport(data).subscribe({
                 next: (newData => {
-                    console.log("successfully send pdf to text for '" + this.importForm.value.url + "'")
+                    console.log("successfully send pdf to text for '" + this.importUrl + "'")
                     console.log(newData.text)
 
                     const dialogRef = this.dialog.open(ImportTextDialogComponent, {
@@ -165,7 +163,7 @@ export class ImportToolComponent implements OnInit {
         } else {
             this.importService.importFile(data).subscribe({
                 next: (_ => {
-                    console.log("successfully send import for '" + this.importForm.value.url + "'")
+                    console.log("successfully send import for '" + this.importUrl + "'")
                     this.runningImport = false;
                 }),
                 error: err => {
@@ -180,13 +178,12 @@ export class ImportToolComponent implements OnInit {
     setCurrentFileForImport() {
         if (this.currentFile) {
             this.onFileTypeChange("pdf");
-            this.importForm.setValue({
-                url: this.currentFile.url,
-                fileType: "pdf",
-                listType: "result_list",
-                exclude: "",
-                include: this.currentFile.event.number
-            })
+
+            this.importUrl = this.currentFile.url;
+            this.importFileType = "pdf";
+            this.importListType = "result_list";
+            this.importExclude = "";
+            this.importInclude = this.currentFile.event.number + ",";
         }
     }
 

@@ -1,51 +1,56 @@
-<sr-btn class="refresh-btn" (btnClick)="fetchEvents()"><mat-icon>refresh</mat-icon></sr-btn>
+<sr-btn class="refresh-btn" (btnClick)="fetchEvents()">
+    <mat-icon>refresh</mat-icon>
+</sr-btn>
 
-<sr-panel panelTitle="Datei-Import">
-  <form [formGroup]="importForm">
-    <input type="text" class="file-import-url" formControlName="url" placeholder="https://file...">
+<!--sr-panel panelTitle="Datei-Import"-->
+<sr-group-box boxTitle="Datei-Import">
+        <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file...">
 
     <div class="file-import">
-      <mat-radio-group aria-label="Dateityp" formControlName="fileType">
-          @for (entry of fileTypeList; track entry) {
-              <mat-radio-button
-                  (change)="onFileTypeChange(entry.value)"
-                  [value]="entry.value"
-              >
-                  {{ entry.name }}
-              </mat-radio-button>
-          }
-      </mat-radio-group>
+        <mat-radio-group aria-label="Dateityp" [(ngModel)]="importFileType">
+            @for (entry of fileTypeList; track entry) {
+                <mat-radio-button
+                    (change)="onFileTypeChange(entry.value)"
+                    [value]="entry.value"
+                >
+                    {{ entry.name }}
+                </mat-radio-button>
+            }
+        </mat-radio-group>
 
-      <mat-radio-group aria-label="Listentyp" formControlName="listType">
-          @if (currentFileType === 'lef') {
-              <mat-radio-button value="lef">LENEX File</mat-radio-button>
-          } @else {
-              @if (currentFileType === 'dsv') {
-                  <mat-radio-button value="definition">Definitionsliste</mat-radio-button>
-              }
-              @if (currentFileType !== 'dsv' && currentFileType !== '') {
-                  <mat-radio-button value="start_list">Startliste</mat-radio-button>
-              }
-              @if (currentFileType !== '') {
-                  <mat-radio-button value="result_list">Ergebnis</mat-radio-button>
-              }
-          }
-      </mat-radio-group>
+        <mat-radio-group aria-label="Listentyp" [(ngModel)]="importListType">
+            @if (currentFileType === 'lef') {
+                <mat-radio-button value="lef">LENEX File</mat-radio-button>
+            } @else {
+                @if (currentFileType === 'dsv') {
+                    <mat-radio-button value="definition">Definitionsliste</mat-radio-button>
+                }
+                @if (currentFileType !== 'dsv' && currentFileType !== '') {
+                    <mat-radio-button value="start_list">Startliste</mat-radio-button>
+                }
+                @if (currentFileType !== '') {
+                    <mat-radio-button value="result_list">Ergebnis</mat-radio-button>
+                }
+            }
+        </mat-radio-group>
 
-      <div class="import-button-box">
-        <sr-btn [loading]="runningImport" (btnClick)="onImport()"><mat-icon>cloud_upload</mat-icon> Import</sr-btn>
-        <input type="text" class="file-import-events" formControlName="exclude" placeholder="exclude">
-        <input type="text" class="file-import-events" formControlName="include" placeholder="include">
-      </div>
+        <div class="import-button-box">
+            <sr-btn [loading]="runningImport" (btnClick)="onImport()">
+                <mat-icon>cloud_upload</mat-icon>
+                Import
+            </sr-btn>
+            <input type="text" class="file-import-events" [(ngModel)]="importExclude" placeholder="exclude">
+            <input type="text" class="file-import-events" [(ngModel)]="importInclude" placeholder="include">
+        </div>
     </div>
-  </form>
-</sr-panel>
 
-<sr-panel panelTitle="Protokolldienst">
-  <div class="file-list">
-      @for (file of files; track file) {
-          <div class="file-list-tile"
-          >
+</sr-group-box>
+
+<sr-group-box boxTitle="Protokolldienst">
+    <div class="file-list">
+        @for (file of files; track file) {
+            <div class="file-list-tile"
+            >
         <span
             class="file-name {{file.event.number === currentFile?.event?.number ? 'file-selected' : ''}} {{file.exists ? 'file-exists' : 'file-exists-not'}} {{file.event.certified ? 'file-public' : 'file-not-public'}}"
             (click)="onSelectFile(file)">
@@ -53,13 +58,21 @@
               - {{ file.event.relay_distance ? file.event.relay_distance : file.event.distance }}m {{ 'COMMON.STYLE.' + file.event.style.name + '.NAME' | translate }} {{ file.event.name_extension }} {{ 'COMMON.GENDER.' + file.event.gender + '.NAME' | translate }}
           }</span>
         </span>
-          </div>
-      }
-  </div>
+            </div>
+        }
+    </div>
 
-  <div class="file-list-buttons">
-    <sr-btn [active]="currentFile !== undefined" (btnClick)="setCurrentFileForImport()"><mat-icon>arrow_left</mat-icon> <span>Set URL for Import</span></sr-btn>
-    <sr-btn [active]="currentFile !== undefined" (btnClick)="openCurrentFile()"><mat-icon>link</mat-icon> <span>Öffnen</span></sr-btn>
-    <sr-btn [active]="currentFile !== undefined" (btnClick)="toggleCurrentFileEventCertification()" [loading]="runningCertificationToggle"><mat-icon>public</mat-icon> <span>Veröffentlichung</span></sr-btn>
-  </div>
-</sr-panel>
+    <div class="file-list-buttons">
+        <sr-btn [active]="currentFile !== undefined" (btnClick)="setCurrentFileForImport()">
+            <mat-icon>arrow_left</mat-icon>
+            <span>Set URL for Import</span></sr-btn>
+        <sr-btn [active]="currentFile !== undefined" (btnClick)="openCurrentFile()">
+            <mat-icon>link</mat-icon>
+            <span>Öffnen</span></sr-btn>
+        <sr-btn [active]="currentFile !== undefined" (btnClick)="toggleCurrentFileEventCertification()"
+                [loading]="runningCertificationToggle">
+            <mat-icon>public</mat-icon>
+            <span>Veröffentlichung</span></sr-btn>
+    </div>
+</sr-group-box>
+<!--/sr-panel-->
