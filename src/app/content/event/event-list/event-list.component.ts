@@ -1,10 +1,11 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {MeetingImpl} from '../../../core/model/meeting/meeting.model';
-import {EventService, MeetingService} from '../../../core/service/api';
+import {EventService, HeatService, MeetingService} from '../../../core/service/api';
 import {MeetingPart} from '../../../core/model/meeting/meeting-part.model';
 import {IncidentImpl} from '../../../core/model/meeting/incident.model';
 import {EventListEventRowComponent} from '../event-list-event-row/event-list-event-row.component';
 import {EventListIncidentRowComponent} from '../event-list-incident-row/event-list-incident-row.component';
+import {EventListHeatImpl} from '../../../core/model/start/event-list-heat.model';
 
 @Component({
     selector: 'sr-event-list',
@@ -20,10 +21,11 @@ export class EventListComponent implements OnInit {
 
     private eventService = inject(EventService);
     private meetingService = inject(MeetingService);
+    private heatService = inject(HeatService);
 
     parts: MeetingPart[] = [];
-
     incidents: Map<number, IncidentImpl[]> = new Map<number, IncidentImpl[]>()
+    heatInfos: Map<number, EventListHeatImpl> = new Map<number, EventListHeatImpl>();
 
     ngOnInit() {
         this.eventService.getEventsAsPartsByMeeting(this.meeting.meet_id).subscribe(
@@ -32,6 +34,9 @@ export class EventListComponent implements OnInit {
             }
         )
 
+        this.heatService.getHeatsByMeetingForEventList(this.meeting.meet_id).subscribe(heatInfos => {
+            this.heatInfos = new Map(heatInfos.events.map(e => [e.event_number, new EventListHeatImpl(e)]));
+        });
 
         this.meetingService.getIncidentsByMeeting(this.meeting.meet_id).subscribe(incidents => {
             for (const incident of incidents) {

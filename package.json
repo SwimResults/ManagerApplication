@@ -9,6 +9,7 @@
         "start": "electron-forge start",
         "build": "ng build --base-href ./",
         "serve": "ng serve",
+        "serve_prod": "ng serve --configuration production",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "electron": "electron .",

@@ -1,14 +1,15 @@
 <table>
     <tr>
         <th>WK</th>
-        <th>Name</th>
+        <th>Bezeichnung</th>
         <th>Zusatz</th>
+        <th>Läufe</th>
         <th>Geplant</th>
         <th>Tatsächlich</th>
     </tr>
     @for (part of parts; track part.number) {
         <tr>
-            <th colspan="5">Abschnitt {{part.number}}</th>
+            <th colspan="6">Abschnitt {{part.number}}</th>
         </tr>
 
         @for (event of part.events; track event._id) {
@@ -20,7 +21,7 @@
                 }
             }
 
-            <tr sr-event-list-event-row [event]="event"></tr>
+            <tr sr-event-list-event-row [event]="event" [heatInfo]="heatInfos.get(event.number)"></tr>
 
             @if (incidents) {
                 @for (incident of incidents.get(event.number); track incident) {

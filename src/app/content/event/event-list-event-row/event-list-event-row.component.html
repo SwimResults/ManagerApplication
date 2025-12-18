@@ -3,18 +3,22 @@
 </td>
 <td>
     <span>
-        {{ 'EVENT.PAGE.EVENT_TITLE_EVENT' | translate }} {{ event.number }}
         @if (event && event.style) {
-            - {{ event.relay_distance ? event.relay_distance : event.distance }}m {{ 'COMMON.STYLE.' + event.style.name + '.NAME' | translate }} {{ event.name_extension }} {{ 'COMMON.GENDER.' + event.gender + '.NAME' | translate }}
+            {{ event.relay_distance ? event.relay_distance : event.distance }}m {{ 'COMMON.STYLE.' + event.style.name + '.NAME' | translate }} {{ event.name_extension }} {{ 'COMMON.GENDER.' + event.gender + '.NAME' | translate }}
         }
     </span>
 </td>
 <td>
     {{ event.name_extension }}
 </td>
-<td>
-    00:00
-</td>
-<td>
-    00:00
-</td>
+@if (heatInfo) {
+    <td>
+        {{heatInfo.amount}}
+    </td>
+    <td>
+        {{heatInfo.first_heat.getEstimatedStartTime()}}
+    </td>
+    <td class="live-{{getLiveTimeClass()}}">
+        {{heatInfo.first_heat.getStartDelayEstimationTime()}}
+    </td>
+}

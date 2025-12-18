@@ -51,6 +51,9 @@ body {
         --color-indicator-info: cornflowerblue;
         --color-indicator-error: #cd0000;
         --color-indicator-warning: #bd8700;
+
+        --bg-gradient-1: #ffdafe;
+        --bg-gradient-2: #fba6a8;
     }
 
     .dark-mode {
@@ -68,6 +71,9 @@ body {
         --color-indicator-info: cornflowerblue;
         --color-indicator-error: red;
         --color-indicator-warning: #ffd500;
+
+        --bg-gradient-1: #ffdafe;
+        --bg-gradient-2: #fba6a8;
     }
 }
 
@@ -107,12 +113,12 @@ hr {
 }
 
 table {
-    background-color: var(--color-bg-second);
+    background-color: var(--color-bg);
     border-collapse: collapse;
 }
 
 td, th {
-    border: 2px solid var(--color-bg);
+    border: 1px solid var(--color-border);
     padding: 2px 4px;
 }
 
