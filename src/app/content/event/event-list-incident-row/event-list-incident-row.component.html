@@ -1,0 +1,28 @@
+
+<td>-</td>
+<td>
+    <span>{{ 'EVENT.LIST.INCIDENT.' + incident.name.toUpperCase() | translate }}</span>
+</td>
+<td>
+    {{incident.name_extension}}
+</td>
+<td>
+    @if (incident.type === 'EVENT') {
+        <div class="time-container">
+            {{ incident.getStartTimeString() }}
+        </div>
+    }
+    @if (incident.type === 'DURATION') {
+        <div class="time-container">
+            <i>{{ incident.getDurationString() }}</i>
+        </div>
+    }
+    @if (incident.type === 'TIMELESS') {
+        <div class="time-container">
+            <i>&nbsp;</i>
+        </div>
+    }
+    @if (incident.type === 'EVENT') {
+        <div class="dot"></div>
+    }
+</td>

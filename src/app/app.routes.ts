@@ -2,7 +2,7 @@ import {Routes} from '@angular/router';
 import {MainComponent} from './layout/main/main.component';
 import {LiveTimingOldViewComponent} from './content/live-timing/live-timing-old-view/live-timing-old-view.component';
 import {ImportViewComponent} from './content/import/import-view/import-view.component';
-import {meetingSelectedGuard} from './core/guard/meeting-selected.guard';
+import {EventListViewComponent} from './content/event/event-list-view/event-list-view.component';
 
 export let routes: Routes;
 routes = [
@@ -17,7 +17,10 @@ routes = [
     },
     {
         path: "import",
-        component: ImportViewComponent,
-        canActivate: [meetingSelectedGuard]
+        component: ImportViewComponent
+    },
+    {
+        path: "schedule",
+        component: EventListViewComponent
     }
 ];
