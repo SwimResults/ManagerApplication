@@ -1,0 +1,14 @@
+<div class="spinner-size-{{spinnerSize}} spinner">
+    @if (style === 'material') {
+        <!--      Spinner Color is handled in material.scss-->
+    <mat-spinner class="mat-spinner mat-spinner-size-{{spinnerSize}} mat-spinner-color-{{materialColor}}" [diameter]="spinnerSize ? 22 : undefined"></mat-spinner>
+    }
+
+    @if (style === 'swim clock') {
+    <div class="clock">
+      <div class="pointer pointer-1"></div>
+      <div class="pointer pointer-2"></div>
+    </div>
+    }
+
+</div>

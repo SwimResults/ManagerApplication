@@ -1,0 +1,11 @@
+@if (heat) {
+    <div class="{{orientation}}">
+        <span
+            class="time estimation {{getEstimationTimeClass()}} {{fixedTimeWidth ? 'time-' + fixedTimeWidth : ''}}">{{ heat.getEstimatedStartTime() }}</span>
+  <!--span *ngIf="orientation == 'horizontal' && heat.hasStartDelayEstimationTime()"> • </span-->
+        @if (heat.hasStartDelayEstimationTime()) {
+            <span
+                class="time live live-{{getLiveTimeClass()}} {{fixedTimeWidth ? 'time-' + fixedTimeWidth : ''}}">{{ heat.getStartDelayEstimationTime() }}</span>
+        }
+</div>
+}

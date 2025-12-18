@@ -1,0 +1,42 @@
+@use "/src/colors";
+
+:host {
+  width: auto;
+  display: inline-block;
+  text-align: left;
+}
+
+.panel-container {
+  width: auto;
+  padding: 14px;
+  background-color: colors.$color-bg-first;
+  box-shadow: 0 0 20px -16px colors.$color-shadow-second;
+  border-radius: 12px;
+
+  &.panel-container-with-header {
+    border-top-left-radius: 0;
+  }
+}
+
+.title-box {
+  padding: 14px 14px 6px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  font-size: 16px;
+  background-color: colors.$color-bg-first;
+  display: inline-block;
+  max-width: calc(100% - 28px - 24px);
+}
+
+.panel-title {
+  font-weight: 700;
+}
+
+.panel-subtitle {
+  color: colors.$color-text-gray
+}
+
+sr-heat-times {
+  display: inline-block;
+  color: colors.$color-text-gray
+}

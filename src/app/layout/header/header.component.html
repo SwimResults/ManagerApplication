@@ -1,8 +1,10 @@
 <h1 class="header-title">SwimResults Manager</h1>
 
 <select class="meeting-select">
-  <option>-- Select Meeting --</option>
-  <option>28. Internationaler Erzgebirgsschwimmcup 2025</option>
+    <option>-- Select Meeting --</option>
+    @for (meeting of meetings; track meeting._id) {
+        <option>{{meeting.getFullSeriesNameWithYear()}}</option>
+    }
 </select>
 
 <app-icon-button icon="more_horiz"></app-icon-button>

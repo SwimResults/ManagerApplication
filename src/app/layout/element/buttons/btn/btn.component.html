@@ -1,0 +1,8 @@
+<button type="submit" class="btn btn-{{color}} btn-{{layout}} btn-{{getActiveClass()}}" (click)="onClick()">
+    @if (!loading) {
+    <ng-content></ng-content>
+    }
+    @if (loading) {
+        <sr-spinner [style]="'material'" spinnerSize="btn"></sr-spinner>
+    }
+</button>

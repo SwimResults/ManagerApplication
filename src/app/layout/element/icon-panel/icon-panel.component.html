@@ -1,0 +1,8 @@
+<div class="icon-panel style-{{style}}">
+    @if (icon && !textContent) {
+        <mat-icon>{{ icon }}</mat-icon>
+    }
+    @if (textContent) {
+        <span>{{ textContent }}</span>
+    }
+</div>

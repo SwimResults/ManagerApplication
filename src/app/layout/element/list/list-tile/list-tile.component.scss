@@ -1,0 +1,55 @@
+@use "/src/colors";
+
+.text {
+  display: inline-block;
+  margin-left: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.name {
+  width: 220px;
+}
+
+.year {
+  width: 40px;
+}
+
+.team {
+    width: calc(100% - 302px);
+}
+
+.country-flag {
+  vertical-align: middle;
+  display: inline-block;
+  margin-left: 24px;
+}
+.main-icon,
+.list-left,
+.list-right {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.list-left {
+    width: calc(100% - 94px);
+}
+
+@media only screen and (max-width: 800px) {
+    .list-left {
+        width: calc(100% - 56px);
+    }
+    .main-icon {
+        display: none;
+    }
+    .team {
+        display: block;
+        width: 100%;
+    }
+    .name {
+        font-weight: 700;
+        width: calc(100% - 70px);
+    }
+}

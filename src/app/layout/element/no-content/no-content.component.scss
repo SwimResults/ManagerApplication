@@ -1,0 +1,9 @@
+@use "/src/colors";
+
+:host {
+  width: 100%;
+  padding: 100px 0;
+  color: colors.$color-text-gray;
+  display: block;
+  text-align: center;
+}

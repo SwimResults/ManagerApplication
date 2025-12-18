@@ -1,0 +1,102 @@
+@if (entry) {
+    <div (contextmenu)="onRightClick($event)">
+    <span class="icon main-icon">
+      @if (entry.entryType === 'athlete') {
+          <sr-icon-panel icon="pool"></sr-icon-panel>
+      }
+        @if (entry.entryType === 'team') {
+            <sr-icon-panel icon="shield"></sr-icon-panel>
+        }
+    </span>
+    <div class="list-left">
+      <span class="text name link" [routerLink]="entry.nameLink">
+        {{ entry.name }}
+      </span>
+        @if (entry.badge) {
+            <sr-badge class="text badge year">{{ entry.badge }}</sr-badge>
+        }
+        @if (entry.team) {
+        <span
+            class="text team link"
+            [routerLink]="entry.teamLink"
+        >
+          {{ entry.team }}
+        </span>
+        }
+        @if (entry.country) {
+            <span class="country-flag" [title]="entry.country">
+          <img class="flag" src="https://flagsapi.com/{{flags.get(entry.country)}}/flat/24.png" alt="flag">
+        </span>
+        }
+    </div>
+    <div class="list-right">
+        @if (config.showMoreButton) {
+            <button class="sr-btn-bar sr-btn-icon sr-btn" [matMenuTriggerFor]="contextMenu">
+                <mat-icon>more_horiz</mat-icon>
+            </button>
+        }
+        @if (config.showSetUserAthleteButton) {
+        <button
+            (click)="onSetUserAthlete()"
+            class="sr-btn-bar sr-btn-icon sr-btn"
+        >
+            @if (fetchingSetUserAthlete.fetching) {
+                <sr-spinner spinnerSize="btn" [style]="'material'" materialColor="first"></sr-spinner>
+            }
+            @if (!fetchingSetUserAthlete.fetching) {
+                <mat-icon>person_add</mat-icon>
+            }
+        </button>
+        }
+        @if (config.showUnsetUserAthleteButton) {
+        <button
+            (click)="onUnsetUserAthlete()"
+            class="sr-btn-bar sr-btn-icon sr-btn"
+        >
+            @if (fetchingSetUserAthlete.fetching) {
+                <sr-spinner spinnerSize="btn" [style]="'material'" materialColor="first"></sr-spinner>
+            }
+            @if (!fetchingSetUserAthlete.fetching) {
+                <mat-icon>person_remove</mat-icon>
+            }
+        </button>
+        }
+    </div>
+    <!-- an hidden div is created to set the position of appearance of the menu-->
+        @if (config.showMoreButton) {
+            <div style="visibility: hidden; position: fixed;"
+        [style.left.px]="menuTopLeftPosition.x"
+        [style.top.px]="menuTopLeftPosition.y"
+        #contextMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu"
+            ></div>
+        }
+    <mat-menu #contextMenu="matMenu">
+        <button class="sr-btn sr-btn-menu sr-inactive">
+            <mat-icon>share</mat-icon>
+            <span>{{ 'ATHLETE.LIST.MORE.SHARE_BUTTON_TEXT' | translate }}</span>
+        </button>
+        @if (entry.entryType === 'athlete') {
+            @if (entry.nameLink) {
+                <button class="sr-btn sr-btn-menu" [routerLink]="entry.nameLink">
+                    <mat-icon>person</mat-icon>
+                    <span>{{ 'ATHLETE.LIST.MORE.ATHLETE_BUTTON_TEXT' | translate }}</span>
+                </button>
+            }
+            @if (entry.teamLink) {
+                <button class="sr-btn sr-btn-menu" [routerLink]="entry.teamLink">
+                    <mat-icon>shield</mat-icon>
+                    <span>{{ 'ATHLETE.LIST.MORE.TEAM_BUTTON_TEXT' | translate }}</span>
+                </button>
+            }
+        }
+        @if (entry.entryType === 'team') {
+            @if (entry.nameLink) {
+                <button class="sr-btn sr-btn-menu" [routerLink]="entry.nameLink">
+                    <mat-icon>shield</mat-icon>
+                    <span>{{ 'ATHLETE.LIST.MORE.TEAM_BUTTON_TEXT' | translate }}</span>
+                </button>
+            }
+        }
+    </mat-menu>
+    </div>
+}
