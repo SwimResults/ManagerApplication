@@ -1,6 +1,5 @@
 import {Component, Input, OnInit, inject} from '@angular/core';
 import {EventService, FileService} from "../../../../core/service/api";
-import {MeetingImpl} from "../../../../core/model/meeting/meeting.model";
 import {MeetingEvent} from "../../../../core/model/meeting/meeting-event.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ImportFileRequest, ImportFileService} from "../../../../core/service/api/import/import-file.service";
@@ -11,8 +10,7 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {TranslateModule} from '@ngx-translate/core';
 import {BtnComponent} from '../../../../layout/element/buttons/btn/btn.component';
 import {GroupBoxComponent} from '../../../../layout/group-box/group-box.component';
-import {MatFormField, MatLabel} from '@angular/material/form-field';
-import {MatInput} from '@angular/material/input';
+import {MeetingImpl} from '../../../../core/model/meeting/meeting.model';
 
 interface FileList {
     name: string,
@@ -25,7 +23,7 @@ interface FileList {
     selector: 'sr-import-tool',
     templateUrl: './import-tool.component.html',
     styleUrls: ['./import-tool.component.scss'],
-    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, MatFormField, MatLabel, FormsModule, MatInput]
+    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, FormsModule]
 })
 export class ImportToolComponent implements OnInit {
     private eventService = inject(EventService);
@@ -34,8 +32,7 @@ export class ImportToolComponent implements OnInit {
     private fb = inject(FormBuilder);
     private dialog = inject(MatDialog);
 
-    @Input() meetingId?: string;
-    @Input() meeting?: MeetingImpl;
+    @Input() meeting: MeetingImpl = {} as MeetingImpl;
 
     fileTypeList = [
         {name: 'DSV', value: "dsv"},
@@ -64,8 +61,8 @@ export class ImportToolComponent implements OnInit {
     }
 
     fetchEvents() {
-        if (this.meetingId) {
-            this.eventService.getEventsByMeeting(this.meetingId).subscribe(data => {
+        if (this.meeting.meet_id) {
+            this.eventService.getEventsByMeeting(this.meeting.meet_id).subscribe(data => {
                 this.events = data;
                 this.updateFileList()
             })
@@ -97,7 +94,7 @@ export class ImportToolComponent implements OnInit {
 
 
     onImport() {
-        if (!this.meetingId) return;
+        if (!this.meeting.meet_id) return;
         this.runningImport = true;
 
         console.log("starting import...");
@@ -126,7 +123,7 @@ export class ImportToolComponent implements OnInit {
             file_type: this.importListType.toUpperCase(),
             exclude_events: excludes,
             include_events: includes,
-            meeting: this.meetingId
+            meeting: this.meeting.meet_id
         }
 
         if (this.importFileType === 'pdf_txt') {
@@ -194,9 +191,9 @@ export class ImportToolComponent implements OnInit {
     }
 
     toggleCurrentFileEventCertification() {
-        if (this.currentFile && this.meetingId) {
+        if (this.currentFile && this.meeting.meet_id) {
             this.runningCertificationToggle = true;
-            this.eventService.updateEventCertification(this.meetingId, this.currentFile?.event.number).subscribe({
+            this.eventService.updateEventCertification(this.meeting.meet_id, this.currentFile?.event.number).subscribe({
                 next: (_ => {
                     this.runningCertificationToggle = false;
                     this.fetchEvents();

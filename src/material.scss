@@ -146,5 +146,16 @@ body {
     .mat-mdc-menu-content {
         padding: 4px 8px;
     }
+
+    .meeting-select {
+        .mdc-text-field.mdc-text-field--filled {
+            background-color: transparent !important;
+            text-align: right !important;
+        }
+
+        .mat-mdc-select-value {
+            padding-right: 8px !important;
+        }
+    }
 }
 

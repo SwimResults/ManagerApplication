@@ -1,10 +1,13 @@
 <h1 class="header-title">SwimResults Manager</h1>
 
-<select class="meeting-select">
-    <option>-- Select Meeting --</option>
-    @for (meeting of meetings; track meeting._id) {
-        <option>{{meeting.getFullSeriesNameWithYear()}}</option>
-    }
-</select>
+@if (meetings) {
+    <mat-form-field class="meeting-select" subscriptSizing="dynamic">
+        <mat-select (selectionChange)="meetingSelectionChange($event)" [(ngModel)]="selectedMeeting">
+            @for (meeting of meetings; track meeting._id) {
+                <mat-option [value]="meeting">{{meeting.getFullSeriesNameWithYear()}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+}
 
 <app-icon-button icon="more_horiz"></app-icon-button>
