@@ -18,6 +18,16 @@ export class CurrentMeetingService {
         this.currentMeetingSubject.next(meeting);
         window.localStorage.setItem('currentMeeting', meeting.meet_id);
 
+        const body = document.getElementsByTagName("body").item(0);
+
+        if (meeting.layout && meeting.layout.color_set && meeting.layout.color_set.primary && meeting.layout.color_set.secondary) {
+            body?.style.setProperty("--bg-gradient-1", meeting.layout.color_set.primary);
+            body?.style.setProperty("--bg-gradient-2", meeting.layout.color_set.secondary);
+        } else {
+            body?.style.setProperty("--bg-gradient-1", "#a3ffff");
+            body?.style.setProperty("--bg-gradient-2", "#ffa3ed");
+        }
+
         this.router.navigateByUrl('/')
     }
 }
