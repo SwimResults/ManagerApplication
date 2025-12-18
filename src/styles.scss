@@ -47,10 +47,10 @@ body {
         --color-btn: var(--color-bg-second);
         --color-border: #6a6a78;
 
-        --color-indicator-success: lime;
+        --color-indicator-success: #008e00;
         --color-indicator-info: cornflowerblue;
-        --color-indicator-error: red;
-        --color-indicator-warning: #ffd500;
+        --color-indicator-error: #cd0000;
+        --color-indicator-warning: #bd8700;
     }
 
     .dark-mode {
@@ -63,6 +63,11 @@ body {
         --color-border: #2e2e3c;
 
         --as-gutter-background-color: var(--color-border);
+
+        --color-indicator-success: lime;
+        --color-indicator-info: cornflowerblue;
+        --color-indicator-error: red;
+        --color-indicator-warning: #ffd500;
     }
 }
 
@@ -101,6 +106,16 @@ hr {
     border-color: var(--color-border);
 }
 
+table {
+    background-color: var(--color-bg-second);
+    border-collapse: collapse;
+}
+
+td, th {
+    border: 2px solid var(--color-bg);
+    padding: 2px 4px;
+}
+
 html, body {
     height: 100%;
 }
@@ -108,4 +123,31 @@ html, body {
 body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+
+.status-box {
+    display: inline-block;
+    background-color: var(--color-bg-second);
+    font-size: 20px;
+    font-weight: bolder;
+    padding: 4px 8px;
+
+    border-radius: 4px;
+
+    &.success {
+        color: var(--color-indicator-success);
+    }
+
+    &.warn {
+        color: var(--color-indicator-warning);
+    }
+
+    &.info {
+        color: var(--color-indicator-info);
+    }
+
+    &.error {
+        color: var(--color-indicator-error);
+    }
 }

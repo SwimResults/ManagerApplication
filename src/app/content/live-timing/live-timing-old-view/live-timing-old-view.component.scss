@@ -25,52 +25,6 @@
   }
 }
 
-.status-box {
-  display: inline-block;
-  background-color: var(--color-bg-second);
-  font-size: 20px;
-  font-weight: bolder;
-  padding: 4px 8px;
-
-  border-radius: 4px;
-
-  &.success {
-    color: var(--color-indicator-success);
-  }
-
-  &.warn {
-    color: var(--color-indicator-warning);
-  }
-
-  &.info {
-    color: var(--color-indicator-info);
-  }
-
-  &.error {
-    color: var(--color-indicator-error);
-  }
-}
-
-.live-status {
-  display: grid;
-  grid-template-columns: calc((100% - 70px) / 2) 70px calc((100% - 70px) / 2);
-  font-weight: bolder;
-
-  :last-child {
-    text-align: right;
-  }
-}
-
-table {
-  background-color: var(--color-bg-second);
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 2px solid var(--color-bg);
-  padding: 2px 4px;
-}
-
 .form-field {
   label {
     display: inline-block;

@@ -10,6 +10,11 @@ import {ImportService} from '../../../core/service/import.service';
 import {AlgeService} from '../../../core/service/alge.service';
 import {FormsModule} from '@angular/forms';
 import {AlgeTimePipe} from '../../../core/pipe/alge-time.pipe';
+import {
+    getAvailableMeters,
+    getClassForConnectionState,
+    getClassForState, getCompetitorsSorted
+} from '../../../core/function/live-timing.functions';
 
 @Component({
   selector: 'app-live-timing-old-view',
@@ -121,49 +126,6 @@ export class LiveTimingOldViewComponent {
     this.importService.saveConfig(this.importConfig);
   }
 
-  getClassForState(state: State): string {
-    switch (state) {
-      case State.NOT_RUNNING:
-        return "error"
-      case State.READY:
-        return "warn"
-      case State.RUNNING:
-        return "success"
-      default:
-        return "info";
-    }
-  }
-
-  getClassForConnectionState(state: ConnectionState | string): string {
-    switch (state) {
-      case ConnectionState.CONNECTED:
-        return "success"
-      case "OK":
-        return "success"
-      case ConnectionState.DISCONNECTED:
-        return "error"
-      default:
-        return "info";
-    }
-  }
-
-  protected readonly State = State;
-
-  getAvailableMeters(): number[] {
-    if (!this.currentHeat.competitors || this.currentHeat.competitors.size <= 0) return [];
-    return Array.from(new Set(Array.from(this.currentHeat.competitors.values()).map(c => {
-      return Array.from(c.splits.keys());
-    }).reduce((acc, curr) => {
-      return acc.concat(curr);
-    }))).sort();
-  }
-
-  getCompetitorsSorted(): Competitor[] {
-    return Array.from(this.currentHeat.competitors.values()).sort((a, b) => {
-      return a.lane - b.lane;
-    });
-  }
-
   changeLanguage(lang: string) {
     this.translateService.use(lang);
   }
@@ -171,4 +133,9 @@ export class LiveTimingOldViewComponent {
   toggleLog() {
     this.collectLog = !this.collectLog;
   }
+
+    protected readonly getClassForState = getClassForState;
+    protected readonly getClassForConnectionState = getClassForConnectionState;
+    protected readonly getAvailableMeters = getAvailableMeters;
+    protected readonly getCompetitorsSorted = getCompetitorsSorted;
 }

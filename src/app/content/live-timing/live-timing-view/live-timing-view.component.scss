@@ -1,0 +1,10 @@
+
+.live-status {
+    display: grid;
+    grid-template-columns: calc((100% - 70px) / 2) 70px calc((100% - 70px) / 2);
+    font-weight: bolder;
+
+    :last-child {
+        text-align: right;
+    }
+}

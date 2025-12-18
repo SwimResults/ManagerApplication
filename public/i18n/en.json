@@ -1,51 +1,420 @@
 {
-  "LIVETIMING_CONTROLS": {
-    "RUNNING_HEAT": "Running Heat",
-    "RUNNING_EVENT": "Running Event",
-    "RUNNING_HEAT_STATE": "Running Heat State",
-    "TITLE": "Live Timing Controls"
-  },
-  "SETTINGS": {
+    "NAV": {
+        "LINK": {
+            "TITLE": {
+                "DASHBOARD": "Dashboard",
+                "LIVE": "Live",
+                "EVENTS": "Events",
+                "MEETINGS": "Meetings",
+                "ATHLETES": "Athletes",
+                "TEAMS": "Teams",
+                "FILES": "Files",
+                "SPEAKER": "Speaker",
+                "STATS": "Statistics",
+                "ADMIN": "Admin",
+                "LEAVE_MEETING": "Exit {{short}}"
+            }
+        },
+        "NO_MEETING_INFO": "Select a meeting in order to search events, athletes and teams."
+    },
+    "TEST": {
+        "EXAMPLE": "This is an example text that has been translated."
+    },
+    "EVENT": {
+        "DASHBOARD": {
+            "CURRENT_MEETING_INFO": "Current Event: {{name_full}}"
+        },
+        "PAGE": {
+            "EVENT_TITLE_EVENT": "Event",
+            "HEAT": "Heat",
+            "START_LIST": "Start List",
+            "NO_STARTS_MESSAGE": "No starts have been found.",
+            "START_LIST_FILE_BUTTON": "Start List Event {{event_number}}",
+            "RESULT_LIST_FILE_BUTTON": "Result List Event {{event_number}}",
+            "LIST_MODE_START_LIST": "Start List",
+            "LIST_MODE_FINISH": "Finish",
+            "LIST_MODE_RESULT_LIST": "Result List"
+        },
+        "LIST": {
+            "PAGE_TITLE": "Schedule",
+            "PART_TITLE": "Part",
+            "NO_EVENTS_MESSAGE": "No events have been found.",
+            "INCIDENT": {
+                "WARMUP": "Warm-up",
+                "JUDGES_MEETING": "Judges Meeting",
+                "TEAM_LEADER_MEETING": "Team Leader Meeting",
+                "BREAK": "Break",
+                "CEREMONY": "Medal ceremony"
+            }
+        }
+    },
+    "COMMON": {
+        "ERROR": {
+            "SERVICE_OFFLINE": {
+                "MESSAGE": "The {{system}} is currently not available!",
+                "MEETING": "meeting service",
+                "START": "start service",
+                "ATHLETE": "athlete and team service",
+                "USER": "user service",
+                "IMPORT": "import service"
+            }
+        },
+        "FORM": {
+            "SEARCH": {
+                "SEARCH_INPUT_LABEL": "Search…"
+            },
+            "BUTTON": {
+                "SEARCH": "Search",
+                "CANCEL": "Cancel",
+                "SAVE": "Save",
+                "DELETE": "Delete",
+                "EDIT": "Edit",
+                "ADD": "Add",
+                "BACK": "Back",
+                "SHOW_MORE": "Show more",
+                "SHOW_LESS": "Show less",
+                "SUBMIT": "Submit"
+            }
+        },
+        "LIST": {
+            "NO_ENTRIES_MESSAGE": "No entries has been found!"
+        },
+        "LANGUAGE": {
+            "EN": "English",
+            "DE": "German",
+            "CZ": "Czech",
+            "UA": "Ukrainian",
+            "RU": "Russian"
+        },
+        "STYLE": {
+            "MEDLEY": {
+                "NAME": "IM"
+            },
+            "BUTTERFLY": {
+                "NAME": "Butterfly"
+            },
+            "BREASTSTROKE": {
+                "NAME": "Breaststroke"
+            },
+            "FREESTYLE": {
+                "NAME": "Freestyle"
+            },
+            "BACKSTROKE": {
+                "NAME": "Backstroke"
+            },
+            "UNDEFINED": {
+                "NAME": "Schwimmen"
+            },
+            "FINSWIMMING": {
+                "NAME": "FS"
+            },
+            "DISTANCE_DIVING": {
+                "NAME": "ST"
+            },
+            "BIFIN": {
+                "NAME": "BF"
+            },
+            "APNOE": {
+                "NAME": "AP"
+            },
+            "SB": {
+                "NAME": "SB"
+            },
+            "BUTTERFLY_KICKS": {
+                "NAME": "Dolphin kicks"
+            },
+            "BREASTSTROKE_KICKS": {
+                "NAME": "Breaststroke kicks"
+            },
+            "FREESTYLE_KICKS": {
+                "NAME": "Freestyle kicks"
+            },
+            "BACKSTROKE_KICKS": {
+                "NAME": "Backstroke kicks"
+            }
+        },
+        "GENDER": {
+            "MALE": {
+                "NAME": "Boys"
+            },
+            "FEMALE": {
+                "NAME": "Girls"
+            },
+            "MIXED": {
+                "NAME": "Mixed"
+            }
+        },
+        "HEAT": {
+            "SINGULAR": "Heat",
+            "PLURAL": "Heats",
+            "SHORT": "H"
+        },
+        "EVENT": {
+            "SINGULAR": "Event"
+        },
+        "LANE": {
+            "SINGULAR": "Lane",
+            "PLURAL": "Lanes",
+            "SHORT": "L"
+        },
+        "DATE": {
+            "MONTH": {
+                "JAN": "Jan",
+                "FEB": "Feb",
+                "MAR": "Mar",
+                "APR": "Apr",
+                "MAY": "May",
+                "JUN": "Jun",
+                "JUL": "Jul",
+                "AUG": "Aug",
+                "SEP": "Sep",
+                "OCT": "Oct",
+                "NOV": "Nov",
+                "DEC": "Dec"
+            },
+            "DAY": {
+                "0": "Sunday",
+                "1": "Monday",
+                "2": "Tuesday",
+                "3": "Wednesday",
+                "4": "Thursday",
+                "5": "Friday",
+                "6": "Saturday"
+            }
+        }
+    },
+    "START": {
+        "LANE": "Lane",
+        "EVENT_SHORT": "Evt.",
+        "LANE_STAYS_EMPTY": "Lane {{lane}} stays empty"
+    },
+    "ATHLETE": {
+        "LIST": {
+            "MORE": {
+                "SHARE_BUTTON_TEXT": "Share",
+                "ATHLETE_BUTTON_TEXT": "Show Athlete",
+                "TEAM_BUTTON_TEXT": "Show Team"
+            },
+            "PAGE_TITLE": "Athletes",
+            "FAVORITES_TITLE": "Favorites",
+            "ATHLETES_TITLE": "Athletes"
+        },
+        "PROFILE": {
+            "FOLLOW_BUTTON_TEXT": "Follow",
+            "UNFOLLOW_BUTTON_TEXT": "Unfollow"
+        },
+        "CERTIFICATES": "Certificates"
+    },
+    "HEADER": {
+        "MENU": {
+            "FEEDBACK": {
+                "ADMIN_REPORTS_BUTTON": "Reports",
+                "FEEDBACK_BUTTON": "Feedback",
+                "REPORT_BUTTON": "Report Problem"
+            },
+            "ACCOUNT": {
+                "SETTINGS_BUTTON_TEXT": "Settings",
+                "PROFILE_BUTTON_TEXT": "Show Profile",
+                "EXPERIMENTAL_BUTTON_TEXT": "Experimental Features",
+                "LOGIN": "Login",
+                "LOGOUT": "Logout"
+            },
+            "LANGUAGE_TITLE": "Select Language"
+        }
+    },
+    "TEAM": {
+        "PAGE": {
+            "INFO_TITLE": "Info",
+            "ADDRESS_TITLE": "Address",
+            "ATHLETE_TITLE": "Athletes",
+            "PARTICIPANTS_TITLE": "Participants",
+            "WEBSITE": {
+                "TITLE": "Homepage",
+                "OPEN_BTN_TEXT": "Open Homepage"
+            },
+            "CONTACT": {
+                "TITLE": "Contact",
+                "NAME": "Contact Person",
+                "EMAIL": "E-Mail Address",
+                "FAX": "Fax",
+                "PHONE": "Phone"
+            }
+        },
+        "LIST": {
+            "PAGE_TITLE": "Teams"
+        }
+    },
+    "FILES": {
+        "LIST": {
+            "PAGE_TITLE": "Files"
+        },
+        "FILE_NAMES": {
+            "MEETING_INFO": "Announcement",
+            "REGISTRATION_LIST": "Registration List",
+            "START_LIST": "Start List",
+            "RESULTS_LIST": "Results",
+            "DSV_DEFINITION": "DSV File",
+            "DSV_RESULTS": "DSV Results File",
+            "LENEX_DEFINITION": "LENEX File",
+            "LENEX_RESULTS": "LENEX Results File",
+            "REGISTRATION_SOFTWARE": "Registration Software For Foreign Clubs",
+            "DATA_PROTECTION": "Data Protection",
+            "PRIVACY_INFORMATION": "Privacy Information (DSV)",
+            "OVERNIGHT_STAY_TICKETS": "Order Overnight Stay/Catering/Extra Tickets "
+        },
+        "NO_FILES_MESSAGE": "For this meeting no files could be found."
+    },
+    "MEETINGS": {
+        "LIST": {
+            "PAGE_TITLE": "Meetings"
+        }
+    },
+    "LIVE": {
+        "NO_STARTS_MESSAGE": "There are currently no starts available for the livetiming.",
+        "NO_LIVETIMING_MESSAGE": "This meeting does not support the livetiming feature.",
+        "NO_LIVETIMING_YET_MESSAGE": "The livetiming will be available after the start list has been published.",
+        "NO_CONTENT_MESSAGE": "Unable to load content.",
+        "STREAM_BUTTON_TEXT": "Livestream on {{platform}}"
+    },
+    "AUTH": {
+        "LOGOUT": {
+            "TITLE": "Logout",
+            "INFO_TEXT": "You have been logged out successfully."
+        }
+    },
+    "USER": {
+        "PROFILE": {
+            "TITLE": "User Profile",
+            "NOT_AUTHED_MESSAGE": "You are not logged in!",
+            "USER_DATA_TITLE": "Stored Information",
+            "INTERNAL_ID": "Internal ID",
+            "USERNAME": "Username",
+            "MAIL": "E-Mail",
+            "GIVEN_NAME": "Given Name",
+            "FAMILY_NAME": "Family Name",
+            "ACTION_BUTTON_TITLE": "Actions",
+            "DELETE_USER_BUTTON_TEXT": "Delete Account",
+            "CHANGE_DATA_BUTTON_TEXT": "Change User Data"
+        },
+        "SETTINGS": {
+            "USER_ATHLETE": {
+                "INFO_TEXT": "Users who are athletes themselves can use this settings to define which athlete their account belongs to. This information is used for example to show you upcoming starts in a widget and other things.",
+                "TITLE": "Your Accounts Athlete",
+                "THIS_IS_YOU_TITLE": "That's You:",
+                "NO_USER_SET": "Your account is currently not assigned to any athlete."
+            }
+        }
+    },
+    "WIDGET": {
+        "LOGIN_REQUIRED": "In order to use this widget you have to be logged in.",
+        "COMING_SOON": {
+            "MAIN_TEXT": "This dashboard will be extended in the future and new widgets will be added."
+        },
+        "NUMBER_OF": {
+            "STARTS": "Starts",
+            "HEATS": "Heats",
+            "ATHLETES": "Athletes",
+            "TEAMS": "Teams"
+        },
+        "DELAY": {
+            "TITLE": "Delay",
+            "BEHIND_SCHEDULE": "behind Schedule",
+            "AHEAD_OF_SCHEDULE": "ahead of Schedule",
+            "NO_HEAT_DATA_MESSAGE": "It is currently not possible to calculate the delay."
+        },
+        "FAVORITES": {
+            "TITLE": "Favorites",
+            "NO_FAVORITES": "You can follow athletes using the athlete page to have them shown here."
+        },
+        "STARTS": {
+            "TITLE": "Upcoming Starts",
+            "NO_OWN_ATHLETE": "Select which athlete you are in order to use this widget.",
+            "SET_OWN_ATHLETE_BUTTON": "Set Athlete",
+            "NO_STARTS": "No starts could be found.",
+            "SHOW_STARTS_BUTTON": "Show all starts"
+        },
+        "FILE": {
+            "NOT_FOUND_MESSAGE": "{{filename}} was not found."
+        },
+        "WEBLINKS": {
+            "TITLE": "Weblinks",
+            "LIVESTREAM_LINK_TEXT": "Livestream",
+            "WEBSITE_LINK_TEXT": "Website",
+            "INSTAGRAM_LINK_TEXT": "Instagram",
+            "FACEBOOK_LINK_TEXT": "Facebook"
+        },
+        "SPONSORS": {
+            "TITLE": "Sponsors",
+            "NO_SPONSORS": "No Entries"
+        }
+    },
+    "ENTRY_PAGE": {
+        "ABOUT_TEXT": "SwimResults enables athletes, coaches, family and friends to view starts, results, places, livetiming and more for participating swimming competitions in an easy and interactive manner.",
+        "INFO_LINKS_TITLE": "Informative Links"
+    },
+    "DASHBOARD": {
+        "WELCOME_MESSAGE": "Welcome back, {{username}}!",
+        "FIND_MORE_MESSAGE": "The Dashboard displays most important information. Livetiming, athlete and team search and events can be found in the menu."
+    },
+    "REPORT": {
+        "DIALOG": {
+            "TITLE": "Report a Problem",
+            "TITLE_WITH_NAME": "Report a Problem with '{{subjectName}}'",
+            "DESCRIPTION": "Did you find an error or a problem? Here you can easily submit a report.",
+            "MESSAGE_LABEL": "Problem Description",
+            "SUBMIT": {
+                "SUCCESS_MESSAGE": "Sent Report!",
+                "FAILURE_MESSAGE": "Sending failed!"
+            }
+        }
+    },
+    "LIVETIMING_CONTROLS": {
+        "RUNNING_HEAT": "Running Heat",
+        "RUNNING_EVENT": "Running Event",
+        "RUNNING_HEAT_STATE": "Running Heat State",
+        "TITLE": "Live Timing Controls"
+    },
+    "SETTINGS": {
+        "LIVE_TIMING": {
+            "TITLE": "Live Timing Settings",
+            "ADDRESS": "Address",
+            "PASSWORD": "Password",
+            "SERVER": "Server",
+            "PORT": "Port",
+            "SAVE_BUTTON": "Save"
+        },
+        "LANGUAGE": {
+            "TITLE": "Language",
+            "ENGLISH": "EN - English",
+            "GERMAN": "DE - German"
+        },
+        "LOG": {
+            "TOGGLE_BUTTON": "Toggle Log"
+        }
+    },
     "LIVE_TIMING": {
-      "TITLE": "Live Timing Settings",
-      "ADDRESS": "Address",
-      "PASSWORD": "Password",
-      "SERVER": "Server",
-      "PORT": "Port",
-      "SAVE_BUTTON": "Save"
+        "STATUS": {
+            "EVENT": "Event",
+            "HEAT": "Heat"
+        },
+        "TABLE_HEADER": {
+            "NAME": "Name",
+            "TEAM": "Team",
+            "METERS": "Meters",
+            "LAP": "Lap",
+            "TIME": "Time"
+        }
     },
-    "LANGUAGE": {
-      "TITLE": "Language",
-      "ENGLISH": "EN - English",
-      "GERMAN": "DE - German"
-    },
-    "LOG": {
-      "TOGGLE_BUTTON": "Toggle Log"
+    "STATE": {
+        "RUNNING": "Running",
+        "NOT_RUNNING": "Not Running",
+        "READY": "Ready",
+        "CONNECTED": "Connected",
+        "DISCONNECTED": "Disconnected",
+        "STOPPED": "Stopped",
+        "ERROR": "Error",
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "OK": "OK"
     }
-  },
-  "LIVE_TIMING": {
-    "STATUS": {
-      "EVENT": "Event",
-      "HEAT": "Heat"
-    },
-    "TABLE_HEADER": {
-      "NAME": "Name",
-      "TEAM": "Team",
-      "METERS": "Meters",
-      "LAP": "Lap",
-      "TIME": "Time"
-    }
-  },
-  "STATE": {
-    "RUNNING": "Running",
-    "NOT_RUNNING": "Not Running",
-    "READY": "Ready",
-    "CONNECTED": "Connected",
-    "DISCONNECTED": "Disconnected",
-    "STOPPED": "Stopped",
-    "ERROR": "Error",
-    "ACTIVE": "Active",
-    "INACTIVE": "Inactive",
-    "OK": "OK"
-  }
 }
