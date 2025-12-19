@@ -21,4 +21,27 @@ export class ImportLogComponent {
       default: return 'info';
     }
   }
+
+  getReversedLogs(): LogEvent[] {
+    return [...this.logs].reverse();
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  formatTimestamp(timestamp: string): string {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch (e) {
+      return timestamp;
+    }
+  }
 }

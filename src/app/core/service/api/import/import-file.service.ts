@@ -102,22 +102,31 @@ export class ImportFileService extends BaseService {
         this.abortController = new AbortController();
         this.streamActive = true;
 
+        const response = await fetch(streamUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/event-stream',
+                ...(authHeader ? { 'Authorization': authHeader } : {})
+            },
+            signal: this.abortController.signal
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        console.log('SSE connection opened');
+        this.connectionSubject.next(true);
+
+        // Start reading the stream in the background (don't await)
+        this.readStream(response);
+    }
+
+    /**
+     * Read SSE stream in the background
+     */
+    private async readStream(response: Response): Promise<void> {
         try {
-            const response = await fetch(streamUrl, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'text/event-stream',
-                    ...(authHeader ? { 'Authorization': authHeader } : {})
-                },
-                signal: this.abortController.signal
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            console.log('SSE connection opened');
-            this.connectionSubject.next(true);
 
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
@@ -193,10 +202,6 @@ export class ImportFileService extends BaseService {
             this.closeStream();
         }
     }
-
-    /**
-     * Close the SSE connection
-     */
     public closeStream(): void {
         if (this.abortController) {
             this.abortController.abort();

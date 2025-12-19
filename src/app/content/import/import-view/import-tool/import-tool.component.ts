@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, inject} from '@angular/core';
 import {EventService, FileService} from "../../../../core/service/api";
 import {MeetingEvent} from "../../../../core/model/meeting/meeting-event.model";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ImportFileRequest, ImportFileService} from "../../../../core/service/api/import/import-file.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ImportTextDialogComponent} from "./import-text-dialog.component";
@@ -33,7 +33,6 @@ export class ImportToolComponent implements OnInit {
     private dialog = inject(MatDialog);
 
     @Input() meeting: MeetingImpl = {} as MeetingImpl;
-    @Input() streamId: string = '';
 
     fileTypeList = [
         {name: 'DSV', value: "dsv"},
@@ -117,6 +116,21 @@ export class ImportToolComponent implements OnInit {
             }
         }
 
+        // Close previous stream and create a fresh one
+        this.importService.closeStream();
+        const sessionId = this.importService.generateStreamId();
+
+        // Open the stream and wait for it to be established before sending import request
+        this.importService.openStream(sessionId).then(() => {
+            console.log('Stream established, sending import request...');
+            this.sendImportRequest(sessionId, excludes, includes);
+        }).catch((error) => {
+            console.error('Failed to establish stream:', error);
+            this.runningImport = false;
+        });
+    }
+
+    private sendImportRequest(sessionId: string, excludes: number[], includes: number[]) {
         const data: ImportFileRequest = {
             url: this.importUrl,
             text: "",
@@ -125,7 +139,7 @@ export class ImportToolComponent implements OnInit {
             exclude_events: excludes,
             include_events: includes,
             meeting: this.meeting.meet_id,
-            session_id: this.streamId
+            session_id: sessionId
         }
 
         if (this.importFileType === 'pdf_txt') {
@@ -171,7 +185,6 @@ export class ImportToolComponent implements OnInit {
                 }
             })
         }
-
     }
 
     setCurrentFileForImport() {

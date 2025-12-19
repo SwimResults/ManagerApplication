@@ -50,7 +50,9 @@ export class ImportStreamViewComponent implements OnInit, OnDestroy {
     this.importFileService.log$
       .pipe(takeUntil(this.destroy$))
       .subscribe(log => {
+        console.log('Log received:', log);
         this.logs.push(log);
+        console.log('Total logs:', this.logs.length);
       });
   }
 

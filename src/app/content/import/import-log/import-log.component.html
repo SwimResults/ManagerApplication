@@ -2,12 +2,12 @@
     <h3>Import Logs</h3>
     <div class="log-list" *ngIf="logs.length > 0">
         <div class="log-entry"
-             *ngFor="let log of logs"
+             *ngFor="let log of getReversedLogs(); trackBy: trackByIndex"
              [class]="'level-' + log.level.toLowerCase()">
             <mat-icon class="log-icon">{{ getLogIcon(log.level) }}</mat-icon>
             <div class="log-content">
+                <span class="log-timestamp">{{ formatTimestamp(log.timestamp) }}</span>
                 <span class="log-message">{{ log.message }}</span>
-                <span class="log-timestamp">{{ log.timestamp }}</span>
             </div>
         </div>
     </div>

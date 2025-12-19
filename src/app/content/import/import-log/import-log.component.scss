@@ -42,15 +42,17 @@
                 flex-direction: column;
                 gap: 4px;
 
-                .log-message {
-                    font-size: 14px;
-                    line-height: 1.4;
-                }
-
                 .log-timestamp {
                     font-size: 11px;
                     color: #999;
                     font-family: monospace;
+                    font-weight: 600;
+                    order: -1;
+                }
+
+                .log-message {
+                    font-size: 14px;
+                    line-height: 1.4;
                 }
             }
 
