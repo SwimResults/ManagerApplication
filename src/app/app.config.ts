@@ -2,7 +2,7 @@ import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
-import {HTTP_INTERCEPTORS, HttpClient, provideHttpClient} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {provideTranslateService, TranslateLoader} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {JwtInterceptor} from './core/interceptor/jwt.interceptor';
@@ -19,8 +19,6 @@ export function storageFactory(): OAuthStorage {
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({eventCoalescing: true}),
-        provideRouter(routes),
-        provideHttpClient(),
         provideTranslateService({
             defaultLanguage: 'de',
             loader: {
@@ -42,5 +40,7 @@ export const appConfig: ApplicationConfig = {
         {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
         {provide: OAuthStorage, useFactory: storageFactory},
         {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500}},
+        provideRouter(routes),
+        provideHttpClient(withInterceptorsFromDi()),
     ]
 };
