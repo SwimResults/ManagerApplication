@@ -23,6 +23,7 @@ export class AuthService {
     }
 
     setup() {
+        console.log("loading auth config", authConfig)
         this.oAuthService.configure(authConfig);
         this.oAuthService.loadDiscoveryDocumentAndTryLogin().then(_ => {
             this.refreshToken().then(_ => {

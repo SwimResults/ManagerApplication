@@ -12,7 +12,7 @@ export class CurrentMeetingService {
 
     private router = inject(Router)
 
-    setCurrentMeeting(meeting: MeetingImpl) {
+    setCurrentMeeting(meeting: MeetingImpl, refresh?: boolean) {
         console.log("set currentMeeting", meeting.meet_id);
 
         this.currentMeetingSubject.next(meeting);
@@ -28,6 +28,8 @@ export class CurrentMeetingService {
             body?.style.setProperty("--bg-gradient-2", "#ffa3ed");
         }
 
-        this.router.navigateByUrl('/')
+        if (refresh) {
+            this.router.navigateByUrl('/')
+        }
     }
 }

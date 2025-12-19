@@ -7,10 +7,11 @@ import {HeaderComponent} from './layout/header/header.component';
 import {MatIconRegistry} from '@angular/material/icon';
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
 import {LiveTimingViewComponent} from './content/live-timing/live-timing-view/live-timing-view.component';
+import {ImportStreamViewComponent} from './content/import/import-stream-view/import-stream-view.component';
 
 @Component({
   selector: 'app-root',
-    imports: [RouterOutlet, FormsModule, SidebarComponent, StatusBarComponent, HeaderComponent, SplitComponent, SplitAreaComponent, LiveTimingViewComponent],
+    imports: [RouterOutlet, FormsModule, SidebarComponent, StatusBarComponent, HeaderComponent, SplitComponent, SplitAreaComponent, LiveTimingViewComponent, ImportStreamViewComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true

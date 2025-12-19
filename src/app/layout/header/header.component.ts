@@ -63,7 +63,7 @@ export class HeaderComponent implements OnInit {
     meetingSelectionChange($event: MatSelectChange) {
         console.log($event);
 
-        this.currentMeetingService.setCurrentMeeting($event.value);
+        this.currentMeetingService.setCurrentMeeting($event.value, true);
     }
 
     startLogin() {

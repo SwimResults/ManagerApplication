@@ -11,6 +11,7 @@
         "build-start": "npm run build && npm start",
         "serve": "ng serve",
         "serve_prod": "ng serve --configuration production",
+        "serve_test": "ng serve --configuration test",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "electron": "electron .",
