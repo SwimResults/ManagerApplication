@@ -4,6 +4,7 @@ import {MeetingEvent} from '../../../core/model/meeting/meeting-event.model';
 import {EventListHeatImpl} from '../../../core/model/start/event-list-heat.model';
 import {EventService} from '../../../core/service/api';
 import {SnackBarService} from '../../../core/service/ui/snack-bar.service';
+import {DialogService} from '../../../core/service/dialog/dialog.service';
 
 @Component({
     selector: 'tr[sr-event-list-event-row]',
@@ -16,6 +17,7 @@ import {SnackBarService} from '../../../core/service/ui/snack-bar.service';
 export class EventListEventRowComponent {
     private eventService = inject(EventService);
     private snackBarService = inject(SnackBarService);
+    private dialogService = inject(DialogService);
 
     @Input() event!: MeetingEvent;
     @Input() heatInfo?: EventListHeatImpl
@@ -27,7 +29,9 @@ export class EventListEventRowComponent {
     }
 
     editEventTime() {
-
+        if (this.heatInfo?.first_heat) {
+            this.dialogService.openHeatTimeUpdateDialog(this.heatInfo?.first_heat)
+        }
     }
 
     deleteEvent() {

@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Startzeitpunkt anpassen</h1>
+<mat-dialog-content>
+
+    <h2>Wettkampf {{data.heat.event}}, Lauf {{data.heat.number}}</h2>
+
+    <mat-form-field>
+        <mat-label>Start</mat-label>
+        <input matInput [(ngModel)]="data.heat.start_delay_estimation">
+    </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button (click)="saveHeatTime()">Speichern</button>
+    <button (click)="dialogRef.close(false)">Abbrechen</button>
+</mat-dialog-actions>

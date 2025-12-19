@@ -7,6 +7,11 @@ import {
 import {CurrentMeetingService} from '../current-meeting.service';
 import {MeetingImpl} from '../../model/meeting/meeting.model';
 import {Subject, Subscription} from 'rxjs';
+import {Heat} from '../../model/start/heat.model';
+import {
+    HeatUpdateTimeDialogComponent,
+    HeatUpdateTimeDialogData
+} from '../../../content/dialog/heat/heat-update-time-dialog/heat-update-time-dialog.component';
 
 @Injectable({
     providedIn: 'root'
@@ -39,6 +44,22 @@ export class DialogService implements OnDestroy {
                 incident: incident,
                 meeting: this.meeting
             } as IncidentEditDialogData
+        })
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                eventSubject?.next(result);
+            }
+        });
+    }
+
+    openHeatTimeUpdateDialog(heat: Heat, eventSubject?: Subject<Heat>) {
+        const dialogRef = this.dialog.open(HeatUpdateTimeDialogComponent, {
+            width: '50%',
+            maxWidth: '400px',
+            data: {
+                heat: heat
+            } as HeatUpdateTimeDialogData
         })
 
         dialogRef.afterClosed().subscribe(result => {
