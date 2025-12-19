@@ -1,15 +1,15 @@
 <div class="progress-container" *ngIf="progress">
     <div class="progress-header">
         <h3>Import Progress</h3>
-        <span class="progress-percentage">{{ progress.percentage }}%</span>
+        <span class="progress-percentage">{{ getPercentage() }}%</span>
     </div>
     <mat-progress-bar
         mode="determinate"
-        [value]="progress.percentage">
+        [value]="getPercentage()">
     </mat-progress-bar>
     <div class="progress-details">
-        <span class="progress-message">{{ progress.message }}</span>
-        <span class="progress-count">{{ progress.current }} / {{ progress.total }}</span>
+        <span class="progress-message">{{ getMessage() }}</span>
+        <span class="progress-count" *ngIf="progress.current && progress.total">{{ progress.current }} / {{ progress.total }}</span>
     </div>
 </div>
 

@@ -13,14 +13,16 @@ export interface ImportFileRequest {
     exclude_events: number[],
     include_events: number[],
     meeting: string,
-    stream_id: string,
+    session_id: string,
 }
 
 export interface ProgressEvent {
-    current: number;
-    total: number;
-    percentage: number;
-    message: string;
+    type?: string;
+    progress?: number;  // 0-100 from Go server
+    message?: string;
+    current?: number;   // for alternative format
+    total?: number;     // for alternative format
+    percentage?: number; // for alternative format
 }
 
 export interface LogEvent {
@@ -67,13 +69,13 @@ export class ImportFileService extends BaseService {
 
     public importFile(data: ImportFileRequest): Observable<any> {
         // Automatically set the stream_id from the active stream
-        data.stream_id = this.currentStreamId;
+        data.session_id = this.currentStreamId;
         return this.apiService.post(this.API_URL, "file", data)
     }
 
     public readToPdfBeforeImport(data: ImportFileRequest): Observable<ImportFileRequest> {
         // Automatically set the stream_id from the active stream
-        data.stream_id = this.currentStreamId;
+        data.session_id = this.currentStreamId;
         return this.apiService.post(this.API_URL, "pdf_to_text", data)
     }
 

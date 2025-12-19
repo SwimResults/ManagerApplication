@@ -125,7 +125,7 @@ export class ImportToolComponent implements OnInit {
             exclude_events: excludes,
             include_events: includes,
             meeting: this.meeting.meet_id,
-            stream_id: this.streamId
+            session_id: this.streamId
         }
 
         if (this.importFileType === 'pdf_txt') {

@@ -11,4 +11,15 @@ import {CommonModule} from '@angular/common';
 })
 export class ImportProgressComponent {
   @Input() progress: ProgressEvent | null = null;
+
+  getPercentage(): number {
+    if (!this.progress) return 0;
+    // Handle both formats: Go sends 'progress' (0-100), alternative might have 'percentage'
+    return this.progress.percentage || this.progress.progress || 0;
+  }
+
+  getMessage(): string {
+    if (!this.progress) return '';
+    return this.progress.message || '';
+  }
 }
