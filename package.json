@@ -8,6 +8,7 @@
         "ng": "ng",
         "start": "electron-forge start",
         "build": "ng build --base-href ./",
+        "build-start": "npm run build && npm start",
         "serve": "ng serve",
         "serve_prod": "ng serve --configuration production",
         "watch": "ng build --watch --configuration development",
@@ -35,6 +36,7 @@
         "angular-split": "^20.0.0",
         "dgram": "^1.0.1",
         "electron-squirrel-startup": "^1.0.1",
+        "express": "^5.2.1",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0",
         "zone.js": "~0.15.0"

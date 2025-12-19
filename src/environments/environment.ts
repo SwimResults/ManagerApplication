@@ -3,6 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+    production: false,
     environment: 'development',
     env_color: "#017e93",
     api_urls: {
