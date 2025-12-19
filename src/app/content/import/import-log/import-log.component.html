@@ -1,0 +1,17 @@
+<div class="log-container">
+    <h3>Import Logs</h3>
+    <div class="log-list" *ngIf="logs.length > 0">
+        <div class="log-entry" 
+             *ngFor="let log of logs"
+             [class]="'level-' + log.level.toLowerCase()">
+            <mat-icon class="log-icon">{{ getLogIcon(log.level) }}</mat-icon>
+            <div class="log-content">
+                <span class="log-message">{{ log.message }}</span>
+                <span class="log-timestamp">{{ log.timestamp }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="log-placeholder" *ngIf="logs.length === 0">
+        <p>No logs yet. Start a stream and trigger an import to see logs.</p>
+    </div>
+</div>

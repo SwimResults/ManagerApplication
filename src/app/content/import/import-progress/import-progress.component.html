@@ -1,0 +1,18 @@
+<div class="progress-container" *ngIf="progress">
+    <div class="progress-header">
+        <h3>Import Progress</h3>
+        <span class="progress-percentage">{{ progress.percentage }}%</span>
+    </div>
+    <mat-progress-bar 
+        mode="determinate" 
+        [value]="progress.percentage">
+    </mat-progress-bar>
+    <div class="progress-details">
+        <span class="progress-message">{{ progress.message }}</span>
+        <span class="progress-count">{{ progress.current }} / {{ progress.total }}</span>
+    </div>
+</div>
+
+<div class="progress-placeholder" *ngIf="!progress">
+    <p>No active import progress</p>
+</div>

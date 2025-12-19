@@ -1,0 +1,29 @@
+<div class="stream-controls">
+    <div class="stream-info">
+        @if (streamId) {
+            <span class="stream-id">Stream ID: {{ streamId }}</span>
+        }
+        <span class="connection-status" [class.connected]="isConnected" [class.disconnected]="!isConnected">
+            <mat-icon>{{ isConnected ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+            {{ isConnected ? 'Connected' : 'Disconnected' }}
+        </span>
+    </div>
+    <div class="button-group">
+        <sr-btn
+            [color]="isConnected ? 'pdf' : 'info'"
+            (click)="isConnected ? closeStream() : openStream()">
+            {{isConnected ? 'Close Stream' : 'Open Stream'}}
+        </sr-btn>
+        @if (logs.length > 0) {
+            <sr-btn (click)="clearLogs()">
+                Clear Logs
+            </sr-btn>
+        }
+    </div>
+</div>
+
+<sr-import-progress [progress]="currentProgress"></sr-import-progress>
+
+<hr>
+
+<sr-import-log [logs]="logs"></sr-import-log>
