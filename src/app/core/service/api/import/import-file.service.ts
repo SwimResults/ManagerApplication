@@ -3,6 +3,7 @@ import {BaseService} from "../base.service";
 import {environment} from "../../../../../environments/environment";
 import {Observable, Subject} from "rxjs";
 import {ApiService} from "../api.service";
+import {OAuthService} from "angular-oauth2-oidc";
 
 export interface ImportFileRequest {
     url: string,
@@ -33,8 +34,11 @@ export interface LogEvent {
 })
 export class ImportFileService extends BaseService {
     private apiService = inject(ApiService);
+    private oAuthService = inject(OAuthService);
     private eventSource: EventSource | null = null;
     private streamActive = false;
+    private abortController: AbortController | null = null;
+    private currentStreamId: string = '';
 
     // Subjects for streaming data
     private progressSubject = new Subject<ProgressEvent>();
@@ -50,11 +54,26 @@ export class ImportFileService extends BaseService {
         super("ImportFileService", environment.api_urls.import_service)
     }
 
+    /**
+     * Get the authorization header for SSE connection
+     */
+    private getAuthHeader(): string | null {
+        if (!this.oAuthService.hasValidIdToken()) {
+            console.log('No valid token for SSE connection');
+            return null;
+        }
+        return this.oAuthService.authorizationHeader();
+    }
+
     public importFile(data: ImportFileRequest): Observable<any> {
+        // Automatically set the stream_id from the active stream
+        data.stream_id = this.currentStreamId;
         return this.apiService.post(this.API_URL, "file", data)
     }
 
     public readToPdfBeforeImport(data: ImportFileRequest): Observable<ImportFileRequest> {
+        // Automatically set the stream_id from the active stream
+        data.stream_id = this.currentStreamId;
         return this.apiService.post(this.API_URL, "pdf_to_text", data)
     }
 
@@ -68,50 +87,93 @@ export class ImportFileService extends BaseService {
     /**
      * Open SSE connection to the stream endpoint
      */
-    public openStream(sessionId: string): void {
+    public async openStream(sessionId: string): Promise<void> {
         if (this.streamActive) {
             console.warn('Stream already active');
             return;
         }
 
+        this.currentStreamId = sessionId;
         const streamUrl = `${this.API_URL}stream/${sessionId}`;
-        this.eventSource = new EventSource(streamUrl);
+        const authHeader = this.getAuthHeader();
+
+        this.abortController = new AbortController();
         this.streamActive = true;
 
-        this.eventSource.onopen = () => {
+        try {
+            const response = await fetch(streamUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'text/event-stream',
+                    ...(authHeader ? { 'Authorization': authHeader } : {})
+                },
+                signal: this.abortController.signal
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             console.log('SSE connection opened');
             this.connectionSubject.next(true);
-        };
 
-        this.eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'progress') {
-                    this.progressSubject.next(data.data as ProgressEvent);
-                } else if (data.type === 'log') {
-                    this.logSubject.next(data.data as LogEvent);
-                }
-            } catch (error) {
-                console.error('Error parsing SSE message:', error);
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+
+            if (!reader) {
+                throw new Error('No response body reader available');
             }
-        };
 
-        this.eventSource.onerror = (error) => {
-            console.error('SSE connection error:', error);
+            // Read the stream
+            while (this.streamActive) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const dataStr = line.substring(6);
+                        try {
+                            const data = JSON.parse(dataStr);
+
+                            if (data.type === 'progress') {
+                                this.progressSubject.next(data.data as ProgressEvent);
+                            } else if (data.type === 'log') {
+                                this.logSubject.next(data.data as LogEvent);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing SSE message:', error, dataStr);
+                        }
+                    }
+                }
+            }
+        } catch (error: any) {
+            if (error.name !== 'AbortError') {
+                console.error('SSE connection error:', error);
+            }
             this.closeStream();
-        };
+        }
     }
 
     /**
      * Close the SSE connection
      */
     public closeStream(): void {
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+        }
         if (this.eventSource) {
             this.eventSource.close();
             this.eventSource = null;
         }
         this.streamActive = false;
+        this.currentStreamId = '';
         this.connectionSubject.next(false);
     }
 
@@ -120,5 +182,12 @@ export class ImportFileService extends BaseService {
      */
     public isStreamActive(): boolean {
         return this.streamActive;
+    }
+
+    /**
+     * Get the current stream ID
+     */
+    public getCurrentStreamId(): string {
+        return this.currentStreamId;
     }
 }
