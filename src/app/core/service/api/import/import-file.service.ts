@@ -124,27 +124,59 @@ export class ImportFileService extends BaseService {
                 throw new Error('No response body reader available');
             }
 
+            // Buffer for incomplete lines
+            let buffer = '';
+            let readCount = 0;
+
+            console.log('Starting to read SSE stream...');
+
             // Read the stream
             while (this.streamActive) {
                 const { done, value } = await reader.read();
+                readCount++;
+
+                console.log(`Read iteration ${readCount}, done: ${done}, bytes: ${value?.length || 0}`);
 
                 if (done) {
+                    console.log('Stream done, exiting read loop');
                     break;
                 }
 
+                // Decode and append to buffer
                 const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
+                console.log('Received chunk:', chunk);
+                buffer += chunk;
+
+                // Split by double newline (SSE message separator) or single newline
+                const lines = buffer.split('\n');
+
+                // Keep the last incomplete line in buffer
+                buffer = lines.pop() || '';
 
                 for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const dataStr = line.substring(6);
+                    const trimmedLine = line.trim();
+
+                    // Skip empty lines
+                    if (!trimmedLine) {
+                        continue;
+                    }
+
+                    console.log('SSE line received:', trimmedLine);
+
+                    if (trimmedLine.startsWith('data:')) {
+                        const dataStr = trimmedLine.substring(5).trim();
                         try {
                             const data = JSON.parse(dataStr);
 
+                            console.log('Parsed SSE data:', data);
+
+                            // Handle both nested and flat data structures
                             if (data.type === 'progress') {
-                                this.progressSubject.next(data.data as ProgressEvent);
+                                const progressData = data.data || data;
+                                this.progressSubject.next(progressData as ProgressEvent);
                             } else if (data.type === 'log') {
-                                this.logSubject.next(data.data as LogEvent);
+                                const logData = data.data || data;
+                                this.logSubject.next(logData as LogEvent);
                             }
                         } catch (error) {
                             console.error('Error parsing SSE message:', error, dataStr);
