@@ -130,6 +130,11 @@ td, th {
     padding: 2px 4px;
 }
 
+a {
+    color: var(--color-text-main);
+    text-decoration: underline;
+}
+
 html, body {
     height: 100%;
 }

@@ -1,0 +1,12 @@
+@if (fetching.fetching) {
+    <sr-spinner></sr-spinner>
+}
+@if (!fetching.fetching) {
+    @for (start of starts; track start) {
+        <sr-start-list-tile
+            [start]="start"
+            [config]="config"
+            [athletes]="athletes"
+        ></sr-start-list-tile>
+    }
+}

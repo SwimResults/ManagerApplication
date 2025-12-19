@@ -1,6 +1,11 @@
 <div class="status">
-  <app-status-bar-element [status]="StatusBarStatus.INFO" text="Keine Veranstaltung ausgewählt"></app-status-bar-element>
-  <app-status-bar-element [status]="StatusBarStatus.SUCCESS" text="OMEGA"></app-status-bar-element>
-  <app-status-bar-element [status]="StatusBarStatus.ERROR" text="ALGE"></app-status-bar-element>
-  <app-status-bar-element [status]="StatusBarStatus.WARNING" text="SwimResults"></app-status-bar-element>
+    @if (meeting) {
+
+        <app-status-bar-element [status]="StatusBarStatus.INFO" [text]="meeting.getFullSeriesNameWithYear()"></app-status-bar-element>
+    } @else {
+        <app-status-bar-element [status]="StatusBarStatus.WARNING" text="Keine Veranstaltung ausgewählt"></app-status-bar-element>
+    }
+    <app-status-bar-element [status]="StatusBarStatus.WARNING" text="OMEGA"></app-status-bar-element>
+    <app-status-bar-element [status]="getAlgeState()" text="ALGE"></app-status-bar-element>
+    <app-status-bar-element [status]="getSrState()" text="SwimResults"></app-status-bar-element>
 </div>

@@ -1,0 +1,30 @@
+.list-mode-select {
+    text-align: center;
+    margin-top: 34px;
+}
+
+.event-start-list {
+    margin: 12px 0;
+}
+
+.heat-starts {
+    display: block;
+    margin: 34px 0;
+
+    &:first-child {
+        margin: 0 0 34px;
+    }
+}
+
+.event-files {
+    display: block;
+    margin-bottom: 22px;
+
+    a {
+        margin-right: 12px;
+        margin-bottom: 6px;
+        color: unset;
+        text-decoration: none;
+        display: inline-block;
+    }
+}

@@ -5,6 +5,7 @@ import {ImportViewComponent} from './content/import/import-view/import-view.comp
 import {EventListViewComponent} from './content/event/event-list-view/event-list-view.component';
 import {AuthComponent} from './content/auth/auth.component';
 import {LogoutComponent} from './content/auth/logout/logout.component';
+import {EventViewComponent} from './content/event/event-view/event-view.component';
 
 export let routes: Routes;
 routes = [
@@ -17,14 +18,9 @@ routes = [
         pathMatch: "full",
         component: MainComponent
     },
-    { path: 'auth',                     component: AuthComponent },
-    { path: 'auth/logout',              component: LogoutComponent },
-    {
-        path: "import",
-        component: ImportViewComponent
-    },
-    {
-        path: "schedule",
-        component: EventListViewComponent
-    }
+    {path: 'auth', component: AuthComponent},
+    {path: 'auth/logout', component: LogoutComponent},
+    {path: "import", component: ImportViewComponent},
+    {path: "schedule", component: EventListViewComponent},
+    { path: "event/:event_number",  component: EventViewComponent },
 ];

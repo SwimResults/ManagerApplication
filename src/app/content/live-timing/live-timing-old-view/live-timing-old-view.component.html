@@ -68,46 +68,7 @@
       <button [disabled]="liveTimingActive" class="btn-right" (click)="saveConfig()">{{'SETTINGS.LIVE_TIMING.SAVE_BUTTON' | translate}}</button>
     </sr-group-box>
 
-    <sr-group-box boxTitle="Live Timing">
-      <div class="live-status">
-        <span>{{'LIVE_TIMING.STATUS.EVENT' | translate}} {{currentHeat.event}} - {{currentHeat.style}}</span>
-        <span>{{'LIVE_TIMING.STATUS.HEAT' | translate}} {{currentHeat.heat}}</span>
-        <div>
-          <span class="status-box {{getClassForState(state)}}">{{"STATE." + state | translate}}</span>
-          <span class="status-box">{{currentHeat.runningTime | algeTime}}</span>
-        </div>
-      </div>
-      <table>
-        <tr>
-          <th>&nbsp;</th>
-          <th>{{'LIVE_TIMING.TABLE_HEADER.NAME' | translate}}</th>
-          <th>{{'LIVE_TIMING.TABLE_HEADER.TEAM' | translate}}</th>
-          <th>{{'LIVE_TIMING.TABLE_HEADER.METERS' | translate}}</th>
-          <th>{{'LIVE_TIMING.TABLE_HEADER.LAP' | translate}}</th>
-          @for (meter of getAvailableMeters(currentHeat); track meter) {
-            <th>{{'LIVE_TIMING.TABLE_HEADER.TIME' | translate}} {{meter}}m</th>
-          }
-        </tr>
-        @for (competitor of getCompetitorsSorted(currentHeat); track competitor) {
-          <tr>
-            <td>{{competitor.lane}}</td>
-            <td>{{competitor.first_name + " " + competitor.last_name}}</td>
-            <td>{{competitor.team}}</td>
-            <td>{{competitor.lapM}}</td>
-            <td>{{competitor.lap}}</td>
-            @for (meter of getAvailableMeters(currentHeat); track meter) {
-              @if (competitor.splits.has(meter)) {
-                <td>{{competitor.splits.get(meter)! | algeTime}}</td>
-              } @else {
-                <td></td>
-              }
-            }
-          </tr>
-        }
-      </table>
-
-      <br>
-
+    <sr-group-box boxTitle="Status">
       <div class="connection-status">
         <span>ALGE:</span>
         <span class="status-box {{getClassForConnectionState(algeState)}}">{{"STATE." + algeState | translate}}</span>

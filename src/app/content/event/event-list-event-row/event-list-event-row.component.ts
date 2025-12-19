@@ -5,11 +5,13 @@ import {EventListHeatImpl} from '../../../core/model/start/event-list-heat.model
 import {EventService} from '../../../core/service/api';
 import {SnackBarService} from '../../../core/service/ui/snack-bar.service';
 import {DialogService} from '../../../core/service/dialog/dialog.service';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
     selector: 'tr[sr-event-list-event-row]',
     imports: [
-        TranslatePipe
+        TranslatePipe,
+        RouterLink
     ],
     templateUrl: './event-list-event-row.component.html',
     styleUrl: './event-list-event-row.component.scss'
@@ -18,6 +20,7 @@ export class EventListEventRowComponent {
     private eventService = inject(EventService);
     private snackBarService = inject(SnackBarService);
     private dialogService = inject(DialogService);
+    private router = inject(Router);
 
     @Input() event!: MeetingEvent;
     @Input() heatInfo?: EventListHeatImpl
@@ -47,5 +50,9 @@ export class EventListEventRowComponent {
             }
         })
 
+    }
+
+    openEvent() {
+        this.router.navigateByUrl('/event/' + this.event.number);
     }
 }
