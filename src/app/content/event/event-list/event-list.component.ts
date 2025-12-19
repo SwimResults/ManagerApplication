@@ -33,6 +33,11 @@ export class EventListComponent implements OnInit {
 
     headingButtons: HeadingButton[] = [
         {
+            label: "",
+            icon: "refresh",
+            clickCallback: this.fetch.bind(this)
+        },
+        {
             label: "Wettkampf erstellen",
             icon: "flag",
             clickCallback: this.createEvent
@@ -45,6 +50,10 @@ export class EventListComponent implements OnInit {
     ];
 
     ngOnInit() {
+        this.fetch();
+    }
+
+    fetch() {
         this.eventService.getEventsAsPartsByMeeting(this.meeting.meet_id).subscribe(
             p => {
                 this.parts = p;
@@ -55,6 +64,7 @@ export class EventListComponent implements OnInit {
             this.heatInfos = new Map(heatInfos.events.map(e => [e.event_number, new EventListHeatImpl(e)]));
         });
 
+        this.incidents = new Map<number, IncidentImpl[]>();
         this.meetingService.getIncidentsByMeeting(this.meeting.meet_id).subscribe(incidents => {
             for (const incident of incidents) {
                 let event = 0;

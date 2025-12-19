@@ -22,4 +22,8 @@ export class IncidentService extends BaseService {
     public addIncident(incident: Incident): Observable<Incident> {
         return this.apiService.post(this.API_URL, "incident", incident);
     }
+
+    public deleteIncident(incident: Incident): Observable<void> {
+        return this.apiService.delete(this.API_URL, `incident/${incident._id}`);
+    }
 }

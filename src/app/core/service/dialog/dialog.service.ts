@@ -1,12 +1,12 @@
 import {inject, Injectable, OnDestroy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {IncidentImpl} from '../../model/meeting/incident.model';
+import {Incident, IncidentImpl} from '../../model/meeting/incident.model';
 import {
     IncidentEditDialogComponent, IncidentEditDialogData
 } from '../../../content/dialog/incident/incident-edit-dialog/incident-edit-dialog.component';
 import {CurrentMeetingService} from '../current-meeting.service';
 import {MeetingImpl} from '../../model/meeting/meeting.model';
-import {Subscription} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -31,8 +31,8 @@ export class DialogService implements OnDestroy {
         this.meetingSubscription.unsubscribe();
     }
 
-    openIncidentEditDialog(incident?: IncidentImpl) {
-        this.dialog.open(IncidentEditDialogComponent, {
+    openIncidentEditDialog(incident?: IncidentImpl, eventSubject?: Subject<Incident>) {
+        const dialogRef = this.dialog.open(IncidentEditDialogComponent, {
             width: '95%',
             maxWidth: '950px',
             data: {
@@ -40,5 +40,11 @@ export class DialogService implements OnDestroy {
                 meeting: this.meeting
             } as IncidentEditDialogData
         })
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                eventSubject?.next(result);
+            }
+        });
     }
 }

@@ -81,9 +81,9 @@ export class IncidentEditDialogComponent implements OnInit {
 
     saveIncident() {
         if (this.data.incident) {
-            this.incidentService.updateIncident(this.incident).subscribe(this.handleSaveResult)
+            this.incidentService.updateIncident(this.incident).subscribe(this.handleSaveResult())
         } else {
-            this.incidentService.addIncident(this.incident).subscribe(this.handleSaveResult)
+            this.incidentService.addIncident(this.incident).subscribe(this.handleSaveResult())
         }
     }
 

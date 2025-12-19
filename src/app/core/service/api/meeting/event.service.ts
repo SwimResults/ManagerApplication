@@ -6,6 +6,7 @@ import {Observable, shareReplay} from "rxjs";
 import {MeetingEvent} from "../../../model/meeting/meeting-event.model";
 import {MeetingPart} from "../../../model/meeting/meeting-part.model";
 import {MeetingEventLivetiming} from "../../../model/meeting/meeting-event-livetiming.model";
+import {Incident} from '../../../model/meeting/incident.model';
 
 @Injectable({
   providedIn: 'root'
@@ -80,5 +81,9 @@ export class EventService extends BaseService {
     public updateEventCertification(meeting: string, number: number): Observable<MeetingEvent> {
         const data = {toggle_certification: true};
         return this.apiService.post(this.API_URL, "event/meet/" + meeting + "/event/" + number + "/certification", data);
+    }
+
+    public deleteEvent(eventId: string): Observable<void> {
+        return this.apiService.delete(this.API_URL, `event/${eventId}`);
     }
 }
