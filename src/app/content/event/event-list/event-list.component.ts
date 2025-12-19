@@ -77,7 +77,6 @@ export class EventListComponent implements OnInit {
     }
 
     createIncident() {
-        console.log("open dialog")
         this.dialogService.openIncidentEditDialog();
     }
 }

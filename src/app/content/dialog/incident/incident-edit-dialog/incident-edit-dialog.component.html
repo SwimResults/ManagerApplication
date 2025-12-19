@@ -1,6 +1,90 @@
-<h1>Ereignis bearbeiten</h1>
+<h1 mat-dialog-title>Ereignis bearbeiten</h1>
 <mat-dialog-content>
-    <p>TODO</p>
+    <mat-form-field>
+        <mat-label>Typ</mat-label>
+        <mat-select [(ngModel)]="data.incident.type">
+            <mat-option value="EVENT">Ereignis</mat-option>
+            <mat-option value="DURATION">Zeitspanne</mat-option>
+            <mat-option value="TIMELESS">Ohne Zeit</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <br>
+
+    <mat-form-field>
+        <mat-label>Bezeichnung</mat-label>
+        <mat-select [(ngModel)]="data.incident.name">
+            @for (incidentName of incidentNames; track incidentName) {
+                <mat-option [value]="incidentName">{{ 'EVENT.LIST.INCIDENT.' + incidentName.toUpperCase() | translate }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Bezeichnungszusatz</mat-label>
+        <input matInput [(ngModel)]="data.incident.name_extension">
+    </mat-form-field>
+
+    <hr>
+
+    <p>Zeit muss als ISO Zeichenkette (2025-12-20T07:15:00Z) in UTC angegeben werden. Angezeigte Zeiten:</p>
+    <span class="status-box">
+            @if (data.incident.type === 'EVENT') {
+                <div class="time-container">
+            {{ data.incident.getStartTimeString() }}
+        </div>
+            }
+        @if (data.incident.type === 'DURATION') {
+            <div class="time-container">
+            <i>{{ data.incident.getDurationString() }}</i>
+        </div>
+        }
+        @if (data.incident.type === 'TIMELESS') {
+            <div class="time-container">
+            <i>&nbsp;</i>
+        </div>
+        }
+        @if (data.incident.type === 'EVENT') {
+            <div class="dot"></div>
+        }
+    </span>
+
+    <br>
+    <br>
+
+    <mat-form-field>
+        <mat-label>Start</mat-label>
+        <input matInput [(ngModel)]="data.incident.start">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Ende</mat-label>
+        <input matInput [(ngModel)]="data.incident.end">
+    </mat-form-field>
+
+    <hr>
+
+    <p>Es kann entweder der vorherige Wettkampf oder der Folgende ausgewählt werden</p>
+
+    @if (events) {
+        <mat-form-field>
+            <mat-label>Vorheriger Wettkampf</mat-label>
+            <mat-select [(ngModel)]="data.incident.prev_event">
+                @for (event of events; track event._id) {
+                    <mat-option [value]="event.number">{{event.number}} - {{ event.relay_distance ? event.relay_distance : event.distance }}m {{ 'COMMON.STYLE.' + event.style.name + '.NAME' | translate }} {{ event.name_extension }} {{ 'COMMON.GENDER.' + event.gender + '.NAME' | translate }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Folgender Wettkampf</mat-label>
+            <mat-select [(ngModel)]="data.incident.next_event">
+                @for (event of events; track event._id) {
+                    <mat-option [value]="event.number">{{event.number}} - {{ event.relay_distance ? event.relay_distance : event.distance }}m {{ 'COMMON.STYLE.' + event.style.name + '.NAME' | translate }} {{ event.name_extension }} {{ 'COMMON.GENDER.' + event.gender + '.NAME' | translate }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    }
 </mat-dialog-content>
 
 <mat-dialog-actions>

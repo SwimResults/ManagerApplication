@@ -1,22 +1,73 @@
-import {Component, inject} from '@angular/core';
-import {MatDialogActions, MatDialogContent, MatDialogRef} from '@angular/material/dialog';
-import {Incident} from '../../../../core/model/meeting/incident.model';
+import {Component, inject, OnInit} from '@angular/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogActions,
+    MatDialogContent,
+    MatDialogRef,
+    MatDialogTitle
+} from '@angular/material/dialog';
+import {Incident, IncidentImpl} from '../../../../core/model/meeting/incident.model';
+import {MatLabel, MatFormField} from '@angular/material/form-field';
+import {MatSelect, MatOption} from '@angular/material/select';
+import {FormsModule} from '@angular/forms';
+import {MatInput} from '@angular/material/input';
+import {TranslatePipe} from '@ngx-translate/core';
+import {MeetingImpl} from '../../../../core/model/meeting/meeting.model';
+import {EventService} from '../../../../core/service/api';
+import {MeetingEvent} from '../../../../core/model/meeting/meeting-event.model';
 
 export interface IncidentEditDialogData {
-    incident: Incident;
+    incident: IncidentImpl;
+    meeting: MeetingImpl;
 }
 
 @Component({
   selector: 'app-incident-edit-dialog',
     imports: [
         MatDialogContent,
-        MatDialogActions
+        MatDialogActions,
+        MatDialogTitle,
+        MatFormField,
+        MatLabel,
+        MatSelect,
+        MatOption,
+        FormsModule,
+        MatInput,
+        TranslatePipe
     ],
   templateUrl: './incident-edit-dialog.component.html',
   styleUrl: './incident-edit-dialog.component.scss'
 })
-export class IncidentEditDialogComponent {
+export class IncidentEditDialogComponent implements OnInit {
     dialogRef = inject<MatDialogRef<IncidentEditDialogComponent>>(MatDialogRef);
+    data = inject<IncidentEditDialogData>(MAT_DIALOG_DATA);
 
+    private eventService = inject(EventService)
+
+    events?: MeetingEvent[];
+
+    incidentNames = [
+        "WARMUP",
+        "JUDGES_MEETING",
+        "TEAM_LEADER_MEETING",
+        "BREAK",
+        "CEREMONY",
+    ];
+
+    constructor() {
+        if (!this.data.incident) {
+            this.data.incident = new IncidentImpl({
+                type: "EVENT",
+                start: "2025-12-20T07:15:00Z",
+                end: "2025-12-20T08:15:00Z",
+            } as Incident);
+        }
+    }
+
+    ngOnInit() {
+        this.eventService.getEventsByMeeting(this.data.meeting.meet_id).subscribe((events) => {
+            this.events = events;
+        })
+    }
 
 }
