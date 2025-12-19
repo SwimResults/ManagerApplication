@@ -3,6 +3,8 @@ import {MainComponent} from './layout/main/main.component';
 import {LiveTimingOldViewComponent} from './content/live-timing/live-timing-old-view/live-timing-old-view.component';
 import {ImportViewComponent} from './content/import/import-view/import-view.component';
 import {EventListViewComponent} from './content/event/event-list-view/event-list-view.component';
+import {AuthComponent} from './content/auth/auth.component';
+import {LogoutComponent} from './content/auth/logout/logout.component';
 
 export let routes: Routes;
 routes = [
@@ -15,6 +17,8 @@ routes = [
         pathMatch: "full",
         component: MainComponent
     },
+    { path: 'auth',                     component: AuthComponent },
+    { path: 'auth/logout',              component: LogoutComponent },
     {
         path: "import",
         component: ImportViewComponent

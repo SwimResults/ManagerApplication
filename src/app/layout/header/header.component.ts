@@ -5,6 +5,9 @@ import {MeetingImpl} from '../../core/model/meeting/meeting.model';
 import {MatSelect, MatOption, MatSelectChange, MatFormField} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {CurrentMeetingService} from '../../core/service/current-meeting.service';
+import {AuthService} from '../../core/service/auth.service';
+import {IsAuthedDirective} from '../../core/directive/is-authed.directive';
+import {OAuthService} from 'angular-oauth2-oidc';
 
 @Component({
     selector: 'app-header',
@@ -13,18 +16,31 @@ import {CurrentMeetingService} from '../../core/service/current-meeting.service'
         MatSelect,
         MatOption,
         MatFormField,
-        FormsModule
+        FormsModule,
+        IsAuthedDirective,
     ],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
-    meetingService = inject(MeetingService);
-    currentMeetingService = inject(CurrentMeetingService);
+    private meetingService = inject(MeetingService);
+    private currentMeetingService = inject(CurrentMeetingService);
+    private authService = inject(AuthService)
+    private oAuthService = inject(OAuthService);
 
     meetings: MeetingImpl[] = [];
 
     selectedMeeting?: MeetingImpl;
+
+    kcUser: any;
+
+    constructor() {
+        this.authService.isAuthenticated.subscribe(isAuthed => {
+            if (isAuthed) {
+                this.kcUser = this.oAuthService.getIdentityClaims();
+            }
+        })
+    }
 
     ngOnInit() {
         this.meetingService.getMeetings().subscribe(meetings => {
@@ -48,5 +64,13 @@ export class HeaderComponent implements OnInit {
         console.log($event);
 
         this.currentMeetingService.setCurrentMeeting($event.value);
+    }
+
+    startLogin() {
+        this.authService.login();
+    }
+
+    startLogout() {
+        this.authService.logout();
     }
 }

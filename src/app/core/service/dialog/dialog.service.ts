@@ -7,7 +7,6 @@ import {
 import {CurrentMeetingService} from '../current-meeting.service';
 import {MeetingImpl} from '../../model/meeting/meeting.model';
 import {Subscription} from 'rxjs';
-import {MeetingEvent} from '../../model/meeting/meeting-event.model';
 
 @Injectable({
     providedIn: 'root'

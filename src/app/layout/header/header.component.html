@@ -1,4 +1,15 @@
-<h1 class="header-title">SwimResults Manager</h1>
+<h1 class="header-title">
+    SwimResults Manager
+
+    <ng-container *srIsAuthed="true">
+        @if (kcUser && kcUser['given_name'] && kcUser['family_name']) {
+            <span class="header-user-info">
+                <span>Angemeldet:</span>
+                <b>{{ kcUser["given_name"] + " " + kcUser["family_name"] }}</b>
+            </span>
+        }
+    </ng-container>
+</h1>
 
 @if (meetings) {
     <mat-form-field class="meeting-select" subscriptSizing="dynamic">
@@ -10,4 +21,6 @@
     </mat-form-field>
 }
 
-<app-icon-button icon="more_horiz"></app-icon-button>
+<!--app-icon-button icon="more_horiz"></app-icon-button-->
+<app-icon-button icon="login" (btnClicked)="startLogin()" *srIsAuthed="false"></app-icon-button>
+<app-icon-button icon="logout" (btnClicked)="startLogout()" *srIsAuthed="true"></app-icon-button>
