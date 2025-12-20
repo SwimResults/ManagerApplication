@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron/main')
+const {app, BrowserWindow, ipcMain, dialog} = require('electron/main')
 const path = require('node:path')
 const dgram = require('node:dgram')
 const express = require('express')
@@ -48,6 +48,17 @@ function createWindow() {
 
     //win.webContents.openDevTools()
 }
+
+// IPC handlers
+ipcMain.handle('dialog:openFile', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+            { name: 'All Files', extensions: ['*'] }
+        ]
+    });
+    return result;
+});
 
 app.whenReady().then(() => {
     startHttpServer().then(() => {

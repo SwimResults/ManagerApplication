@@ -8,6 +8,10 @@ import * as fs from 'fs';
 import * as dgram from 'node:dgram';
 import {AlgeService} from './alge.service';
 
+type Dialog = {
+  showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths: string[] }>;
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,6 +22,7 @@ export class ElectronService {
   fs!: typeof fs;
   dgram!: typeof dgram;
   socket!: dgram.Socket;
+  dialog!: Dialog;
 
   constructor(
     private algeService: AlgeService,
@@ -27,6 +32,7 @@ export class ElectronService {
     if (this.isElectron) {
       this.ipcRenderer = (window as any).require('electron').ipcRenderer;
       this.webFrame = (window as any).require('electron').webFrame;
+      this.dialog = (window as any).require('electron').remote.dialog;
 
       this.fs = (window as any).require('fs');
 
@@ -99,6 +105,47 @@ export class ElectronService {
   }
 
   // FILE SYSTEM ACCESS FOR AUTO LENEX IMPORT
+
+  async openFileDialog(): Promise<string | null> {
+    if (!this.isElectron) {
+      return null;
+    }
+
+    const result = await this.ipcRenderer.invoke('dialog:openFile');
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+
+    return result.filePaths[0];
+  }
+
+  getFileStats(filePath: string): fs.Stats | null {
+    if (!this.isElectron || !filePath) {
+      return null;
+    }
+
+    try {
+      return this.fs.statSync(filePath);
+    } catch (error) {
+      console.error('Error reading file stats:', error);
+      return null;
+    }
+  }
+
+  readFileLines(filePath: string, lineCount: number = 10): string[] {
+    if (!this.isElectron || !filePath) {
+      return [];
+    }
+
+    try {
+      const content = this.fs.readFileSync(filePath, 'utf-8');
+      const lines = content.split('\n');
+      return lines.slice(0, lineCount);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      return [];
+    }
+  }
 
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);

@@ -1,0 +1,12 @@
+<div>
+    @if (fileName) {
+        <span class="status-box">{{fileName}}</span>
+    }
+
+    @if (fileMeta) {
+        <span class="status-box">Modified: {{fileMeta.lastModified}}</span>
+        <span class="status-box">Size: {{fileMeta.size}}</span>
+    }
+</div>
+
+<button (click)="selectFile()">Datei auswählen</button>
