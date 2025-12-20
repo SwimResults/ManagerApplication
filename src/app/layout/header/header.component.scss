@@ -26,6 +26,15 @@
     }
 }
 
+.no-login {
+    background-color: red;
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+    position: absolute;
+    z-index: 1;
+}
+
 .meeting-select {
     display: inline-block;
     font-size: 16px;
