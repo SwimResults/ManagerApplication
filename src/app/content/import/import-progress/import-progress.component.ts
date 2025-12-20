@@ -15,7 +15,7 @@ export class ImportProgressComponent {
   getPercentage(): number {
     if (!this.progress) return 0;
     // Handle both formats: Go sends 'progress' (0-100), alternative might have 'percentage'
-    return this.progress.percentage || this.progress.progress || 0;
+    return Math.floor((this.progress.percentage || this.progress.progress || 0) * 1000) / 1000;
   }
 
   getMessage(): string {

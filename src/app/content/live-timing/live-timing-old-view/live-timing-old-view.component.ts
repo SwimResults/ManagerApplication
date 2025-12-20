@@ -105,6 +105,9 @@ export class LiveTimingOldViewComponent {
             this.algeService.setCurrentHeat(this.currentHeat);
         }
         this.importService.setLiveTimingActive(true);
+
+
+        this.importService.sendPing();
     }
 
     stopLiveTiming() {

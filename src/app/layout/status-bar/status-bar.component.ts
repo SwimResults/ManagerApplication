@@ -61,6 +61,8 @@ export class StatusBarComponent implements OnDestroy {
                 return StatusBarStatus.SUCCESS
             case ConnectionState.ERROR:
                 return StatusBarStatus.ERROR;
+            case "OK":
+                return StatusBarStatus.SUCCESS;
             default:
                 return StatusBarStatus.UNKNOWN;
         }
