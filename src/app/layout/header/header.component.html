@@ -12,13 +12,20 @@
 </h1>
 
 @if (meetings) {
-    <mat-form-field class="meeting-select" subscriptSizing="dynamic">
-        <mat-select (selectionChange)="meetingSelectionChange($event)" [(ngModel)]="selectedMeeting">
-            @for (meeting of meetings; track meeting._id) {
-                <mat-option [value]="meeting">{{meeting.getFullSeriesNameWithYear()}}</mat-option>
-            }
-        </mat-select>
-    </mat-form-field>
+    @if (kcUser) {
+        <mat-form-field class="meeting-select" subscriptSizing="dynamic">
+            <mat-select (selectionChange)="meetingSelectionChange($event)" [(ngModel)]="selectedMeeting">
+                @let meetClaims = kcUser['events'];
+                @for (meeting of meetings; track meeting._id) {
+                    @if (meetClaims.includes(meeting.meet_id)) {
+                        <mat-option [value]="meeting">{{ meeting.getFullSeriesNameWithYear() }}</mat-option>
+                    }
+                }
+            </mat-select>
+        </mat-form-field>
+    } @else {
+        <span>Einloggen, um Veranstaltung auszuwählen!</span>
+    }
 }
 
 <!--app-icon-button icon="more_horiz"></app-icon-button-->
