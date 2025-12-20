@@ -1,12 +1,18 @@
 <div>
     @if (fileName) {
-        <span class="status-box">{{fileName}}</span>
+        <span class="status-box">{{fileName}}</span><br>
     }
 
     @if (fileMeta) {
-        <span class="status-box">Modified: {{fileMeta.lastModified}}</span>
-        <span class="status-box">Size: {{fileMeta.size}}</span>
+        <span class="status-box">Modified: {{fileMeta.lastModified}}</span><br>
+        <span class="status-box">Size: {{fileMeta.size}}</span><br>
     }
+
+    <ul>
+        @for (log of changeLog; track log) {
+            <li>{{ log }}</li>
+        }
+    </ul>
 </div>
 
 <button (click)="selectFile()">Datei auswählen</button>

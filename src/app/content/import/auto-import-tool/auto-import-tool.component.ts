@@ -13,9 +13,12 @@ export class AutoImportToolComponent implements OnDestroy {
 
     fileNameSubscription: Subscription;
     fileMetaSubscription: Subscription;
+    changeLogSubscription: Subscription;
 
     fileName: string | null = null;
     fileMeta: FileMetadata | null = null;
+
+    changeLog: string[] = [];
 
     constructor() {
         this.fileNameSubscription = this.fileWatcherService.currentFilePath.subscribe(path => {
@@ -25,11 +28,16 @@ export class AutoImportToolComponent implements OnDestroy {
         this.fileMetaSubscription = this.fileWatcherService.fileMetadata.subscribe(meta => {
             this.fileMeta = meta;
         })
+
+        this.changeLogSubscription = this.fileWatcherService.changeLog.subscribe(log => {
+            this.changeLog = log;
+        })
     }
 
     ngOnDestroy() {
         this.fileNameSubscription.unsubscribe();
         this.fileMetaSubscription.unsubscribe();
+        this.changeLogSubscription.unsubscribe();
     }
 
     selectFile() {

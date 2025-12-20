@@ -8,10 +8,6 @@ import * as fs from 'fs';
 import * as dgram from 'node:dgram';
 import {AlgeService} from './alge.service';
 
-type Dialog = {
-  showOpenDialog: (options: any) => Promise<{ canceled: boolean; filePaths: string[] }>;
-};
-
 @Injectable({
   providedIn: 'root'
 })
@@ -22,7 +18,6 @@ export class ElectronService {
   fs!: typeof fs;
   dgram!: typeof dgram;
   socket!: dgram.Socket;
-  dialog!: Dialog;
 
   constructor(
     private algeService: AlgeService,
@@ -32,7 +27,6 @@ export class ElectronService {
     if (this.isElectron) {
       this.ipcRenderer = (window as any).require('electron').ipcRenderer;
       this.webFrame = (window as any).require('electron').webFrame;
-      this.dialog = (window as any).require('electron').remote.dialog;
 
       this.fs = (window as any).require('fs');
 
