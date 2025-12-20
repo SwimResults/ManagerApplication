@@ -98,6 +98,8 @@ export class ElectronService {
     })
   }
 
+  // FILE SYSTEM ACCESS FOR AUTO LENEX IMPORT
+
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);
   }

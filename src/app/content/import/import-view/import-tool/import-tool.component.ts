@@ -11,6 +11,7 @@ import {TranslateModule} from '@ngx-translate/core';
 import {BtnComponent} from '../../../../layout/element/buttons/btn/btn.component';
 import {GroupBoxComponent} from '../../../../layout/group-box/group-box.component';
 import {MeetingImpl} from '../../../../core/model/meeting/meeting.model';
+import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 
 interface FileList {
     name: string,
@@ -23,7 +24,7 @@ interface FileList {
     selector: 'sr-import-tool',
     templateUrl: './import-tool.component.html',
     styleUrls: ['./import-tool.component.scss'],
-    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, FormsModule]
+    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, FormsModule, MatCheckbox]
 })
 export class ImportToolComponent implements OnInit {
     private eventService = inject(EventService);
@@ -40,6 +41,15 @@ export class ImportToolComponent implements OnInit {
         {name: 'PDF', value: "pdf"},
         {name: 'TXT', value: "pdf_txt"},
     ];
+
+    importFeatures: Map<string, boolean> = new Map([
+        ["event", true],
+        ["age_group", true],
+        ["heat", true],
+        ["result", true],
+        ["disqualification", true]
+    ]);
+
 
     currentFileType: string = ""
     currentFile?: FileList;
@@ -116,6 +126,13 @@ export class ImportToolComponent implements OnInit {
             }
         }
 
+        const features: string[] = [];
+
+        for (const [key, value] of this.importFeatures) {
+            if (value) features.push(key);
+        }
+
+
         // Close previous stream and create a fresh one
         this.importService.closeStream();
         const sessionId = this.importService.generateStreamId();
@@ -123,14 +140,14 @@ export class ImportToolComponent implements OnInit {
         // Open the stream and wait for it to be established before sending import request
         this.importService.openStream(sessionId).then(() => {
             console.log('Stream established, sending import request...');
-            this.sendImportRequest(sessionId, excludes, includes);
+            this.sendImportRequest(sessionId, excludes, includes, features);
         }).catch((error) => {
             console.error('Failed to establish stream:', error);
             this.runningImport = false;
         });
     }
 
-    private sendImportRequest(sessionId: string, excludes: number[], includes: number[]) {
+    private sendImportRequest(sessionId: string, excludes: number[], includes: number[], features: string[]) {
         const data: ImportFileRequest = {
             url: this.importUrl,
             text: "",
@@ -139,7 +156,8 @@ export class ImportToolComponent implements OnInit {
             exclude_events: excludes,
             include_events: includes,
             meeting: this.meeting.meet_id,
-            session_id: sessionId
+            session_id: sessionId,
+            features: features
         }
 
         if (this.importFileType === 'pdf_txt') {
@@ -218,6 +236,10 @@ export class ImportToolComponent implements OnInit {
                 })
             });
         }
+    }
+
+    featureChanged(feature: string, $event: MatCheckboxChange) {
+        this.importFeatures.set(feature, $event.checked)
     }
 }
 

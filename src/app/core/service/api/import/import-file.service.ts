@@ -14,6 +14,7 @@ export interface ImportFileRequest {
     include_events: number[],
     meeting: string,
     session_id: string,
+    features: string[]
 }
 
 export interface ProgressEvent {

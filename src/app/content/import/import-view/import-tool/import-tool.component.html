@@ -4,7 +4,7 @@
 
 <!--sr-panel panelTitle="Datei-Import"-->
 <sr-group-box boxTitle="Datei-Import">
-        <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file...">
+    <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file...">
 
     <div class="file-import">
         <mat-radio-group aria-label="Dateityp" [(ngModel)]="importFileType">
@@ -18,10 +18,17 @@
             }
         </mat-radio-group>
 
-        <mat-radio-group aria-label="Listentyp" [(ngModel)]="importListType">
-            @if (currentFileType === 'lef') {
-                <mat-radio-button value="lef">LENEX File</mat-radio-button>
-            } @else {
+        @if (currentFileType === 'lef') {
+            <mat-radio-group>
+                @for (feature of importFeatures.keys(); track feature) {
+                    <mat-checkbox [checked]="importFeatures.get(feature)" (change)="featureChanged(feature, $event)">
+                        {{ feature }}
+                    </mat-checkbox>
+                    <br>
+                }
+            </mat-radio-group>
+        } @else {
+            <mat-radio-group aria-label="Listentyp" [(ngModel)]="importListType">
                 @if (currentFileType === 'dsv') {
                     <mat-radio-button value="definition">Definitionsliste</mat-radio-button>
                 }
@@ -31,8 +38,8 @@
                 @if (currentFileType !== '') {
                     <mat-radio-button value="result_list">Ergebnis</mat-radio-button>
                 }
-            }
-        </mat-radio-group>
+            </mat-radio-group>
+        }
 
         <div class="import-button-box">
             <sr-btn [loading]="runningImport" (btnClick)="onImport()">
