@@ -62,6 +62,7 @@ export class ImportToolComponent implements OnInit {
     importListType: string = "";
     importExclude: string = "";
     importInclude: string = "";
+    selectedFile: File | null = null;
 
     runningImport: boolean = false;
     runningCertificationToggle: boolean = false;
@@ -174,7 +175,7 @@ export class ImportToolComponent implements OnInit {
                     dialogRef.afterClosed().subscribe(result => {
                         console.log('The dialog was closed');
 
-                        this.importService.importFile(result).subscribe({
+                        this.importService.importFile(result, this.selectedFile).subscribe({
                             next: (_ => {
                                 console.log("successfully send import for text")
                                 this.runningImport = false;
@@ -192,9 +193,9 @@ export class ImportToolComponent implements OnInit {
                 }
             })
         } else {
-            this.importService.importFile(data).subscribe({
+            this.importService.importFile(data, this.selectedFile).subscribe({
                 next: (_ => {
-                    console.log("successfully send import for '" + this.importUrl + "'")
+                    console.log("successfully send import for '" + (this.selectedFile ? this.selectedFile.name : this.importUrl) + "'")
                     this.runningImport = false;
                 }),
                 error: err => {
@@ -240,6 +241,42 @@ export class ImportToolComponent implements OnInit {
 
     featureChanged(feature: string, $event: MatCheckboxChange) {
         this.importFeatures.set(feature, $event.checked)
+    }
+
+    onFileSelect(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            this.selectedFile = input.files[0];
+            this.importUrl = ""; // Clear URL when file is selected
+            
+            // Infer file type from extension if not already set
+            const fileName = this.selectedFile.name.toLowerCase();
+            if (fileName.endsWith('.lef') || fileName.endsWith('.lxf')) {
+                this.importFileType = 'lef';
+                this.currentFileType = 'lef';
+            } else if (fileName.endsWith('.dsv') || fileName.endsWith('.dsv6') || fileName.endsWith('.dsv7')) {
+                this.importFileType = 'dsv';
+                this.currentFileType = 'dsv';
+            } else if (fileName.endsWith('.pdf')) {
+                this.importFileType = 'pdf';
+                this.currentFileType = 'pdf';
+            }
+        }
+    }
+
+    clearFile() {
+        this.selectedFile = null;
+        // Reset the file input
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    }
+
+    onUrlChange() {
+        if (this.importUrl) {
+            this.clearFile(); // Clear file when URL is entered
+        }
     }
 }
 

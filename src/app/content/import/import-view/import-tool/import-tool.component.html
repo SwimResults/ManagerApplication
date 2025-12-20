@@ -4,7 +4,21 @@
 
 <!--sr-panel panelTitle="Datei-Import"-->
 <sr-group-box boxTitle="Datei-Import">
-    <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file...">
+    <div class="file-input-section">
+        <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file..." [disabled]="selectedFile !== null" (ngModelChange)="onUrlChange()">
+        <span style="margin: 0 10px;">oder</span>
+        <input type="file" #fileInput (change)="onFileSelect($event)" style="display: none">
+        <sr-btn (btnClick)="fileInput.click()">
+            <mat-icon>upload_file</mat-icon>
+            Datei wählen
+        </sr-btn>
+        @if (selectedFile) {
+            <span class="selected-file-name">{{ selectedFile.name }}</span>
+            <sr-btn (btnClick)="clearFile()">
+                <mat-icon>close</mat-icon>
+            </sr-btn>
+        }
+    </div>
 
     <div class="file-import">
         <mat-radio-group aria-label="Dateityp" [(ngModel)]="importFileType">

@@ -68,10 +68,34 @@ export class ImportFileService extends BaseService {
         return this.oAuthService.authorizationHeader();
     }
 
-    public importFile(data: ImportFileRequest): Observable<any> {
+    public importFile(data: ImportFileRequest, file?: File | null): Observable<any> {
         // Automatically set the stream_id from the active stream
         data.session_id = this.currentStreamId;
-        return this.apiService.post(this.API_URL, "file", data)
+        
+        // If file is provided, use multipart/form-data
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('file_extension', data.file_extension);
+            formData.append('file_type', data.file_type);
+            formData.append('meeting', data.meeting);
+            formData.append('session_id', data.session_id);
+            
+            // Add arrays
+            data.exclude_events.forEach(event => formData.append('exclude_events', event.toString()));
+            data.include_events.forEach(event => formData.append('include_events', event.toString()));
+            data.features.forEach(feature => formData.append('features', feature));
+            
+            // Add optional text field if present
+            if (data.text) {
+                formData.append('text', data.text);
+            }
+            
+            return this.apiService.post(this.API_URL, "file", formData);
+        }
+        
+        // Otherwise use JSON (existing behavior)
+        return this.apiService.post(this.API_URL, "file", data);
     }
 
     public readToPdfBeforeImport(data: ImportFileRequest): Observable<ImportFileRequest> {
