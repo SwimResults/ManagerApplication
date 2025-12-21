@@ -21,7 +21,7 @@
                 @if (fileMeta) {
                     <div class="detail-row">
                         <span class="label">Geändert:</span>
-                        <span class="value">{{ fileMeta.lastModified }}</span>
+                        <span class="value">{{ fileMeta.lastModified.toLocaleString() }}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Größe:</span>

@@ -120,7 +120,7 @@ export class FileWatcherService implements OnDestroy {
                 lastModified: stats.mtime
             };
 
-            this.appendToLog(`File update detected at ${metadata.lastModified.toISOString()}`);
+            this.appendToLog(`Dateiupdate erkannt um ${metadata.lastModified.toLocaleString()}`);
 
             this.fileMetadataSubject.next(metadata);
             this.lastModifiedTime = stats.mtimeMs;
@@ -146,7 +146,7 @@ export class FileWatcherService implements OnDestroy {
 
             // Read and print first 10 lines
             const lines = this.electronService.readFileLines(filePath, 10);
-            console.log('First 10 lines of the file:');
+            console.log('Erste 10 Zeilen der Datei:');
             lines.forEach((line, index) => {
                 console.log(`${index + 1}: ${line}`);
             });
@@ -159,24 +159,24 @@ export class FileWatcherService implements OnDestroy {
         }
 
         if (this.autoImportInProgress) {
-            this.appendToLog('Auto import skipped because an import is already running');
+            this.appendToLog('Automatischer Import übersprungen, da bereits ein Import läuft');
             return;
         }
 
         if (!this.currentMeetingId) {
-            this.appendToLog('Auto import skipped because no meeting is selected');
+            this.appendToLog('Automatischer Import übersprungen, da kein Wettkampf ausgewählt ist');
             return;
         }
 
         const fileExtension = this.detectFileExtension(filePath);
         if (!fileExtension) {
-            this.appendToLog('Auto import skipped because the file type could not be detected');
+            this.appendToLog('Automatischer Import übersprungen, da der Dateityp nicht erkannt werden konnte');
             return;
         }
 
         const file = this.createFileFromPath(filePath, fileExtension);
         if (!file) {
-            this.appendToLog('Auto import skipped because the file could not be read');
+            this.appendToLog('Automatischer Import übersprungen, da die Datei nicht gelesen werden konnte');
             return;
         }
 
@@ -200,13 +200,13 @@ export class FileWatcherService implements OnDestroy {
 
         try {
             await this.importFileService.openStream(sessionId);
-            this.appendToLog('Auto import started');
+            this.appendToLog('Automatischer Import gestartet');
 
             await firstValueFrom(this.importFileService.importFile(request, file));
-            this.appendToLog('Auto import finished');
+            this.appendToLog('Automatischer Import abgeschlossen');
         } catch (error) {
             console.error('Auto import failed', error);
-            this.appendToLog('Auto import failed; see console for details');
+            this.appendToLog('Automatischer Import fehlgeschlagen; siehe Konsole für Details');
         } finally {
             this.autoImportInProgress = false;
         }
@@ -277,7 +277,7 @@ export class FileWatcherService implements OnDestroy {
     }
 
     private appendToLog(message: string): void {
-        const log = `${new Date().toISOString()} > ${message}`;
+        const log = `${new Date().toLocaleString()} > ${message}`;
         this.changeLogSubject.next([...this.changeLogSubject.getValue(), log]);
     }
 
