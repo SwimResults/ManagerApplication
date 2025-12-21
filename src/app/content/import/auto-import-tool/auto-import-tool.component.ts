@@ -2,11 +2,13 @@ import {Component, inject, OnDestroy} from '@angular/core';
 import {FileMetadata, FileWatcherService} from '../../../core/service/file-watcher.service';
 import {Subscription} from 'rxjs';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
+import {MatIcon} from "@angular/material/icon";
 
 @Component({
   selector: 'sr-auto-import-tool',
     imports: [
-        MatSlideToggle
+        MatSlideToggle,
+        MatIcon
     ],
   templateUrl: './auto-import-tool.component.html',
   styleUrl: './auto-import-tool.component.scss'

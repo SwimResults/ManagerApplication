@@ -1,38 +1,55 @@
-<sr-group-box boxTitle="Live Timing">
-    <div class="live-status">
-        <span>{{'LIVE_TIMING.STATUS.EVENT' | translate}} {{currentHeat.event}} - {{currentHeat.style}}</span>
-        <span>{{'LIVE_TIMING.STATUS.HEAT' | translate}} {{currentHeat.heat}}</span>
-        <div>
-            <span class="status-box {{getClassForState(state)}}">{{"STATE." + state | translate}}</span>
-            <span class="status-box">{{currentHeat.runningTime | algeTime}}</span>
+<div class="live-timing-container">
+    <sr-group-box boxTitle="Live Timing">
+        <div class="live-status">
+            <div class="status-info">
+                <div class="info-item">
+                    <span class="label">{{'LIVE_TIMING.STATUS.EVENT' | translate}}</span>
+                    <span class="value">{{currentHeat.event}} - {{currentHeat.style}}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">{{'LIVE_TIMING.STATUS.HEAT' | translate}}</span>
+                    <span class="value">{{currentHeat.heat}}</span>
+                </div>
+            </div>
+            <div class="status-indicators">
+                <span class="status-badge {{getClassForState(state)}}">{{"STATE." + state | translate}}</span>
+                <span class="time-display">{{currentHeat.runningTime | algeTime}}</span>
+            </div>
         </div>
-    </div>
-    <table>
-        <tr>
-            <th>&nbsp;</th>
-            <th>{{'LIVE_TIMING.TABLE_HEADER.NAME' | translate}}</th>
-            <th>{{'LIVE_TIMING.TABLE_HEADER.TEAM' | translate}}</th>
-            <th>{{'LIVE_TIMING.TABLE_HEADER.METERS' | translate}}</th>
-            <th>{{'LIVE_TIMING.TABLE_HEADER.LAP' | translate}}</th>
-            @for (meter of getAvailableMeters(currentHeat); track meter) {
-                <th>{{'LIVE_TIMING.TABLE_HEADER.TIME' | translate}} {{meter}}m</th>
-            }
-        </tr>
-        @for (competitor of getCompetitorsSorted(currentHeat); track competitor) {
-            <tr>
-                <td>{{competitor.lane}}</td>
-                <td>{{competitor.first_name + " " + competitor.last_name}}</td>
-                <td>{{competitor.team}}</td>
-                <td>{{competitor.lapM}}</td>
-                <td>{{competitor.lap}}</td>
-                @for (meter of getAvailableMeters(currentHeat); track meter) {
-                    @if (competitor.splits.has(meter)) {
-                        <td>{{competitor.splits.get(meter)! | algeTime}}</td>
-                    } @else {
-                        <td></td>
+
+        <div class="timing-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="lane-col">&nbsp;</th>
+                        <th class="name-col">{{'LIVE_TIMING.TABLE_HEADER.NAME' | translate}}</th>
+                        <th class="team-col">{{'LIVE_TIMING.TABLE_HEADER.TEAM' | translate}}</th>
+                        <th class="meters-col">{{'LIVE_TIMING.TABLE_HEADER.METERS' | translate}}</th>
+                        <th class="lap-col">{{'LIVE_TIMING.TABLE_HEADER.LAP' | translate}}</th>
+                        @for (meter of getAvailableMeters(currentHeat); track meter) {
+                            <th class="time-col">{{'LIVE_TIMING.TABLE_HEADER.TIME' | translate}} {{meter}}m</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (competitor of getCompetitorsSorted(currentHeat); track competitor) {
+                        <tr>
+                            <td class="lane-col">{{competitor.lane}}</td>
+                            <td class="name-col">{{competitor.first_name + " " + competitor.last_name}}</td>
+                            <td class="team-col">{{competitor.team}}</td>
+                            <td class="meters-col">{{competitor.lapM}}</td>
+                            <td class="lap-col">{{competitor.lap}}</td>
+                            @for (meter of getAvailableMeters(currentHeat); track meter) {
+                                @if (competitor.splits.has(meter)) {
+                                    <td class="time-col">{{competitor.splits.get(meter)! | algeTime}}</td>
+                                } @else {
+                                    <td class="time-col"></td>
+                                }
+                            }
+                        </tr>
                     }
-                }
-            </tr>
-        }
-    </table>
-</sr-group-box>
+                </tbody>
+            </table>
+        </div>
+    </sr-group-box>
+</div>

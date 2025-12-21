@@ -1,6 +1,23 @@
-.live-on-time {
-    color: green;
-}
-.live-late {
-    color: red;
+:host {
+    td {
+        &.live-on-time {
+            color: #4caf50;
+            font-weight: 500;
+        }
+
+        &.live-late {
+            color: #f44336;
+            font-weight: 500;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin-right: 6px;
+            font-size: 12px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
 }

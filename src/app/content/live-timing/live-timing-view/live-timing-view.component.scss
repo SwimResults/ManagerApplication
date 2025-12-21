@@ -1,10 +1,154 @@
+.live-timing-container {
+    .live-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+        margin-bottom: 16px;
 
-.live-status {
-    display: grid;
-    grid-template-columns: calc((100% - 70px) / 2) 70px calc((100% - 70px) / 2);
-    font-weight: bolder;
+        .status-info {
+            display: flex;
+            gap: 32px;
 
-    :last-child {
-        text-align: right;
+            .info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+
+                .label {
+                    font-size: 11px;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                    color: #666;
+                    letter-spacing: 0.5px;
+                }
+
+                .value {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #333;
+                }
+            }
+        }
+
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            .status-badge {
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .time-display {
+                font-family: monospace;
+                font-size: 18px;
+                font-weight: 600;
+                color: #333;
+                padding: 6px 12px;
+                background: rgba(0, 0, 0, 0.04);
+                border-radius: 4px;
+            }
+        }
+    }
+
+    .timing-table {
+        overflow-x: auto;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+
+            thead {
+                tr {
+                    background: rgba(0, 0, 0, 0.04);
+                    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+
+                    th {
+                        padding: 10px 12px;
+                        text-align: left;
+                        font-weight: 600;
+                        color: #555;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+
+                        &.lane-col {
+                            width: 50px;
+                            text-align: center;
+                        }
+
+                        &.name-col {
+                            min-width: 150px;
+                        }
+
+                        &.team-col {
+                            min-width: 120px;
+                        }
+
+                        &.meters-col,
+                        &.lap-col {
+                            width: 70px;
+                            text-align: center;
+                        }
+
+                        &.time-col {
+                            width: 90px;
+                            text-align: right;
+                        }
+                    }
+                }
+            }
+
+            tbody {
+                tr {
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+                    transition: background 0.15s;
+
+                    &:hover {
+                        background: rgba(0, 0, 0, 0.02);
+                    }
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+
+                    td {
+                        padding: 10px 12px;
+                        color: #333;
+
+                        &.lane-col {
+                            text-align: center;
+                            font-weight: 600;
+                            color: #666;
+                        }
+
+                        &.name-col {
+                            font-weight: 500;
+                        }
+
+                        &.meters-col,
+                        &.lap-col {
+                            text-align: center;
+                            color: #666;
+                        }
+
+                        &.time-col {
+                            text-align: right;
+                            font-family: monospace;
+                            font-weight: 500;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

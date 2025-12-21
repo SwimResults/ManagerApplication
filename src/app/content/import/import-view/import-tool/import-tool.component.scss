@@ -1,90 +1,229 @@
 @use "/src/colors";
 
-.refresh-btn {
-    float: right;
-    margin-top: -50px;
-}
+.import-tool-container {
+    position: relative;
 
-mat-radio-group {
-    display: inline-block;
-    vertical-align: top;
-    margin: 0 8px;
-    padding-right: 21px;
-}
+    .refresh-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
 
-mat-radio-button {
-    display: block;
-}
-
-.selected-file-name {
-    display: inline-block;
-    margin: 0 8px;
-}
-
-.file-import {
-    display: block;
-}
-
-.file-import,
-.file-import-url {
-    width: 450px;
-    margin: 4px 0;
-}
-
-.file-list {
-    display: inline-block;
-    height: 138px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 350px;
-}
-
-.file-list,
-.file-list-buttons {
-    display: inline-block;
-    vertical-align: top;
-}
-
-.file-list-buttons {
-    margin-left: 12px;
-
-    sr-btn {
-        display: block;
-        margin: 4px 0;
-    }
-}
-
-.file-name {
-    display: block;
-    text-overflow: ellipsis;
-    width: 328px;
-    padding: 2px;
-    margin: 0;
-    background-color: transparent;
-    cursor: pointer;
-    overflow: hidden;
-    white-space: nowrap;
-
-    &.file-selected {
-        background-color: colors.$color-bg-contrast;
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
     }
 
-    &.file-not-public {
-        color: colors.$color-text-gray;
+    .file-input-section {
+        margin-bottom: 16px;
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+
+            .file-import-url {
+                flex: 1;
+                min-width: 300px;
+                padding: 8px 12px;
+            }
+
+            .separator {
+                color: #999;
+                font-size: 13px;
+            }
+
+            .file-select-btn {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                white-space: nowrap;
+
+                mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+
+            .selected-file-name {
+                padding: 6px 12px;
+                background: rgba(0, 0, 0, 0.04);
+                border-radius: 4px;
+                font-size: 13px;
+                font-family: monospace;
+            }
+
+            .clear-btn {
+                padding: 4px;
+                min-width: auto;
+
+                mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+        }
     }
-}
 
-.import-button-box {
-    display: inline-block;
+    .file-import-settings {
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+        margin-bottom: 16px;
 
-    .pdf-to-text-btn {
-        margin-top: 4px;
-        display: block;
+        .settings-row {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 16px;
+
+            .setting-group {
+                flex: 1;
+
+                .setting-label {
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #555;
+                    margin-bottom: 8px;
+                }
+
+                mat-radio-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+
+                mat-radio-button {
+                    font-size: 13px;
+                }
+
+                mat-checkbox {
+                    font-size: 13px;
+                    display: block;
+                    margin-bottom: 6px;
+                }
+            }
+        }
+
+        .import-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .filter-input {
+                width: 140px;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
     }
 
-    .file-import-events {
-        width: 100px;
-        display: block;
-        margin: 4px 0;
+    .info-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px;
+        background: rgba(33, 150, 243, 0.08);
+        border-left: 3px solid #2196f3;
+        border-radius: 4px;
+        font-size: 12px;
+        font-style: italic;
+        color: #555;
+        line-height: 1.5;
+
+        mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: #2196f3;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+    }
+
+    .protocol-section {
+        display: flex;
+        gap: 24px;
+
+        .file-list {
+            flex: 1;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 4px;
+
+            .file-list-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 12px;
+                margin-bottom: 4px;
+                background: white;
+                border-radius: 4px;
+                border-left: 3px solid transparent;
+                cursor: pointer;
+                transition: all 0.15s;
+
+                &:hover {
+                    background: rgba(0, 0, 0, 0.04);
+                }
+
+                &.selected {
+                    background: colors.$color-bg-contrast;
+                    border-left-color: colors.$color-sr-first;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                }
+
+                &:not(.certified) {
+                    opacity: 0.6;
+                }
+
+                .event-number {
+                    font-weight: 600;
+                    font-size: 13px;
+                    color: #333;
+                    min-width: 50px;
+                }
+
+                .event-details {
+                    flex: 1;
+                    font-size: 13px;
+                    color: #555;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .certified-icon {
+                    font-size: 16px;
+                    width: 16px;
+                    height: 16px;
+                    color: #4caf50;
+                    flex-shrink: 0;
+                }
+            }
+        }
+
+        .file-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 220px;
+
+            sr-btn {
+                display: block;
+            }
+        }
     }
 }

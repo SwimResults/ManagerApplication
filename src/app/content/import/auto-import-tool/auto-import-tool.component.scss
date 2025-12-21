@@ -1,0 +1,80 @@
+.auto-import-container {
+    .file-info-section {
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+        margin-bottom: 16px;
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 16px;
+
+            .select-file-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+
+                mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+
+            .detail-row {
+                display: grid;
+                grid-template-columns: 100px 1fr;
+                gap: 12px;
+                font-size: 13px;
+
+                .label {
+                    color: #666;
+                    font-weight: 500;
+                }
+
+                .value {
+                    font-family: monospace;
+                    color: #333;
+                }
+            }
+        }
+    }
+
+    .changelog-section {
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 4px;
+
+        h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .changelog-list {
+            margin: 0;
+            padding-left: 24px;
+            font-size: 13px;
+            line-height: 1.6;
+
+            li {
+                margin-bottom: 4px;
+                color: #555;
+            }
+        }
+    }
+}

@@ -1,103 +1,140 @@
-<button class="refresh-btn" (click)="fetchEvents()">
-    <mat-icon>refresh</mat-icon>
-</button>
+<div class="import-tool-container">
+    <button class="refresh-btn" (click)="fetchEvents()">
+        <mat-icon>refresh</mat-icon>
+        Aktualisieren
+    </button>
 
-<!--sr-panel panelTitle="Datei-Import"-->
-<sr-group-box boxTitle="Datei-Import">
-    <div class="file-input-section">
-        <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file..." [disabled]="selectedFile !== null" (ngModelChange)="onUrlChange()">
-        <span style="margin: 0 10px;">oder</span>
-        <input type="file" #fileInput (change)="onFileSelect($event)" style="display: none">
-        <button (click)="fileInput.click()">
-            <mat-icon>upload_file</mat-icon>
-            Datei wählen
-        </button>
-        @if (selectedFile) {
-            <span class="selected-file-name">{{ selectedFile.name }}</span>
-            <button (click)="clearFile()">
-                <mat-icon>close</mat-icon>
-            </button>
-        }
-    </div>
-
-    <div class="file-import">
-        <mat-radio-group aria-label="Dateityp" [(ngModel)]="importFileType">
-            @for (entry of fileTypeList; track entry) {
-                <mat-radio-button
-                    (change)="onFileTypeChange(entry.value)"
-                    [value]="entry.value"
-                >
-                    {{ entry.name }}
-                </mat-radio-button>
-            }
-        </mat-radio-group>
-
-        @if (currentFileType === 'lef') {
-            <mat-radio-group>
-                @for (feature of importFeatures.keys(); track feature) {
-                    <mat-checkbox [checked]="importFeatures.get(feature)" (change)="featureChanged(feature, $event)">
-                        {{ feature }}
-                    </mat-checkbox>
-                    <br>
+    <sr-group-box boxTitle="Datei-Import">
+        <div class="file-input-section">
+            <div class="input-group">
+                <input [(ngModel)]="importUrl"
+                       type="text"
+                       class="file-import-url"
+                       placeholder="https://file..."
+                       [disabled]="selectedFile !== null"
+                       (ngModelChange)="onUrlChange()">
+                <span class="separator">oder</span>
+                <button class="file-select-btn" (click)="fileInput.click()">
+                    <mat-icon>upload_file</mat-icon>
+                    Datei wählen
+                </button>
+                <input type="file" #fileInput (change)="onFileSelect($event)" style="display: none">
+                @if (selectedFile) {
+                    <span class="selected-file-name">{{ selectedFile.name }}</span>
+                    <button class="clear-btn" (click)="clearFile()">
+                        <mat-icon>close</mat-icon>
+                    </button>
                 }
-            </mat-radio-group>
-        } @else {
-            <mat-radio-group aria-label="Listentyp" [(ngModel)]="importListType">
-                @if (currentFileType === 'dsv') {
-                    <mat-radio-button value="definition">Definitionsliste</mat-radio-button>
-                }
-                @if (currentFileType !== 'dsv' && currentFileType !== '') {
-                    <mat-radio-button value="start_list">Startliste</mat-radio-button>
-                }
-                @if (currentFileType !== '') {
-                    <mat-radio-button value="result_list">Ergebnis</mat-radio-button>
-                }
-            </mat-radio-group>
-        }
-
-        <div class="import-button-box">
-            <sr-btn [loading]="runningImport" (btnClick)="onImport()">
-                <mat-icon>cloud_upload</mat-icon>
-                Import
-            </sr-btn>
-            <input type="text" class="file-import-events" [(ngModel)]="importExclude" placeholder="exclude">
-            <input type="text" class="file-import-events" [(ngModel)]="importInclude" placeholder="include">
-        </div>
-    </div>
-
-    <p><i>
-        Zur korrekten Anzeige des Import-Fortschritts muss der Stream am rechten Bildschirmrand beendet werden, bevor ein neuer Import gestartet wird.
-    </i></p>
-
-</sr-group-box>
-
-<sr-group-box boxTitle="Protokolldienst">
-    <div class="file-list">
-        @for (file of files; track file) {
-            <div class="file-list-tile"
-            >
-        <span
-            class="file-name {{file.event.number === currentFile?.event?.number ? 'file-selected' : ''}} {{file.exists ? 'file-exists' : 'file-exists-not'}} {{file.event.certified ? 'file-public' : 'file-not-public'}}"
-            (click)="onSelectFile(file)">
-          <span>{{ 'EVENT.PAGE.EVENT_TITLE_EVENT' | translate }} {{ file.event.number }}@if (file.event && file.event.style) {
-              - {{ file.event.relay_distance ? file.event.relay_distance : file.event.distance }}m {{ 'COMMON.STYLE.' + file.event.style.name + '.NAME' | translate }} {{ file.event.name_extension }} {{ 'COMMON.GENDER.' + file.event.gender + '.NAME' | translate }}
-          }</span>
-        </span>
             </div>
-        }
-    </div>
+        </div>
 
-    <div class="file-list-buttons">
-        <sr-btn [active]="currentFile !== undefined" (btnClick)="setCurrentFileForImport()">
-            <mat-icon>arrow_left</mat-icon>
-            <span>URL für Import setzen</span></sr-btn>
-        <sr-btn [active]="currentFile !== undefined" (btnClick)="openCurrentFile()">
-            <mat-icon>link</mat-icon>
-            <span>Öffnen</span></sr-btn>
-        <sr-btn [active]="currentFile !== undefined" (btnClick)="toggleCurrentFileEventCertification()"
-                [loading]="runningCertificationToggle">
-            <mat-icon>public</mat-icon>
-            <span>Veröffentlichung</span></sr-btn>
-    </div>
-</sr-group-box>
+        <div class="file-import-settings">
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label class="setting-label">Dateityp</label>
+                    <mat-radio-group aria-label="Dateityp" [(ngModel)]="importFileType">
+                        @for (entry of fileTypeList; track entry) {
+                            <mat-radio-button
+                                (change)="onFileTypeChange(entry.value)"
+                                [value]="entry.value"
+                            >
+                                {{ entry.name }}
+                            </mat-radio-button>
+                        }
+                    </mat-radio-group>
+                </div>
+
+                <div class="setting-group">
+                    @if (currentFileType === 'lef') {
+                        <label class="setting-label">Import-Optionen</label>
+                        <mat-radio-group>
+                            @for (feature of importFeatures.keys(); track feature) {
+                                <mat-checkbox [checked]="importFeatures.get(feature)" (change)="featureChanged(feature, $event)">
+                                    {{ feature }}
+                                </mat-checkbox>
+                            }
+                        </mat-radio-group>
+                    } @else {
+                        <label class="setting-label">Listentyp</label>
+                        <mat-radio-group aria-label="Listentyp" [(ngModel)]="importListType">
+                            @if (currentFileType === 'dsv') {
+                                <mat-radio-button value="definition">Definitionsliste</mat-radio-button>
+                            }
+                            @if (currentFileType !== 'dsv' && currentFileType !== '') {
+                                <mat-radio-button value="start_list">Startliste</mat-radio-button>
+                            }
+                            @if (currentFileType !== '') {
+                                <mat-radio-button value="result_list">Ergebnis</mat-radio-button>
+                            }
+                        </mat-radio-group>
+                    }
+                </div>
+            </div>
+
+            <div class="import-controls">
+                <sr-btn [loading]="runningImport" (btnClick)="onImport()">
+                    <mat-icon>cloud_upload</mat-icon>
+                    Import
+                </sr-btn>
+                <input type="text"
+                       class="filter-input"
+                       [(ngModel)]="importExclude"
+                       placeholder="Ausschließen...">
+                <input type="text"
+                       class="filter-input"
+                       [(ngModel)]="importInclude"
+                       placeholder="Einschließen...">
+            </div>
+        </div>
+
+        <div class="info-note">
+            <mat-icon>info</mat-icon>
+            <span>Zur korrekten Anzeige des Import-Fortschritts muss der Stream am rechten Bildschirmrand beendet werden, bevor ein neuer Import gestartet wird.</span>
+        </div>
+    </sr-group-box>
+
+    <sr-group-box boxTitle="Protokolldienst">
+        <div class="protocol-section">
+            <div class="file-list">
+                @for (file of files; track file) {
+                    <div class="file-list-item"
+                         [class.selected]="file.event.number === currentFile?.event?.number"
+                         [class.exists]="file.exists"
+                         [class.certified]="file.event.certified"
+                         (click)="onSelectFile(file)">
+                        <span class="event-number">WK {{ file.event.number }}</span>
+                        @if (file.event && file.event.style) {
+                            <span class="event-details">
+                                {{ file.event.relay_distance ? file.event.relay_distance : file.event.distance }}m
+                                {{ 'COMMON.STYLE.' + file.event.style.name + '.NAME' | translate }}
+                                {{ file.event.name_extension }}
+                                {{ 'COMMON.GENDER.' + file.event.gender + '.NAME' | translate }}
+                            </span>
+                        }
+                        @if (file.event.certified) {
+                            <mat-icon class="certified-icon">check_circle</mat-icon>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="file-actions">
+                <sr-btn [active]="currentFile !== undefined" (btnClick)="setCurrentFileForImport()">
+                    <mat-icon>arrow_back</mat-icon>
+                    <span>URL für Import setzen</span>
+                </sr-btn>
+                <sr-btn [active]="currentFile !== undefined" (btnClick)="openCurrentFile()">
+                    <mat-icon>open_in_new</mat-icon>
+                    <span>Öffnen</span>
+                </sr-btn>
+                <sr-btn [active]="currentFile !== undefined"
+                        (btnClick)="toggleCurrentFileEventCertification()"
+                        [loading]="runningCertificationToggle">
+                    <mat-icon>public</mat-icon>
+                    <span>Veröffentlichung</span>
+                </sr-btn>
+            </div>
+        </div>
+    </sr-group-box>
+</div>
 <!--/sr-panel-->
