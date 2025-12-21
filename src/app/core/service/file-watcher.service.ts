@@ -19,6 +19,7 @@ export class FileWatcherService implements OnDestroy {
     private autoImportActiveSubject = new BehaviorSubject<boolean>(false);
     private watcherSubscription?: Subscription;
     private meetingSubscription?: Subscription;
+    private streamCompletionSubscription?: Subscription;
     private lastModifiedTime: number = 0;
     private autoImportInProgress = false;
     private currentMeetingId: string | null = null;
@@ -180,11 +181,12 @@ export class FileWatcherService implements OnDestroy {
             return;
         }
 
-        this.autoImportInProgress = true;
-
         // Reset and prepare stream
         this.importFileService.closeStream();
         const sessionId = this.importFileService.generateStreamId();
+
+        this.autoImportInProgress = true;
+        this.resetStreamCompletionWatcher();
 
         const request: ImportFileRequest = {
             url: '',
@@ -200,6 +202,7 @@ export class FileWatcherService implements OnDestroy {
 
         try {
             await this.importFileService.openStream(sessionId);
+            this.setupStreamCompletionWatcher();
             this.appendToLog('Automatischer Import gestartet');
 
             await firstValueFrom(this.importFileService.importFile(request, file));
@@ -207,9 +210,65 @@ export class FileWatcherService implements OnDestroy {
         } catch (error) {
             console.error('Auto import failed', error);
             this.appendToLog('Automatischer Import fehlgeschlagen; siehe Konsole für Details');
+            this.finishAutoImport(true);
         } finally {
-            this.autoImportInProgress = false;
         }
+    }
+
+    private setupStreamCompletionWatcher(): void {
+        const sub = new Subscription();
+
+        sub.add(this.importFileService.progress$.subscribe(event => {
+            const pct = this.extractProgress(event);
+            if (pct >= 100) {
+                this.appendToLog('Automatischer Import abgeschlossen');
+                this.finishAutoImport(true);
+            }
+        }));
+
+        sub.add(this.importFileService.connection$.subscribe(active => {
+            if (!active) {
+                this.finishAutoImport(false);
+            }
+        }));
+
+        this.streamCompletionSubscription = sub;
+    }
+
+    private resetStreamCompletionWatcher(): void {
+        if (this.streamCompletionSubscription) {
+            this.streamCompletionSubscription.unsubscribe();
+            this.streamCompletionSubscription = undefined;
+        }
+    }
+
+    private finishAutoImport(closeStream: boolean): void {
+        if (!this.autoImportInProgress) {
+            return;
+        }
+
+        this.autoImportInProgress = false;
+        this.resetStreamCompletionWatcher();
+
+        if (closeStream) {
+            this.importFileService.closeStream();
+        }
+    }
+
+    private extractProgress(event: any): number {
+        if (!event) {
+            return 0;
+        }
+        if (typeof event.progress === 'number') {
+            return event.progress;
+        }
+        if (typeof event.percentage === 'number') {
+            return event.percentage;
+        }
+        if (typeof event.current === 'number' && typeof event.total === 'number' && event.total > 0) {
+            return (event.current / event.total) * 100;
+        }
+        return 0;
     }
 
     private detectFileExtension(filePath: string): string | null {

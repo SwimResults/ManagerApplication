@@ -226,6 +226,11 @@ export class ImportFileService extends BaseService {
             }
             this.closeStream();
         }
+
+        // Ensure stream state is cleaned up on natural completion
+        if (this.streamActive) {
+            this.closeStream();
+        }
     }
     public closeStream(): void {
         if (this.abortController) {
