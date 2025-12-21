@@ -203,7 +203,7 @@ export class FileWatcherService implements OnDestroy {
             this.appendToLog('Automatischer Import gestartet');
 
             await firstValueFrom(this.importFileService.importFile(request, file));
-            this.appendToLog('Automatischer Import abgeschlossen');
+            //this.appendToLog('Automatischer Import abgeschlossen');
         } catch (error) {
             console.error('Auto import failed', error);
             this.appendToLog('Automatischer Import fehlgeschlagen; siehe Konsole für Details');

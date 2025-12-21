@@ -62,10 +62,10 @@
                     <label for="sr_server">{{'SETTINGS.LIVE_TIMING.SERVER' | translate}}:</label>
                     <input [disabled]="liveTimingActive" id="sr_server" type="text" [(ngModel)]="importConfig.apiUrl">
                 </div>
-                <div class="form-field">
+                <!--div class="form-field">
                     <label for="sr_password">{{'SETTINGS.LIVE_TIMING.PASSWORD' | translate}}:</label>
                     <input [disabled]="liveTimingActive" id="sr_password" type="password" [(ngModel)]="importConfig.password">
-                </div>
+                </div-->
 
                 <button [disabled]="liveTimingActive" class="save-btn" (click)="saveConfig()">{{'SETTINGS.LIVE_TIMING.SAVE_BUTTON' | translate}}</button>
             </div>

@@ -33,7 +33,7 @@ export function getAvailableMeters(heat: CurrentHeatModel): number[] {
         return Array.from(c.splits.keys());
     }).reduce((acc, curr) => {
         return acc.concat(curr);
-    }))).sort();
+    }))).sort((a, b) => a   - b);
 }
 
 export function getCompetitorsSorted(heat: CurrentHeatModel): Competitor[] {

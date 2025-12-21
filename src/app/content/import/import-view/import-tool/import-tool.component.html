@@ -68,10 +68,14 @@
             </div>
 
             <div class="import-controls">
-                <sr-btn [loading]="runningImport" (btnClick)="onImport()">
-                    <mat-icon>cloud_upload</mat-icon>
-                    Import
-                </sr-btn>
+                <button (click)="onImport()">
+                    @if (runningImport) {
+                        <sr-spinner [style]="'material'" spinnerSize="btn"></sr-spinner>
+                    } @else {
+                        <mat-icon>cloud_upload</mat-icon>
+                    }
+                    <span>Import</span>
+                </button>
                 <input type="text"
                        class="filter-input"
                        [(ngModel)]="importExclude"
