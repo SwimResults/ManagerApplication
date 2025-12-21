@@ -1,4 +1,6 @@
 .event-list-container {
+    padding: 20px;
+
     table {
         width: 100%;
         border-collapse: collapse;
@@ -17,13 +19,6 @@
                     font-size: 12px;
                     text-transform: uppercase;
                     letter-spacing: 0.3px;
-
-                    &:nth-child(1) { width: 60px; text-align: center; }
-                    &:nth-child(3) { width: 120px; }
-                    &:nth-child(4) { width: 80px; text-align: center; }
-                    &:nth-child(5),
-                    &:nth-child(6) { width: 100px; }
-                    &:nth-child(7) { width: 200px; }
                 }
             }
         }

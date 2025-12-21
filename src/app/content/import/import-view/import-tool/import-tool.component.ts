@@ -12,6 +12,7 @@ import {BtnComponent} from '../../../../layout/element/buttons/btn/btn.component
 import {GroupBoxComponent} from '../../../../layout/group-box/group-box.component';
 import {MeetingImpl} from '../../../../core/model/meeting/meeting.model';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
+import {SpinnerComponent} from '../../../../layout/element/spinner/spinner.component';
 
 interface FileList {
     name: string,
@@ -24,7 +25,7 @@ interface FileList {
     selector: 'sr-import-tool',
     templateUrl: './import-tool.component.html',
     styleUrls: ['./import-tool.component.scss'],
-    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, FormsModule, MatCheckbox]
+    imports: [MatIcon, ReactiveFormsModule, MatRadioGroup, MatRadioButton, TranslateModule, BtnComponent, GroupBoxComponent, FormsModule, MatCheckbox, SpinnerComponent]
 })
 export class ImportToolComponent implements OnInit {
     private eventService = inject(EventService);
@@ -248,7 +249,7 @@ export class ImportToolComponent implements OnInit {
         if (input.files && input.files.length > 0) {
             this.selectedFile = input.files[0];
             this.importUrl = ""; // Clear URL when file is selected
-            
+
             // Infer file type from extension if not already set
             const fileName = this.selectedFile.name.toLowerCase();
             if (fileName.endsWith('.lef') || fileName.endsWith('.lxf')) {

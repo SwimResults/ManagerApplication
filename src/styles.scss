@@ -101,6 +101,10 @@ button {
     border: none;
     border-radius: 8px;
     padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
 
     .mat-icon {
         vertical-align: middle;

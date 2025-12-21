@@ -1,8 +1,4 @@
 <div class="import-tool-container">
-    <button class="refresh-btn" (click)="fetchEvents()">
-        <mat-icon>refresh</mat-icon>
-        Aktualisieren
-    </button>
 
     <sr-group-box boxTitle="Datei-Import">
         <div class="file-input-section">
@@ -119,20 +115,26 @@
             </div>
 
             <div class="file-actions">
-                <sr-btn [active]="currentFile !== undefined" (btnClick)="setCurrentFileForImport()">
+                <button (click)="fetchEvents()">
+                    <mat-icon>refresh</mat-icon>
+                    Aktualisieren
+                </button>
+                <button [disabled]="currentFile === undefined" (click)="setCurrentFileForImport()">
                     <mat-icon>arrow_back</mat-icon>
                     <span>URL für Import setzen</span>
-                </sr-btn>
-                <sr-btn [active]="currentFile !== undefined" (btnClick)="openCurrentFile()">
+                </button>
+                <button [disabled]="currentFile === undefined" (click)="openCurrentFile()">
                     <mat-icon>open_in_new</mat-icon>
                     <span>Öffnen</span>
-                </sr-btn>
-                <sr-btn [active]="currentFile !== undefined"
-                        (btnClick)="toggleCurrentFileEventCertification()"
-                        [loading]="runningCertificationToggle">
-                    <mat-icon>public</mat-icon>
+                </button>
+                <button [disabled]="currentFile === undefined" (click)="toggleCurrentFileEventCertification()">
+                    @if (runningCertificationToggle) {
+                        <sr-spinner [style]="'material'" spinnerSize="btn"></sr-spinner>
+                    } @else {
+                        <mat-icon>public</mat-icon>
+                    }
                     <span>Veröffentlichung</span>
-                </sr-btn>
+                </button>
             </div>
         </div>
     </sr-group-box>

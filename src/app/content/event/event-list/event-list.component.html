@@ -1,41 +1,47 @@
-<sr-heading-row
-    heading="Zeitplan"
-    [buttons]="headingButtons"
-></sr-heading-row>
+<div class="event-list-container">
+    <sr-heading-row
+        heading="Zeitplan"
+        [buttons]="headingButtons"
+    ></sr-heading-row>
 
-<table>
-    <tr>
-        <th>WK</th>
-        <th>Bezeichnung</th>
-        <th>Zusatz</th>
-        <th>Läufe</th>
-        <th>Geplant</th>
-        <th>Tatsächlich</th>
-        <th>Aktionen</th>
-    </tr>
-    @for (part of parts; track part.number) {
+    <table>
+        <thead>
         <tr>
-            <th colspan="6">Abschnitt {{part.number}}</th>
+            <th>WK</th>
+            <th>Bezeichnung</th>
+            <th>Zusatz</th>
+            <th>Läufe</th>
+            <th>Geplant</th>
+            <th>Tatsächlich</th>
+            <th>Aktionen</th>
         </tr>
+        </thead>
+        <tbody>
+            @for (part of parts; track part.number) {
+                <tr>
+                    <th colspan="6">Abschnitt {{ part.number }}</th>
+                </tr>
 
-        @for (event of part.events; track event._id) {
-            @if (incidents) {
-                @for (incident of incidents.get(event.number); track incident) {
-                    @if (incident.next_event === event.number) {
-                        <tr sr-event-list-incident-row [incident]="incident"></tr>
+                @for (event of part.events; track event._id) {
+                    @if (incidents) {
+                        @for (incident of incidents.get(event.number); track incident) {
+                            @if (incident.next_event === event.number) {
+                                <tr sr-event-list-incident-row [incident]="incident"></tr>
+                            }
+                        }
+                    }
+
+                    <tr sr-event-list-event-row [event]="event" [heatInfo]="heatInfos.get(event.number)"></tr>
+
+                    @if (incidents) {
+                        @for (incident of incidents.get(event.number); track incident) {
+                            @if (incident.prev_event === event.number) {
+                                <tr sr-event-list-incident-row [incident]="incident"></tr>
+                            }
+                        }
                     }
                 }
             }
-
-            <tr sr-event-list-event-row [event]="event" [heatInfo]="heatInfos.get(event.number)"></tr>
-
-            @if (incidents) {
-                @for (incident of incidents.get(event.number); track incident) {
-                    @if (incident.prev_event === event.number) {
-                        <tr sr-event-list-incident-row [incident]="incident"></tr>
-                    }
-                }
-            }
-        }
-    }
-</table>
+        </tbody>
+    </table>
+</div>

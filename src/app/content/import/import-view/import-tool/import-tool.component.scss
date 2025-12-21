@@ -4,9 +4,6 @@
     position: relative;
 
     .refresh-btn {
-        position: absolute;
-        top: 0;
-        right: 0;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -221,8 +218,8 @@
             gap: 8px;
             min-width: 220px;
 
-            sr-btn {
-                display: block;
+            button {
+                text-align: left;
             }
         }
     }
