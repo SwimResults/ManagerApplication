@@ -26,8 +26,8 @@ export class FileWatcherService implements OnDestroy {
         'event',
         //'age_group',
         'heat',
-        //'result',
-        //'disqualification'
+        'result',
+        'disqualification'
     ];
     private autoImportListType = 'result_list';
 
