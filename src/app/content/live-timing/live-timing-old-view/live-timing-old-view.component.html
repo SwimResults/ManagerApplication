@@ -24,7 +24,7 @@
 
             <div class="service-controls">
                 <div class="service-control">
-                    <span class="service-label">Alge:</span>
+                    <span class="service-label">ALGE:</span>
                     <div class="button-group">
                         <button [disabled]="udpActive" (click)="startUdp()">Start</button>
                         <button [disabled]="!udpActive || liveTimingActive" (click)="stopUdp()">Stop</button>
@@ -66,7 +66,7 @@
                     <label for="sr_password">{{'SETTINGS.LIVE_TIMING.PASSWORD' | translate}}:</label>
                     <input [disabled]="liveTimingActive" id="sr_password" type="password" [(ngModel)]="importConfig.password">
                 </div>
-                
+
                 <button [disabled]="liveTimingActive" class="save-btn" (click)="saveConfig()">{{'SETTINGS.LIVE_TIMING.SAVE_BUTTON' | translate}}</button>
             </div>
         </sr-group-box>
@@ -92,7 +92,7 @@
                     <button (click)="changeLanguage('en')">{{'SETTINGS.LANGUAGE.ENGLISH' | translate}}</button>
                 </div>
             </details>
-            
+
             <details class="log-settings">
                 <summary>Log</summary>
                 <div class="details-content">

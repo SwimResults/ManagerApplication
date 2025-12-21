@@ -3,30 +3,30 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px;
+        padding: 8px 12px;
         background: rgba(0, 0, 0, 0.02);
-        border-radius: 4px;
-        margin-bottom: 16px;
+        border-radius: 3px;
+        margin-bottom: 8px;
 
         .status-info {
             display: flex;
-            gap: 32px;
+            gap: 24px;
 
             .info-item {
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 2px;
 
                 .label {
-                    font-size: 11px;
+                    font-size: 10px;
                     text-transform: uppercase;
                     font-weight: 600;
                     color: #666;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.3px;
                 }
 
                 .value {
-                    font-size: 15px;
+                    font-size: 13px;
                     font-weight: 600;
                     color: #333;
                 }
@@ -36,25 +36,25 @@
         .status-indicators {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
 
             .status-badge {
-                padding: 6px 12px;
-                border-radius: 4px;
-                font-size: 12px;
+                padding: 4px 10px;
+                border-radius: 3px;
+                font-size: 11px;
                 font-weight: 600;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
             }
 
             .time-display {
                 font-family: monospace;
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 600;
                 color: #333;
-                padding: 6px 12px;
+                padding: 4px 10px;
                 background: rgba(0, 0, 0, 0.04);
-                border-radius: 4px;
+                border-radius: 3px;
             }
         }
     }
@@ -65,43 +65,43 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 14px;
 
             thead {
                 tr {
                     background: rgba(0, 0, 0, 0.04);
-                    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
                     th {
-                        padding: 10px 12px;
+                        padding: 2px 4px;
                         text-align: left;
                         font-weight: 600;
                         color: #555;
-                        font-size: 12px;
+                        font-size: 11px;
                         text-transform: uppercase;
-                        letter-spacing: 0.3px;
+                        letter-spacing: 0.2px;
 
                         &.lane-col {
-                            width: 50px;
+                            width: 40px;
                             text-align: center;
                         }
 
                         &.name-col {
-                            min-width: 150px;
+                            min-width: 140px;
                         }
 
                         &.team-col {
-                            min-width: 120px;
+                            min-width: 100px;
                         }
 
                         &.meters-col,
                         &.lap-col {
-                            width: 70px;
+                            width: 60px;
                             text-align: center;
                         }
 
                         &.time-col {
-                            width: 90px;
+                            width: 80px;
                             text-align: right;
                         }
                     }
@@ -110,8 +110,8 @@
 
             tbody {
                 tr {
-                    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-                    transition: background 0.15s;
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+                    transition: background 0.1s;
 
                     &:hover {
                         background: rgba(0, 0, 0, 0.02);
@@ -122,7 +122,7 @@
                     }
 
                     td {
-                        padding: 10px 12px;
+                        padding: 2px 4px;
                         color: #333;
 
                         &.lane-col {
@@ -139,6 +139,7 @@
                         &.lap-col {
                             text-align: center;
                             color: #666;
+                            font-size: 11px;
                         }
 
                         &.time-col {
