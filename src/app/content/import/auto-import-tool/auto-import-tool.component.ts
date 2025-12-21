@@ -60,4 +60,8 @@ export class AutoImportToolComponent implements OnDestroy {
     toggleAutoImport() {
         this.fileWatcherService.toggleAutoImport();
     }
+
+    clearLog() {
+        this.fileWatcherService.clearChangeLog();
+    }
 }

@@ -46,13 +46,17 @@ export class FileWatcherService implements OnDestroy {
         });
     }
 
+    clearChangeLog() {
+        this.changeLogSubject.next([]);
+    }
+
     setAutoImportActive(active: boolean): void {
         if (this.autoImportActiveSubject.getValue() === active) {
             return;
         }
 
         this.autoImportActiveSubject.next(active);
-        this.appendToLog(`Auto import ${active ? 'enabled' : 'disabled'}`);
+        this.appendToLog(`Auto import ${active ? 'aktiviert' : 'deaktiviert'}`);
     }
 
     enableAutoImport(): void {

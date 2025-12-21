@@ -35,6 +35,7 @@
     @if (changeLog.length > 0) {
         <div class="changelog-section">
             <h4>Änderungsprotokoll</h4>
+            <button (click)="clearLog()">Log leeren</button>
             <ul class="changelog-list">
                 @for (log of changeLog; track log) {
                     <li>{{ log }}</li>
