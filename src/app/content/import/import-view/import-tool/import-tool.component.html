@@ -46,7 +46,7 @@
                         <mat-radio-group>
                             @for (feature of importFeatures.keys(); track feature) {
                                 <mat-checkbox [checked]="importFeatures.get(feature)" (change)="featureChanged(feature, $event)">
-                                    {{ feature }}
+                                    {{ importFeatureNames.get(feature) }}
                                 </mat-checkbox>
                             }
                         </mat-radio-group>
@@ -97,8 +97,10 @@
                          [class.selected]="file.event.number === currentFile?.event?.number"
                          [class.exists]="file.exists"
                          [class.certified]="file.event.certified"
-                         (click)="onSelectFile(file)">
+                         (click)="onSelectFile(file)"
+                    >
                         <span class="event-number">WK {{ file.event.number }}</span>
+
                         @if (file.event && file.event.style) {
                             <span class="event-details">
                                 {{ file.event.relay_distance ? file.event.relay_distance : file.event.distance }}m

@@ -45,10 +45,21 @@ export class ImportToolComponent implements OnInit {
 
     importFeatures: Map<string, boolean> = new Map([
         ["event", true],
-        ["age_group", true],
+        ["age_group", false],
         ["heat", true],
+        ["start", true],
         ["result", true],
         ["disqualification", true]
+    ]);
+
+
+    importFeatureNames: Map<string, string> = new Map([
+        ["event", "Wettkämpfe"],
+        ["age_group", "Wertungsgruppen"],
+        ["heat", "Läufe"],
+        ["start", "Starts"],
+        ["result", "Ergebnisse"],
+        ["disqualification", "Disqualifikationen"]
     ]);
 
 
