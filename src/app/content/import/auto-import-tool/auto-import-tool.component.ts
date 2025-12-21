@@ -1,10 +1,13 @@
 import {Component, inject, OnDestroy} from '@angular/core';
 import {FileMetadata, FileWatcherService} from '../../../core/service/file-watcher.service';
 import {Subscription} from 'rxjs';
+import {MatSlideToggle} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'sr-auto-import-tool',
-  imports: [],
+    imports: [
+        MatSlideToggle
+    ],
   templateUrl: './auto-import-tool.component.html',
   styleUrl: './auto-import-tool.component.scss'
 })
@@ -14,11 +17,14 @@ export class AutoImportToolComponent implements OnDestroy {
     fileNameSubscription: Subscription;
     fileMetaSubscription: Subscription;
     changeLogSubscription: Subscription;
+    autoImportActiveSubscription: Subscription;
 
     fileName: string | null = null;
     fileMeta: FileMetadata | null = null;
 
     changeLog: string[] = [];
+
+    autoImportActive: boolean = false;
 
     constructor() {
         this.fileNameSubscription = this.fileWatcherService.currentFilePath.subscribe(path => {
@@ -32,15 +38,24 @@ export class AutoImportToolComponent implements OnDestroy {
         this.changeLogSubscription = this.fileWatcherService.changeLog.subscribe(log => {
             this.changeLog = log;
         })
+
+        this.autoImportActiveSubscription = this.fileWatcherService.autoImportActive.subscribe(autoImport => {
+            this.autoImportActive = autoImport;
+        })
     }
 
     ngOnDestroy() {
         this.fileNameSubscription.unsubscribe();
         this.fileMetaSubscription.unsubscribe();
         this.changeLogSubscription.unsubscribe();
+        this.autoImportActiveSubscription.unsubscribe();
     }
 
     selectFile() {
         this.fileWatcherService.openFileDialog();
+    }
+
+    toggleAutoImport() {
+        this.fileWatcherService.toggleAutoImport();
     }
 }

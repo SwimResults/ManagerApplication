@@ -1,11 +1,11 @@
 <div>
     @if (fileName) {
-        <span class="status-box">{{fileName}}</span><br>
+        <span class="status-box">{{ fileName }}</span><br>
     }
 
     @if (fileMeta) {
-        <span class="status-box">Modified: {{fileMeta.lastModified}}</span><br>
-        <span class="status-box">Size: {{fileMeta.size}}</span><br>
+        <span class="status-box">Modified: {{ fileMeta.lastModified }}</span><br>
+        <span class="status-box">Size: {{ fileMeta.size }}</span><br>
     }
 
     <ul>
@@ -16,3 +16,9 @@
 </div>
 
 <button (click)="selectFile()">Datei auswählen</button>
+
+<p>
+    <mat-slide-toggle (click)="toggleAutoImport()" [checked]="autoImportActive">
+        Automatischer Import
+    </mat-slide-toggle>
+</p>
