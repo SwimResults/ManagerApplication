@@ -37,11 +37,11 @@ export class EventListComponent implements OnInit {
             icon: "refresh",
             clickCallback: this.fetch.bind(this)
         },
-        {
-            label: "Wettkampf erstellen",
-            icon: "flag",
-            clickCallback: this.createEvent
-        },
+        //{
+        //    label: "Wettkampf erstellen",
+        //    icon: "flag",
+        //    clickCallback: this.createEvent
+        //},
         {
             label: "Ereignis erstellen",
             icon: "flag",

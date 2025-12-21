@@ -5,18 +5,18 @@
         }
         <span class="connection-status" [class.connected]="isConnected" [class.disconnected]="!isConnected">
             <mat-icon>{{ isConnected ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
-            {{ isConnected ? 'Connected' : 'Disconnected' }}
+            {{ isConnected ? 'Verbunden' : 'Getrennt' }}
         </span>
     </div>
     <div class="button-group">
         <sr-btn
             [color]="isConnected ? 'pdf' : 'info'"
             (click)="isConnected ? closeStream() : openStream()">
-            {{isConnected ? 'Close Stream' : 'Open Stream'}}
+            {{isConnected ? 'Stream schließen' : 'Stream öffnen'}}
         </sr-btn>
         @if (logs.length > 0) {
             <sr-btn (click)="clearLogs()">
-                Clear Logs
+                Log leeren
             </sr-btn>
         }
     </div>

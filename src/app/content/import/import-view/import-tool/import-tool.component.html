@@ -1,6 +1,6 @@
-<sr-btn class="refresh-btn" (btnClick)="fetchEvents()">
+<button class="refresh-btn" (click)="fetchEvents()">
     <mat-icon>refresh</mat-icon>
-</sr-btn>
+</button>
 
 <!--sr-panel panelTitle="Datei-Import"-->
 <sr-group-box boxTitle="Datei-Import">
@@ -8,15 +8,15 @@
         <input [(ngModel)]="importUrl" type="text" class="file-import-url" placeholder="https://file..." [disabled]="selectedFile !== null" (ngModelChange)="onUrlChange()">
         <span style="margin: 0 10px;">oder</span>
         <input type="file" #fileInput (change)="onFileSelect($event)" style="display: none">
-        <sr-btn (btnClick)="fileInput.click()">
+        <button (click)="fileInput.click()">
             <mat-icon>upload_file</mat-icon>
             Datei wählen
-        </sr-btn>
+        </button>
         @if (selectedFile) {
             <span class="selected-file-name">{{ selectedFile.name }}</span>
-            <sr-btn (btnClick)="clearFile()">
+            <button (click)="clearFile()">
                 <mat-icon>close</mat-icon>
-            </sr-btn>
+            </button>
         }
     </div>
 
@@ -65,6 +65,10 @@
         </div>
     </div>
 
+    <p><i>
+        Zur korrekten Anzeige des Import-Fortschritts muss der Stream am rechten Bildschirmrand beendet werden, bevor ein neuer Import gestartet wird.
+    </i></p>
+
 </sr-group-box>
 
 <sr-group-box boxTitle="Protokolldienst">
@@ -86,7 +90,7 @@
     <div class="file-list-buttons">
         <sr-btn [active]="currentFile !== undefined" (btnClick)="setCurrentFileForImport()">
             <mat-icon>arrow_left</mat-icon>
-            <span>Set URL for Import</span></sr-btn>
+            <span>URL für Import setzen</span></sr-btn>
         <sr-btn [active]="currentFile !== undefined" (btnClick)="openCurrentFile()">
             <mat-icon>link</mat-icon>
             <span>Öffnen</span></sr-btn>
