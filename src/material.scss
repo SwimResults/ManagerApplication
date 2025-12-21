@@ -109,6 +109,13 @@ body {
         .mat-mdc-select-value {
             padding-right: 8px !important;
         }
+
+        .mdc-text-field--outlined .mat-mdc-form-field-infix, .mdc-text-field--no-label .mat-mdc-form-field-infix {
+            padding-top: 20px !important;
+            padding-bottom: 4px !important;
+        }
     }
+
+
 }
 
