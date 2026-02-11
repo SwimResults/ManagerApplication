@@ -1,5 +1,5 @@
 import {ApplicationConfig, importProvidersFrom, provideZoneChangeDetection} from '@angular/core';
-import {provideRouter} from '@angular/router';
+import {provideRouter, withHashLocation} from '@angular/router';
 
 import {routes} from './app.routes';
 import {HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptors, withInterceptorsFromDi} from '@angular/common/http';
@@ -41,10 +41,12 @@ export const appConfig: ApplicationConfig = {
         {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
         {provide: OAuthStorage, useFactory: storageFactory},
         {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500}},
-        provideRouter(routes),
+        provideRouter(routes, withHashLocation()),
         provideHttpClient(
             withInterceptors([errorInterceptor]),
             withInterceptorsFromDi()
         ),
     ]
 };
+
+

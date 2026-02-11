@@ -10,6 +10,7 @@ import {WindowLiveTimingDisplayComponent} from './layout/window/window-live-timi
 
 export let routes: Routes;
 routes = [
+    // Display route MUST be first to match before default route
     {
         path: "display",
         component: WindowLiveTimingDisplayComponent
@@ -18,14 +19,14 @@ routes = [
         path: "old",
         component: LiveTimingOldViewComponent
     },
-    {
-        path: "",
-        pathMatch: "full",
-        component: MainComponent
-    },
     {path: 'auth', component: AuthComponent},
     {path: 'auth/logout', component: LogoutComponent},
     {path: "import", component: ImportViewComponent},
     {path: "schedule", component: EventListViewComponent},
     { path: "event/:event_number",  component: EventViewComponent },
+    {
+        path: "",
+        pathMatch: "full",
+        component: MainComponent
+    },
 ];

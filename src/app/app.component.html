@@ -1,11 +1,11 @@
-<div class="app" [ngClass]="{'display-mode': isDisplayRoute()}">
-  @if (!isDisplayRoute()) {
+<div class="app" [ngClass]="{'display-mode': isDisplayMode}">
+  @if (!isDisplayMode) {
     <app-header></app-header>
     <app-sidebar></app-sidebar>
   }
 
   <main>
-    @if (!isDisplayRoute()) {
+    @if (!isDisplayMode) {
       <as-split direction="vertical" unit="percent">
         <as-split-area [size]="70">
           <as-split direction="horizontal" unit="percent">
@@ -26,7 +26,7 @@
     }
   </main>
 
-  @if (!isDisplayRoute()) {
+  @if (!isDisplayMode) {
     <app-status-bar></app-status-bar>
   }
 </div>

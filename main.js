@@ -78,15 +78,27 @@ ipcMain.handle('window:create-display', async () => {
         });
 
         console.log('Window created, window ID:', displayWindow.id);
-        console.log('Loading URL: http://127.0.0.1:' + HTTP_PORT + '/#/display');
 
-        // Load the display route
-        displayWindow.loadURL(`http://127.0.0.1:${HTTP_PORT}/#/display`);
+        // First load the root URL
+        const displayUrl = `http://127.0.0.1:${HTTP_PORT}`;
+        console.log('Loading base URL: ' + displayUrl);
+        displayWindow.loadURL(displayUrl);
+
+        // Wait for the page to be ready, then navigate to display route
+        displayWindow.webContents.on('did-finish-load', () => {
+            console.log('Page loaded, navigating to /display route');
+            displayWindow.webContents.executeJavaScript(`
+                window.location.hash = '#/display';
+                console.log('Navigation to #/display executed');
+            `).catch(err => {
+                console.error('Error navigating:', err);
+            });
+        });
 
         // Open dev tools for debugging
         displayWindow.webContents.openDevTools();
 
-        console.log('Window loaded successfully');
+        console.log('Window setup complete');
         return {
             success: true,
             windowId: displayWindow.id

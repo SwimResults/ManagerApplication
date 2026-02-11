@@ -1,6 +1,10 @@
 <mat-icon>pool</mat-icon>
 
-<h1>{{meeting.getFullSeriesNameWithYear()}}</h1>
+@if (meeting && meeting.getFullSeriesNameWithYear()) {
+  <h1>{{meeting.getFullSeriesNameWithYear()}}</h1>
+} @else {
+  <h1>Swim Results Manager</h1>
+}
 <p>
     Wähle eine Funktion auf der linken Seite aus!
 </p>

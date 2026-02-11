@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import {
     LiveTimingDisplayComponent
 } from '../../../content/live-timing/live-timing-display/live-timing-display.component';
@@ -11,6 +11,12 @@ import {
   templateUrl: './window-live-timing-display.component.html',
   styleUrl: './window-live-timing-display.component.scss'
 })
-export class WindowLiveTimingDisplayComponent {
+export class WindowLiveTimingDisplayComponent implements OnInit, AfterViewInit {
+  ngOnInit() {
+    console.log('[WindowLiveTimingDisplayComponent] Component initialized');
+  }
 
+  ngAfterViewInit() {
+    console.log('[WindowLiveTimingDisplayComponent] View initialized');
+  }
 }
