@@ -141,6 +141,33 @@ export class ElectronService {
     }
   }
 
+  // WINDOW MANAGEMENT
+
+  async openDisplayWindow(): Promise<boolean> {
+    console.log('openDisplayWindow() called');
+    console.log('isElectron:', this.isElectron);
+
+    if (!this.isElectron) {
+      console.warn('Not running in Electron environment');
+      return false;
+    }
+
+    try {
+      console.log('Attempting to invoke IPC: window:create-display');
+      const result = await this.ipcRenderer.invoke('window:create-display');
+      console.log('IPC result:', result);
+      return result.success;
+    } catch (error) {
+      console.error('Error opening display window:', error);
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      return false;
+    }
+  }
+
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);
   }

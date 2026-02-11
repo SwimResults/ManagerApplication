@@ -6,9 +6,14 @@ import {EventListViewComponent} from './content/event/event-list-view/event-list
 import {AuthComponent} from './content/auth/auth.component';
 import {LogoutComponent} from './content/auth/logout/logout.component';
 import {EventViewComponent} from './content/event/event-view/event-view.component';
+import {WindowLiveTimingDisplayComponent} from './layout/window/window-live-timing-display/window-live-timing-display.component';
 
 export let routes: Routes;
 routes = [
+    {
+        path: "display",
+        component: WindowLiveTimingDisplayComponent
+    },
     {
         path: "old",
         component: LiveTimingOldViewComponent

@@ -134,6 +134,21 @@ export class LiveTimingOldViewComponent {
     protected readonly getClassForConnectionState = getClassForConnectionState;
 
     openDisplay() {
-        // TODO: open the display window (window-live-timing-display) as a separate electron window
+        console.log('=== openDisplay() method called ===');
+        console.log('electronService:', this.electronService);
+        console.log('electronService.isElectron:', this.electronService.isElectron);
+
+        this.electronService.openDisplayWindow().then((success) => {
+            console.log('=== openDisplayWindow Promise resolved ===');
+            console.log('Success:', success);
+            if (success) {
+                console.log('Display window opened successfully');
+            } else {
+                console.error('Failed to open display window');
+            }
+        }).catch((error) => {
+            console.error('=== Promise rejected ===');
+            console.error('Error:', error);
+        });
     }
 }

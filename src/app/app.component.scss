@@ -33,4 +33,17 @@
         grid-area: status;
         background-color: var(--color-bg-second);
     }
+
+    &.display-mode {
+        grid-template-areas: "main";
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        grid-gap: 0;
+
+        main {
+            grid-area: main;
+            height: 100%;
+            overflow: hidden;
+        }
+    }
 }

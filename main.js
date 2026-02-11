@@ -42,11 +42,11 @@ function createWindow() {
 
     win.loadURL(`http://127.0.0.1:${HTTP_PORT}`)
 
+    // Open dev tools for debugging
+    // win.webContents.openDevTools()
 
     //let socket = dgram.createSocket({ type: 'udp4', reuseAddr: true, reusePort: true });
     //socket.bind(26);
-
-    //win.webContents.openDevTools()
 }
 
 // IPC handlers
@@ -58,6 +58,46 @@ ipcMain.handle('dialog:openFile', async () => {
         ]
     });
     return result;
+});
+
+// Handler for creating a new display window
+ipcMain.handle('window:create-display', async () => {
+    console.log('=== IPC Handler: window:create-display called ===');
+    try {
+        console.log('Creating new BrowserWindow for display...');
+        const displayWindow = new BrowserWindow({
+            width: 1400,
+            height: 800,
+            icon: `file://${__dirname}/dist/assets/logo.png`,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+                webSecurity: false
+            },
+            title: "Live Timing Display"
+        });
+
+        console.log('Window created, window ID:', displayWindow.id);
+        console.log('Loading URL: http://127.0.0.1:' + HTTP_PORT + '/#/display');
+
+        // Load the display route
+        displayWindow.loadURL(`http://127.0.0.1:${HTTP_PORT}/#/display`);
+
+        // Open dev tools for debugging
+        displayWindow.webContents.openDevTools();
+
+        console.log('Window loaded successfully');
+        return {
+            success: true,
+            windowId: displayWindow.id
+        };
+    } catch (error) {
+        console.error('Error creating display window:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
 });
 
 app.whenReady().then(() => {
