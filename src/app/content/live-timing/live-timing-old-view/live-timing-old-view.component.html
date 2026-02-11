@@ -82,6 +82,7 @@
                     <span class="status-badge {{getClassForConnectionState(srState)}}">{{"STATE." + srState | translate}}</span>
                 </div>
             </div>
+            <button [disabled]="!liveTimingActive" (click)="openDisplay()">Anzeige Öffnen</button>
         </sr-group-box>
 
         <div class="additional-controls">

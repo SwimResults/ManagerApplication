@@ -132,4 +132,8 @@ export class LiveTimingOldViewComponent {
     }
 
     protected readonly getClassForConnectionState = getClassForConnectionState;
+
+    openDisplay() {
+        // TODO: open the display window (window-live-timing-display) as a separate electron window
+    }
 }

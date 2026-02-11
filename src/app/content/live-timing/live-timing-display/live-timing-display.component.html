@@ -1,0 +1,53 @@
+<div class="display-container">
+  <div class="display-header">
+    <div class="event-info">
+      <h1 class="event-title">{{currentHeat.event}} - {{currentHeat.style}}</h1>
+      <p class="heat-info">{{'LIVE_TIMING.STATUS.HEAT' | translate}}: {{currentHeat.heat}}</p>
+    </div>
+    <div class="state-badge" [ngClass]="state === 'RUNNING' ? 'running' : state === 'READY' ? 'ready' : 'not-running'">
+      {{state}}
+    </div>
+  </div>
+
+  <div class="athletes-table-container">
+    <div class="athletes-table">
+      <div class="table-header">
+        <div class="lane-col">Lane</div>
+        <div class="name-col">Name</div>
+        <div class="year-col">Year</div>
+        <div class="team-col">Team</div>
+        <div class="distance-col">Distance</div>
+        <div class="time-col">Time</div>
+      </div>
+
+      <div class="table-body">
+        @for (competitor of getCompetitorsSorted(currentHeat); track competitor.lane) {
+          <div class="table-row">
+            <div class="lane-col">
+              <span class="lane-number">{{competitor.lane}}</span>
+            </div>
+            <div class="name-col">
+              <span class="athlete-name">{{competitor.first_name}} {{competitor.last_name}}</span>
+            </div>
+            <div class="year-col">
+              <span class="athlete-year">{{competitor.year || '-'}}</span>
+            </div>
+            <div class="team-col">
+              <span class="team-name">{{competitor.team}}</span>
+            </div>
+            <div class="distance-col">
+              <span class="distance-value">{{competitor.lapM}}m</span>
+            </div>
+            <div class="time-col">
+              @if (getLatestTime(competitor) >= 0) {
+                <span class="time-value">{{getLatestTime(competitor) | algeTime}}</span>
+              } @else {
+                <span class="time-value empty">-</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

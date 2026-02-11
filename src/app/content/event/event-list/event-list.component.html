@@ -19,7 +19,7 @@
         <tbody>
             @for (part of parts; track part.number) {
                 <tr>
-                    <th colspan="6">Abschnitt {{ part.number }}</th>
+                    <th colspan="7">Abschnitt {{ part.number }}</th>
                 </tr>
 
                 @for (event of part.events; track event._id) {
