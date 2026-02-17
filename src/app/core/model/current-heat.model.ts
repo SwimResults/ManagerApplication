@@ -15,5 +15,6 @@ export interface Competitor {
   team: string;
   lap: number;
   lapM: number;
+  year?: number | string;
   splits: Map<number, number>;
 }

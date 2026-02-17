@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import {
     LiveTimingDisplayComponent
 } from '../../../content/live-timing/live-timing-display/live-timing-display.component';
@@ -9,7 +9,8 @@ import {
         LiveTimingDisplayComponent
     ],
   templateUrl: './window-live-timing-display.component.html',
-  styleUrl: './window-live-timing-display.component.scss'
+  styleUrl: './window-live-timing-display.component.scss',
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class WindowLiveTimingDisplayComponent implements OnInit, AfterViewInit {
   ngOnInit() {
@@ -20,3 +21,5 @@ export class WindowLiveTimingDisplayComponent implements OnInit, AfterViewInit {
     console.log('[WindowLiveTimingDisplayComponent] View initialized');
   }
 }
+
+

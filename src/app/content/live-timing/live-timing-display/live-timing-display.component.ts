@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { AlgeTimePipe } from "../../../core/pipe/alge-time.pipe";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Competitor, CurrentHeatModel } from '../../../core/model/current-heat.model';
@@ -16,30 +16,46 @@ import { CommonModule } from '@angular/common';
     TranslatePipe
   ],
   templateUrl: './live-timing-display.component.html',
-  styleUrl: './live-timing-display.component.scss'
+  styleUrl: './live-timing-display.component.scss',
+  changeDetection: ChangeDetectionStrategy.Default
 })
-export class LiveTimingDisplayComponent implements OnDestroy {
+export class LiveTimingDisplayComponent implements OnInit, OnDestroy {
   private algeService = inject(AlgeService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentHeat: CurrentHeatModel = {} as CurrentHeatModel;
   state: State = State.NOT_RUNNING;
 
-  currentHeatSubscription: Subscription;
-  stateSubscription: Subscription;
+  currentHeatSubscription: Subscription | undefined;
+  stateSubscription: Subscription | undefined;
 
-  constructor() {
+  ngOnInit() {
+    console.log('[LiveTimingDisplayComponent] Component initialized');
+
     this.currentHeatSubscription = this.algeService.currentHeat.subscribe(heat => {
+      console.log('[LiveTimingDisplayComponent] Current heat subscription received:', {
+        event: heat.event,
+        heat: heat.heat,
+        competitors: heat.competitors.size,
+        timestamp: new Date().toISOString()
+      });
       this.currentHeat = heat;
+      console.log('[LiveTimingDisplayComponent] Updated currentHeat, triggering change detection');
+      this.cdr.markForCheck();
     });
 
     this.stateSubscription = this.algeService.state.subscribe(state => {
+      console.log('[LiveTimingDisplayComponent] State subscription received:', state, 'at', new Date().toISOString());
       this.state = state;
+      console.log('[LiveTimingDisplayComponent] Updated state to:', this.state);
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy() {
-    this.currentHeatSubscription.unsubscribe();
-    this.stateSubscription.unsubscribe();
+    console.log('[LiveTimingDisplayComponent] Component destroyed');
+    this.currentHeatSubscription?.unsubscribe();
+    this.stateSubscription?.unsubscribe();
   }
 
   protected readonly getCompetitorsSorted = getCompetitorsSorted;
