@@ -403,7 +403,13 @@
             "METERS": "Meters",
             "LAP": "Lap",
             "TIME": "Time"
-        }
+        },
+        "RUNNING_TIME": "Running Time",
+        "LANE": "Lane",
+        "ATHLETE": "Athlete",
+        "TEAM": "Team",
+        "DISTANCE": "Distance",
+        "TIME": "Time"
     },
     "STATE": {
         "RUNNING": "Running",

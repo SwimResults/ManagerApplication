@@ -407,7 +407,13 @@
             "METERS": "Meter",
             "LAP": "Runde",
             "TIME": "Zeit"
-        }
+        },
+        "RUNNING_TIME": "Laufzeit",
+        "LANE": "Bahn",
+        "ATHLETE": "Athlet",
+        "TEAM": "Verein",
+        "DISTANCE": "Distanz",
+        "TIME": "Zeit"
     },
     "STATE": {
         "RUNNING": "Läuft",
