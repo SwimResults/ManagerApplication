@@ -25,13 +25,41 @@ export class AuthService {
     setup() {
         console.log("loading auth config", authConfig)
         this.oAuthService.configure(authConfig);
-        this.oAuthService.loadDiscoveryDocumentAndTryLogin().then(_ => {
-            this.refreshToken().then(_ => {
+
+        // Subscribe to all OAuth events to debug
+        this.oAuthService.events.subscribe(event => {
+            console.log('[AuthService] OAuth Event:', event.type, event);
+        });
+
+        this.oAuthService.loadDiscoveryDocumentAndTryLogin().then(loginResult => {
+            console.log("[AuthService] loadDiscoveryDocumentAndTryLogin result:", loginResult);
+            console.log("[AuthService] Has valid access token:", this.oAuthService.hasValidAccessToken());
+            console.log("[AuthService] Has valid ID token:", this.oAuthService.hasValidIdToken());
+            console.log("[AuthService] Refresh token exists:", !!this.oAuthService.getRefreshToken());
+            console.log("[AuthService] Access token:", this.oAuthService.getAccessToken()?.substring(0, 50) + "...");
+
+            // Check if we have valid tokens (either from fresh login or existing session)
+            if (this.oAuthService.hasValidAccessToken()) {
+                console.log("[AuthService] Valid access token found");
+                this.loadTokenData();
                 this.oAuthService.setupAutomaticSilentRefresh();
-            }).catch(_ => {
+            } else if (this.oAuthService.getRefreshToken()) {
+                // Only try to refresh if we have a refresh token but no valid access token
+                console.log("[AuthService] No valid access token, attempting refresh");
+                this.refreshToken().then(_ => {
+                    this.oAuthService.setupAutomaticSilentRefresh();
+                }).catch(err => {
+                    console.error("[AuthService] Refresh token failed:", err);
+                    this.setAuthenticated(false);
+                });
+            } else {
+                console.log("[AuthService] No valid tokens or refresh token available");
                 this.setAuthenticated(false);
-            });
-        })
+            }
+        }).catch(err => {
+            console.error("[AuthService] loadDiscoveryDocumentAndTryLogin error:", err);
+            this.setAuthenticated(false);
+        });
     }
 
     login() {

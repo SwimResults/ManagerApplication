@@ -37,7 +37,22 @@ function startHttpServer() {
     // Serve static files from the dist folder
     httpApp.use(express.static(distPath))
 
-    // Handle all routes by serving index.html (for Angular routing)
+    // Special handling for OAuth callback - redirect to hash-based route
+    httpApp.get('/auth', (req, res) => {
+        console.log('[HTTP Server] OAuth callback received:', req.url);
+        // Preserve query parameters (code, state, etc.)
+        const queryString = req.url.split('?')[1] || '';
+        const redirectUrl = `/#/auth${queryString ? '?' + queryString : ''}`;
+        console.log('[HTTP Server] Redirecting to:', redirectUrl);
+        res.redirect(redirectUrl);
+    });
+
+    httpApp.get('/auth/logout', (req, res) => {
+        console.log('[HTTP Server] Logout callback received');
+        res.redirect('/#/auth/logout');
+    });
+
+    // Handle all other routes by serving index.html (for Angular routing)
     httpApp.get(/.*/, (req, res) => {
         res.sendFile(path.join(distPath, 'index.html'))
     })
