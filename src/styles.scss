@@ -109,6 +109,12 @@ button {
     .mat-icon {
         vertical-align: middle;
     }
+
+    &:disabled,
+    &[disabled] {
+        filter: contrast(0.3) brightness(1.4);
+        cursor: not-allowed;
+    }
 }
 
 input,
