@@ -159,13 +159,14 @@
 .table-row {
   display: grid;
   grid-template-columns: 8% 30% 22% 20% 20%;
-  gap: 0.8rem;
-  padding: 0.9rem 1.5rem;
+  gap: 0.45rem;
+  padding: 0.35rem 1.2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   align-items: center;
-  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  font-size: clamp(1.2rem, 2.8vw, 1.75rem);
   flex: 1;
   min-height: 0;
+  line-height: 0.95;
 
   &:last-child {
     border-bottom: none;
@@ -181,7 +182,7 @@
   align-items: center;
   font-weight: 700;
   color: #00d9ff;
-  font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+  font-size: clamp(1.25rem, 3.2vw, 2rem);
   min-width: 0;
 }
 
@@ -194,6 +195,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   letter-spacing: 0.2px;
+  line-height: 0.95;
   min-width: 0;
 }
 
@@ -205,7 +207,8 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   font-weight: 400;
-  font-size: 0.95em;
+  font-size: 1em;
+  line-height: 0.95;
   min-width: 0;
 }
 
@@ -215,7 +218,8 @@
   align-items: center;
   font-weight: 600;
   color: #00ff88;
-  font-size: 0.95em;
+  font-size: 1em;
+  line-height: 0.95;
   min-width: 0;
 }
 
@@ -225,10 +229,11 @@
   align-items: center;
   font-family: 'Courier New', monospace;
   font-weight: 600;
-  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  font-size: clamp(1.2rem, 2.8vw, 1.7rem);
   color: #ffff00;
   text-shadow: 0 0 8px rgba(255, 255, 0, 0.4);
   letter-spacing: 0.5px;
+  line-height: 0.95;
   min-width: 0;
 }
 
