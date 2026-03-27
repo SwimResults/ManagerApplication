@@ -10,10 +10,11 @@ import {LiveTimingViewComponent} from './content/live-timing/live-timing-view/li
 import {ImportStreamViewComponent} from './content/import/import-stream-view/import-stream-view.component';
 import {CommonModule} from '@angular/common';
 import {filter, Subscription} from 'rxjs';
+import {ActiveViewModeDirective} from './core/directive/active-view-mode.directive';
 
 @Component({
   selector: 'app-root',
-    imports: [CommonModule, RouterOutlet, FormsModule, SidebarComponent, StatusBarComponent, HeaderComponent, SplitComponent, SplitAreaComponent, LiveTimingViewComponent, ImportStreamViewComponent],
+    imports: [CommonModule, RouterOutlet, FormsModule, SidebarComponent, StatusBarComponent, HeaderComponent, SplitComponent, SplitAreaComponent, LiveTimingViewComponent, ImportStreamViewComponent, ActiveViewModeDirective],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true

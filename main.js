@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron/main')
+const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron/main')
 const path = require('node:path')
 const dgram = require('node:dgram')
 const express = require('express')
@@ -19,8 +19,129 @@ const sharedState = {
   },
   state: 'NOT_RUNNING', // RUNNING, READY, NOT_RUNNING
   algeState: 'DISCONNECTED', // CONNECTED, DISCONNECTED
-  udpActive: false
+    udpActive: false,
+    viewMode: 'simple' // simple, advanced, expert
 };
+
+function setViewMode(mode) {
+    const allowedModes = ['simple', 'advanced', 'expert'];
+    if (!allowedModes.includes(mode)) {
+        return false;
+    }
+
+    if (sharedState.viewMode !== mode) {
+        console.log('[MainProcess] Updating view mode:', mode);
+        sharedState.viewMode = mode;
+        BrowserWindow.getAllWindows().forEach(window => {
+            window.webContents.send('view-mode:changed', mode);
+        });
+    }
+
+    return true;
+}
+
+function createApplicationMenu() {
+    const viewModeMenuItems = [
+        {
+            label: 'Simple',
+            type: 'radio',
+            checked: sharedState.viewMode === 'simple',
+            click: () => setViewMode('simple')
+        },
+        {
+            label: 'Advanced',
+            type: 'radio',
+            checked: sharedState.viewMode === 'advanced',
+            click: () => setViewMode('advanced')
+        },
+        {
+            label: 'Expert',
+            type: 'radio',
+            checked: sharedState.viewMode === 'expert',
+            click: () => setViewMode('expert')
+        }
+    ];
+
+    const template = [
+        ...(process.platform === 'darwin' ? [{
+            label: app.name,
+            submenu: [
+                { role: 'about' },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideOthers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' }
+            ]
+        }] : []),
+        {
+            label: 'File',
+            submenu: [
+                process.platform === 'darwin' ? { role: 'close' } : { role: 'quit' }
+            ]
+        },
+        {
+            label: 'Edit',
+            submenu: [
+                { role: 'undo' },
+                { role: 'redo' },
+                { type: 'separator' },
+                { role: 'cut' },
+                { role: 'copy' },
+                { role: 'paste' },
+                ...(process.platform === 'darwin' ? [
+                    { role: 'pasteAndMatchStyle' },
+                    { role: 'delete' },
+                    { role: 'selectAll' }
+                ] : [
+                    { role: 'delete' },
+                    { type: 'separator' },
+                    { role: 'selectAll' }
+                ])
+            ]
+        },
+        {
+            label: 'View',
+            submenu: [
+                {
+                    label: 'View Mode',
+                    submenu: viewModeMenuItems
+                },
+                { type: 'separator' },
+                { role: 'reload' },
+                { role: 'forceReload' },
+                { role: 'toggleDevTools' },
+                { type: 'separator' },
+                { role: 'resetZoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' }
+            ]
+        },
+        {
+            label: 'Window',
+            submenu: [
+                { role: 'minimize' },
+                { role: 'zoom' },
+                ...(process.platform === 'darwin' ? [
+                    { type: 'separator' },
+                    { role: 'front' },
+                    { type: 'separator' },
+                    { role: 'window' }
+                ] : [
+                    { role: 'close' }
+                ])
+            ]
+        }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+}
 
 // Notify all windows that state changed
 function broadcastStateChange(changeType, data) {
@@ -120,6 +241,18 @@ ipcMain.handle('alge:get-udp-active', async () => {
     return sharedState.udpActive;
 });
 
+ipcMain.handle('view-mode:get', async () => {
+    return sharedState.viewMode;
+});
+
+ipcMain.handle('view-mode:set', async (event, mode) => {
+    const updated = setViewMode(mode);
+    return {
+      success: updated,
+      viewMode: sharedState.viewMode
+    };
+});
+
 // === MAIN PROCESS UPDATES STATE ===
 // These are called by the main window when UDP data arrives
 // Only broadcast if the value actually changed
@@ -196,7 +329,7 @@ ipcMain.handle('window:create-display', async () => {
         });
 
         // Open dev tools for debugging
-        displayWindow.webContents.openDevTools();
+        //displayWindow.webContents.openDevTools();
 
         console.log('Window setup complete');
         return {
@@ -213,6 +346,8 @@ ipcMain.handle('window:create-display', async () => {
 });
 
 app.whenReady().then(() => {
+    createApplicationMenu();
+
     startHttpServer().then(() => {
         createWindow()
     })
