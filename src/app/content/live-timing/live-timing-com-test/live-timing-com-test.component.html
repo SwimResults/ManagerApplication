@@ -1,0 +1,109 @@
+<div class="live-timing-old-container com-test-container">
+	<h1>Serial COM Test</h1>
+
+	<div class="live-timing-grid com-test-grid">
+		<div class="settings-section">
+			<h4>Connection</h4>
+
+			<div class="form-field">
+				<label for="com-port">Port</label>
+				<select id="com-port" [(ngModel)]="selectedPortPath" [disabled]="status.isListening || isBusy || isLoadingPorts">
+					<option value="" disabled>Select a COM port</option>
+					@for (port of ports; track trackByPort($index, port)) {
+						<option [value]="port.path">{{ port.path }}{{ port.manufacturer ? ' (' + port.manufacturer + ')' : '' }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="form-field">
+				<label for="baud-rate">Baud Rate</label>
+				<input id="baud-rate" type="number" min="1" [(ngModel)]="baudRate" [disabled]="status.isListening || isBusy">
+			</div>
+
+			<div class="form-field">
+				<label for="data-bits">Data Bits</label>
+				<select id="data-bits" [(ngModel)]="dataBits" [disabled]="status.isListening || isBusy">
+					@for (option of dataBitOptions; track option) {
+						<option [ngValue]="option">{{ option }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="form-field">
+				<label for="stop-bits">Stop Bits</label>
+				<select id="stop-bits" [(ngModel)]="stopBits" [disabled]="status.isListening || isBusy">
+					@for (option of stopBitOptions; track option) {
+						<option [ngValue]="option">{{ option }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="form-field">
+				<label for="parity">Parity</label>
+				<select id="parity" [(ngModel)]="parity" [disabled]="status.isListening || isBusy">
+					@for (option of parityOptions; track option) {
+						<option [value]="option">{{ option }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="service-control com-actions">
+				<span class="service-label">Serial:</span>
+				<div class="button-group">
+					<button type="button" (click)="refreshPorts()" [disabled]="isLoadingPorts || isBusy || status.isListening">
+						{{ isLoadingPorts ? 'Refreshing...' : 'Refresh' }}
+					</button>
+					<button type="button" (click)="startListening()" [disabled]="!selectedPortPath || status.isListening || isBusy">
+						Start
+					</button>
+					<button type="button" (click)="stopListening()" [disabled]="!status.isListening || isBusy">
+						Stop
+					</button>
+					<button type="button" (click)="clearMessages()" [disabled]="messages.length === 0">
+						Clear
+					</button>
+				</div>
+				<span class="status-badge {{status.isListening ? 'success' : 'error'}}">{{ status.isListening ? 'LISTENING' : 'STOPPED' }}</span>
+			</div>
+
+			@if (status.error) {
+				<div class="status-error">Error: {{ status.error }}</div>
+			}
+		</div>
+
+		<sr-group-box boxTitle="Status" class="status-box-wide">
+			<div class="connection-statuses">
+				<div class="connection-status">
+					<span class="connection-label">Port:</span>
+					<span>{{ status.portPath ?? '-' }}</span>
+				</div>
+				<div class="connection-status">
+					<span class="connection-label">Bytes:</span>
+					<span>{{ messages.length }}</span>
+				</div>
+			</div>
+		</sr-group-box>
+
+		<div class="messages settings-section">
+			<h4>Received Messages</h4>
+
+			@if (messages.length === 0) {
+				<p class="empty">No messages received yet.</p>
+			} @else {
+				<ul class="log-list">
+					@for (message of messages; track trackByMessage($index, message)) {
+						<li>
+							<div class="log-line">
+								<span class="time">{{ message.timestamp | date:'HH:mm:ss.SSS' }} ({{ message.byteLength }} bytes)</span>
+								<span class="payload">{{ message.message }}</span>
+							</div>
+							@if (message.hexDump) {
+								<pre class="hex-dump">{{ message.hexDump }}</pre>
+							}
+						</li>
+					}
+				</ul>
+			}
+		</div>
+	</div>
+</div>

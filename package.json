@@ -16,6 +16,7 @@
         "test": "ng test",
         "electron": "electron .",
         "electron-build": "ng build --base-href ./ && electron .",
+        "electron-build-test": "ng build --base-href ./ --configuration test && electron .",
         "package": "electron-forge package",
         "make": "electron-forge make",
         "make-win32": "electron-forge make --platform win32"
@@ -39,6 +40,7 @@
         "electron-squirrel-startup": "^1.0.1",
         "express": "^5.2.1",
         "rxjs": "~7.8.0",
+        "serialport": "^13.0.0",
         "tslib": "^2.3.0",
         "zone.js": "~0.15.0"
     },

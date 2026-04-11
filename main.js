@@ -1,7 +1,15 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron/main')
 const path = require('node:path')
+const fs = require('node:fs')
 const dgram = require('node:dgram')
 const express = require('express')
+
+let SerialPort = null
+try {
+    ({SerialPort} = require('serialport'))
+} catch (error) {
+    console.warn('[MainProcess] serialport dependency not found. Serial COM feature is disabled.', error)
+}
 
 const HTTP_PORT = 3000
 
@@ -23,6 +31,54 @@ const sharedState = {
     viewMode: 'simple' // simple, advanced, expert
 };
 
+const SETTINGS_FILE_NAME = 'settings.json';
+
+const serialState = {
+    port: null,
+    status: {
+        isListening: false,
+        portPath: null,
+        error: null
+    }
+};
+
+function getSettingsPath() {
+    return path.join(app.getPath('userData'), SETTINGS_FILE_NAME);
+}
+
+function loadPersistedViewMode() {
+    try {
+        const settingsPath = getSettingsPath();
+        if (!fs.existsSync(settingsPath)) {
+            return;
+        }
+
+        const raw = fs.readFileSync(settingsPath, 'utf-8');
+        const parsed = JSON.parse(raw);
+        const mode = parsed?.viewMode;
+
+        if (['simple', 'advanced', 'expert'].includes(mode)) {
+            sharedState.viewMode = mode;
+            console.log('[MainProcess] Restored persisted view mode:', mode);
+        }
+    } catch (error) {
+        console.warn('[MainProcess] Failed to load persisted view mode:', error);
+    }
+}
+
+function persistViewMode(mode) {
+    try {
+        const settingsPath = getSettingsPath();
+        const payload = {
+            viewMode: mode
+        };
+
+        fs.writeFileSync(settingsPath, JSON.stringify(payload, null, 2), 'utf-8');
+    } catch (error) {
+        console.warn('[MainProcess] Failed to persist view mode:', error);
+    }
+}
+
 function setViewMode(mode) {
     const allowedModes = ['simple', 'advanced', 'expert'];
     if (!allowedModes.includes(mode)) {
@@ -32,6 +88,8 @@ function setViewMode(mode) {
     if (sharedState.viewMode !== mode) {
         console.log('[MainProcess] Updating view mode:', mode);
         sharedState.viewMode = mode;
+        persistViewMode(mode);
+        createApplicationMenu();
         BrowserWindow.getAllWindows().forEach(window => {
             window.webContents.send('view-mode:changed', mode);
         });
@@ -141,6 +199,237 @@ function createApplicationMenu() {
 
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
+}
+
+function broadcastSerialStatus() {
+    BrowserWindow.getAllWindows().forEach(window => {
+        window.webContents.send('serial:status', serialState.status)
+    })
+}
+
+function formatHexDump(buffer, bytesPerLine = 16) {
+    const lines = []
+
+    for (let i = 0; i < buffer.length; i += bytesPerLine) {
+        const chunk = buffer.subarray(i, i + bytesPerLine)
+        const offset = i.toString(16).padStart(4, '0')
+        const hex = Array.from(chunk)
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join(' ')
+        lines.push(`${offset}: ${hex}`)
+    }
+
+    return lines.join('\n')
+}
+
+function broadcastSerialMessage(data) {
+    const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data)
+
+    const payload = {
+        message: buffer.toString('utf-8'),
+        hexDump: formatHexDump(buffer),
+        byteLength: buffer.length,
+        timestamp: new Date().toISOString()
+    }
+
+    BrowserWindow.getAllWindows().forEach(window => {
+        window.webContents.send('serial:message', payload)
+    })
+}
+
+function broadcastSerialError(message) {
+    BrowserWindow.getAllWindows().forEach(window => {
+        window.webContents.send('serial:error', message)
+    })
+}
+
+function updateSerialStatus(partialStatus) {
+    serialState.status = {
+        ...serialState.status,
+        ...partialStatus
+    }
+    broadcastSerialStatus()
+}
+
+function normalizeSerialConfig(config) {
+    if (!config || typeof config !== 'object') {
+        throw new Error('Invalid serial configuration payload.')
+    }
+
+    const path = typeof config.path === 'string' ? config.path.trim() : ''
+    const baudRate = Number(config.baudRate)
+    const dataBits = Number(config.dataBits)
+    const stopBits = Number(config.stopBits)
+    const parity = typeof config.parity === 'string' ? config.parity : 'none'
+
+    const validDataBits = [5, 6, 7, 8]
+    const validStopBits = [1, 2]
+    const validParity = ['none', 'even', 'odd', 'mark', 'space']
+
+    if (!path) {
+        throw new Error('A serial port path must be selected.')
+    }
+
+    if (!Number.isInteger(baudRate) || baudRate <= 0) {
+        throw new Error('Baud rate must be a positive integer.')
+    }
+
+    if (!validDataBits.includes(dataBits)) {
+        throw new Error('Unsupported data bits value.')
+    }
+
+    if (!validStopBits.includes(stopBits)) {
+        throw new Error('Unsupported stop bits value.')
+    }
+
+    if (!validParity.includes(parity)) {
+        throw new Error('Unsupported parity value.')
+    }
+
+    return {
+        path,
+        baudRate,
+        dataBits,
+        stopBits,
+        parity
+    }
+}
+
+function closeSerialPort() {
+    return new Promise(resolve => {
+        if (!serialState.port) {
+            updateSerialStatus({
+                isListening: false,
+                portPath: null,
+                error: null
+            })
+            resolve({success: true})
+            return
+        }
+
+        const currentPort = serialState.port
+        serialState.port = null
+
+        if (!currentPort.isOpen) {
+            updateSerialStatus({
+                isListening: false,
+                portPath: null,
+                error: null
+            })
+            resolve({success: true})
+            return
+        }
+
+        currentPort.close(error => {
+            if (error) {
+                const message = error.message || 'Failed to close serial port.'
+                updateSerialStatus({
+                    isListening: false,
+                    portPath: null,
+                    error: message
+                })
+                broadcastSerialError(message)
+                resolve({success: false, error: message})
+                return
+            }
+
+            updateSerialStatus({
+                isListening: false,
+                portPath: null,
+                error: null
+            })
+            resolve({success: true})
+        })
+    })
+}
+
+async function startSerialListener(config) {
+    if (!SerialPort) {
+        return {success: false, error: 'serialport package is not available.'}
+    }
+
+    let normalizedConfig
+    try {
+        normalizedConfig = normalizeSerialConfig(config)
+    } catch (error) {
+        const message = error.message || 'Invalid serial configuration.'
+        updateSerialStatus({error: message})
+        return {success: false, error: message}
+    }
+
+    if (serialState.port) {
+        const stopResult = await closeSerialPort()
+        if (!stopResult.success) {
+            return stopResult
+        }
+    }
+
+    return new Promise(resolve => {
+        try {
+            const port = new SerialPort({
+                ...normalizedConfig,
+                autoOpen: false
+            })
+
+            serialState.port = port
+
+            port.on('data', data => {
+                if (!data || data.length === 0) {
+                    return
+                }
+                broadcastSerialMessage(data)
+            })
+
+            port.on('error', error => {
+                const message = error.message || 'Serial port error.'
+                updateSerialStatus({
+                    isListening: false,
+                    error: message
+                })
+                broadcastSerialError(message)
+            })
+
+            port.on('close', () => {
+                serialState.port = null
+                updateSerialStatus({
+                    isListening: false,
+                    portPath: null
+                })
+            })
+
+            port.open(error => {
+                if (error) {
+                    const message = error.message || 'Failed to open serial port.'
+                    serialState.port = null
+                    updateSerialStatus({
+                        isListening: false,
+                        portPath: null,
+                        error: message
+                    })
+                    broadcastSerialError(message)
+                    resolve({success: false, error: message})
+                    return
+                }
+
+                updateSerialStatus({
+                    isListening: true,
+                    portPath: normalizedConfig.path,
+                    error: null
+                })
+                resolve({success: true})
+            })
+        } catch (error) {
+            const message = error.message || 'Failed to start serial listener.'
+            serialState.port = null
+            updateSerialStatus({
+                isListening: false,
+                portPath: null,
+                error: message
+            })
+            broadcastSerialError(message)
+            resolve({success: false, error: message})
+        }
+    })
 }
 
 // Notify all windows that state changed
@@ -253,6 +542,31 @@ ipcMain.handle('view-mode:set', async (event, mode) => {
     };
 });
 
+ipcMain.handle('serial:list-ports', async () => {
+    if (!SerialPort) {
+        return []
+    }
+
+    try {
+        return await SerialPort.list()
+    } catch (error) {
+        console.error('[MainProcess] Failed to list serial ports:', error)
+        return []
+    }
+})
+
+ipcMain.handle('serial:get-status', async () => {
+    return serialState.status
+})
+
+ipcMain.handle('serial:start-listening', async (event, config) => {
+    return await startSerialListener(config)
+})
+
+ipcMain.handle('serial:stop-listening', async () => {
+    return await closeSerialPort()
+})
+
 // === MAIN PROCESS UPDATES STATE ===
 // These are called by the main window when UDP data arrives
 // Only broadcast if the value actually changed
@@ -346,6 +660,7 @@ ipcMain.handle('window:create-display', async () => {
 });
 
 app.whenReady().then(() => {
+    loadPersistedViewMode();
     createApplicationMenu();
 
     startHttpServer().then(() => {
@@ -363,6 +678,7 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+        closeSerialPort()
         app.quit()
     }
 })

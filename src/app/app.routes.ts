@@ -7,10 +7,16 @@ import {AuthComponent} from './content/auth/auth.component';
 import {LogoutComponent} from './content/auth/logout/logout.component';
 import {EventViewComponent} from './content/event/event-view/event-view.component';
 import {WindowLiveTimingDisplayComponent} from './layout/window/window-live-timing-display/window-live-timing-display.component';
+import {LiveTimingComTestComponent} from './content/live-timing/live-timing-com-test/live-timing-com-test.component';
+import {LiveTimingOmegaComponent} from './content/live-timing/live-timing-omega/live-timing-omega.component';
 
 export let routes: Routes;
 routes = [
     // Display route MUST be first to match before default route
+    {
+        path: "com-test",
+        component: LiveTimingComTestComponent
+    },
     {
         path: "display",
         component: WindowLiveTimingDisplayComponent
@@ -19,6 +25,7 @@ routes = [
         path: "old",
         component: LiveTimingOldViewComponent
     },
+    {path: 'omega', component: LiveTimingOmegaComponent},
     {path: 'auth', component: AuthComponent},
     {path: 'auth/logout', component: LogoutComponent},
     {path: "import", component: ImportViewComponent},

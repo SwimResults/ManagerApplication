@@ -1,0 +1,189 @@
+.status-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.status-badge.success {
+	background: #e8f5e8;
+	color: #2e7d32;
+}
+
+.status-badge.error {
+	background: #ffebee;
+	color: #c62828;
+}
+
+.com-test-container {
+	padding: 20px;
+
+	h1 {
+		margin: 0 0 24px 0;
+		font-size: 24px;
+		font-weight: 500;
+		color: #333;
+	}
+
+	.com-test-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 20px;
+		align-items: start;
+	}
+
+	.status-box-wide {
+		grid-column: span 2;
+	}
+
+	.settings-section {
+		h4 {
+			margin: 0 0 12px 0;
+			font-size: 13px;
+			font-weight: 600;
+			color: #555;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.section-divider {
+			height: 1px;
+			background: rgba(0, 0, 0, 0.12);
+			margin: 20px 0;
+		}
+
+		.save-btn {
+			margin-top: 16px;
+			padding: 8px 16px;
+			float: right;
+		}
+	}
+
+	.form-field {
+		display: grid;
+		grid-template-columns: 150px 1fr;
+		gap: 12px;
+		align-items: center;
+		margin-bottom: 12px;
+
+		label {
+			font-size: 13px;
+			color: #555;
+			font-weight: 500;
+		}
+
+		input,
+		select {
+			padding: 6px 10px;
+			font-size: 13px;
+		}
+	}
+
+	.service-control {
+		display: grid;
+		grid-template-columns: 100px auto 1fr;
+		gap: 12px;
+		align-items: center;
+		padding: 12px;
+		background: rgba(0, 0, 0, 0.02);
+		border-radius: 4px;
+		margin-top: 8px;
+
+		.service-label {
+			font-weight: 600;
+			color: #555;
+			font-size: 13px;
+		}
+
+		.button-group {
+			display: flex;
+			gap: 8px;
+
+			button {
+				min-width: 70px;
+				padding: 6px 12px;
+			}
+		}
+
+		.status-badge {
+			text-align: right;
+		}
+	}
+
+	.connection-statuses {
+		.connection-status {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+
+			.connection-label {
+				font-weight: 600;
+				color: #555;
+				font-size: 13px;
+				display: inline-block;
+				width: 100px;
+			}
+		}
+	}
+
+	.status-error {
+		margin-top: 8px;
+		color: #c62828;
+		font-size: 13px;
+		font-weight: 600;
+	}
+
+	.messages {
+		grid-column: span 2;
+	}
+
+	.log-list {
+		max-height: 320px;
+		overflow-y: auto;
+		margin: 0;
+		font-size: 12px;
+		font-family: monospace;
+		background: white;
+		border-radius: 4px;
+		padding: 12px;
+		list-style: none;
+
+		li {
+			margin-bottom: 10px;
+			color: #555;
+			line-height: 1.5;
+		}
+	}
+
+	.log-line {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.time {
+		color: #666;
+		font-weight: 600;
+	}
+
+	.payload {
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	.hex-dump {
+		margin: 6px 0 0;
+		padding: 8px 10px;
+		background: rgba(0, 0, 0, 0.05);
+		border-radius: 4px;
+		white-space: pre;
+		overflow-x: auto;
+	}
+
+	.empty {
+		margin: 0;
+		color: #666;
+	}
+}
