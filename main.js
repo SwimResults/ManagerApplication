@@ -35,6 +35,7 @@ const SETTINGS_FILE_NAME = 'settings.json';
 
 const serialState = {
     port: null,
+    transmissionBuffer: [],
     status: {
         isListening: false,
         portPath: null,
@@ -207,6 +208,36 @@ function broadcastSerialStatus() {
     })
 }
 
+function translateSerialByte(byte) {
+    switch (byte) {
+        case 0x01:
+            return '[SOH]'
+        case 0x02:
+            return '[STX]'
+        case 0x04:
+            return '[EOT]'
+        case 0x08:
+            return '[HOME]'
+        case 0x10:
+            return '[LF]'
+        case 0x12:
+            return '[DC2]'
+        case 0x14:
+            return '[DC4]'
+        case 0x20:
+            return '¬'
+        default:
+            return String.fromCharCode(byte)
+    }
+}
+
+function formatSerialTransmission(buffer) {
+    return buffer
+        .filter(byte => byte !== 0x0A && byte !== 0x0D)
+        .map(byte => translateSerialByte(byte))
+        .join('')
+}
+
 function formatHexDump(buffer, bytesPerLine = 16) {
     const lines = []
 
@@ -224,9 +255,10 @@ function formatHexDump(buffer, bytesPerLine = 16) {
 
 function broadcastSerialMessage(data) {
     const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data)
+    const transmissionBytes = Array.from(buffer)
 
     const payload = {
-        message: buffer.toString('utf-8'),
+        message: formatSerialTransmission(transmissionBytes),
         hexDump: formatHexDump(buffer),
         byteLength: buffer.length,
         timestamp: new Date().toISOString()
@@ -241,6 +273,31 @@ function broadcastSerialError(message) {
     BrowserWindow.getAllWindows().forEach(window => {
         window.webContents.send('serial:error', message)
     })
+}
+
+function resetSerialTransmissionBuffer() {
+    serialState.transmissionBuffer = []
+}
+
+function finalizeSerialTransmission() {
+    if (serialState.transmissionBuffer.length === 0) {
+        return
+    }
+
+    broadcastSerialMessage(Buffer.from(serialState.transmissionBuffer))
+    resetSerialTransmissionBuffer()
+}
+
+function handleSerialByte(byte) {
+    if (byte === 0x0A || byte === 0x0D) {
+        return
+    }
+
+    serialState.transmissionBuffer.push(byte)
+
+    if (byte === 0x04) {
+        finalizeSerialTransmission()
+    }
 }
 
 function updateSerialStatus(partialStatus) {
@@ -298,6 +355,7 @@ function normalizeSerialConfig(config) {
 function closeSerialPort() {
     return new Promise(resolve => {
         if (!serialState.port) {
+            resetSerialTransmissionBuffer()
             updateSerialStatus({
                 isListening: false,
                 portPath: null,
@@ -311,6 +369,7 @@ function closeSerialPort() {
         serialState.port = null
 
         if (!currentPort.isOpen) {
+            resetSerialTransmissionBuffer()
             updateSerialStatus({
                 isListening: false,
                 portPath: null,
@@ -321,6 +380,7 @@ function closeSerialPort() {
         }
 
         currentPort.close(error => {
+            resetSerialTransmissionBuffer()
             if (error) {
                 const message = error.message || 'Failed to close serial port.'
                 updateSerialStatus({
@@ -372,15 +432,20 @@ async function startSerialListener(config) {
             })
 
             serialState.port = port
+            resetSerialTransmissionBuffer()
 
             port.on('data', data => {
                 if (!data || data.length === 0) {
                     return
                 }
-                broadcastSerialMessage(data)
+
+                for (const byte of Buffer.from(data)) {
+                    handleSerialByte(byte)
+                }
             })
 
             port.on('error', error => {
+                resetSerialTransmissionBuffer()
                 const message = error.message || 'Serial port error.'
                 updateSerialStatus({
                     isListening: false,
@@ -391,6 +456,7 @@ async function startSerialListener(config) {
 
             port.on('close', () => {
                 serialState.port = null
+                resetSerialTransmissionBuffer()
                 updateSerialStatus({
                     isListening: false,
                     portPath: null
