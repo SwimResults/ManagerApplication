@@ -260,6 +260,7 @@ function broadcastSerialMessage(data) {
     const payload = {
         message: formatSerialTransmission(transmissionBytes),
         hexDump: formatHexDump(buffer),
+        bytes: transmissionBytes,
         byteLength: buffer.length,
         timestamp: new Date().toISOString()
     }

@@ -1,8 +1,9 @@
 import {Injectable, NgZone} from '@angular/core';
-import {BehaviorSubject, ReplaySubject, Subject, switchMap, timer} from 'rxjs';
+import {BehaviorSubject, Observable, ReplaySubject, Subject, switchMap, timer} from 'rxjs';
 import {Competitor, CurrentHeatModel} from '../model/current-heat.model';
 import {ConnectionState, State} from '../model/state.model';
 import {ImportService} from './import.service';
+import {TimingStateService} from './timing-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,18 +15,9 @@ export class AlgeService {
   private udpActiveSubject = new ReplaySubject<boolean>();
   public udpActive = this.udpActiveSubject.asObservable();
 
-  private currentHeatSubject = new BehaviorSubject<CurrentHeatModel>({
-    event: 0,
-    heat: 0,
-    distance: 0,
-    laps: 0,
-    runningTime: -1,
-    competitors: new Map<number, Competitor>()
-  } as CurrentHeatModel);
-  public currentHeat = this.currentHeatSubject.asObservable();
+  public currentHeat: Observable<CurrentHeatModel>;
 
-  private stateSubject = new BehaviorSubject<State>(State.NOT_RUNNING);
-  public state = this.stateSubject.asObservable();
+  public state: Observable<State>;
 
   private algeStateSubject = new BehaviorSubject<ConnectionState>(ConnectionState.DISCONNECTED);
   public algeState = this.algeStateSubject.asObservable();
@@ -34,8 +26,11 @@ export class AlgeService {
 
   constructor(
     private importService: ImportService,
+    private timingStateService: TimingStateService,
     private ngZone: NgZone
   ) {
+    this.currentHeat = this.timingStateService.currentHeat;
+    this.state = this.timingStateService.state;
     this.setupTimeoutCheck();
     this.setupIpcSync();
   }
@@ -55,31 +50,33 @@ export class AlgeService {
     switch (fields[0]) {
       case "Time":
         if (fields[2] === "RunningTime") {
-          this.currentHeatSubject.value.runningTime = Number(fields[3]);
-          if (this.stateSubject.value != State.RUNNING && +fields[3] >= 0) {
+          this.timingStateService.mutateCurrentHeat(heat => {
+            heat.runningTime = Number(fields[3]);
+          });
+          if (this.timingStateService.stateValue != State.RUNNING && +fields[3] >= 0) {
             this.ngZone.run(() => {
-              this.stateSubject.next(State.RUNNING);
+              this.timingStateService.setState(State.RUNNING);
             });
-            this.currentHeatSubject.value.competitors.forEach(c => {c.splits = new Map<number, number>(); c.lapM = 0;})
+            this.timingStateService.currentHeatValue.competitors.forEach(c => {c.splits = new Map<number, number>(); c.lapM = 0;})
 
-            this.importService.startHeat(this.currentHeatSubject.value.event, this.currentHeatSubject.value.heat);
+            this.importService.startHeat(this.timingStateService.currentHeatValue.event, this.timingStateService.currentHeatValue.heat);
             shouldEmitHeat = true;
           }
           if (+fields[3] <= -1) {
             this.ngZone.run(() => {
-              this.stateSubject.next(State.NOT_RUNNING);
+              this.timingStateService.setState(State.NOT_RUNNING);
             });
           }
           shouldEmitHeat = true;
         }
 
-        if (fields[2] === "Ready" && this.stateSubject.value != State.READY) {
+        if (fields[2] === "Ready" && this.timingStateService.stateValue != State.READY) {
           this.ngZone.run(() => {
-            this.stateSubject.next(State.READY);
+            this.timingStateService.setState(State.READY);
           });
-          this.currentHeatSubject.value.competitors.forEach(c => {c.first_name = ""; c.last_name = ""; c.team = ""; c.lap = 0; c.lapM = 0; c.splits = new Map<number, number>();})
+          this.timingStateService.currentHeatValue.competitors.forEach(c => {c.first_name = ""; c.last_name = ""; c.team = ""; c.lap = 0; c.lapM = 0; c.splits = new Map<number, number>();})
 
-          this.importService.stopHeat(this.currentHeatSubject.value.event, this.currentHeatSubject.value.heat);
+          this.importService.stopHeat(this.timingStateService.currentHeatValue.event, this.timingStateService.currentHeatValue.heat);
           shouldEmitHeat = true;
         }
 
@@ -90,31 +87,41 @@ export class AlgeService {
           c.lapM = Number(fields[9].split(".")[0]);
           c.splits.set(c.lapM, Number(fields[3]));
 
-          this.importService.laneTime(lane, Number(fields[3]), c.lapM, c.lap === this.currentHeatSubject.value.laps);
+          this.importService.laneTime(lane, Number(fields[3]), c.lapM, c.lap === this.timingStateService.currentHeatValue.laps);
           shouldEmitHeat = true;
         }
         break;
       case "Event":
         if (fields[1] === "EventName") {
-          this.currentHeatSubject.value.event = Number(fields[2]);
+          this.timingStateService.mutateCurrentHeat(heat => {
+            heat.event = Number(fields[2]);
+          });
           shouldEmitHeat = true;
         }
         if (fields[1] === "Discipline") {
-          this.currentHeatSubject.value.style = fields[2];
+          this.timingStateService.mutateCurrentHeat(heat => {
+            heat.style = fields[2];
+          });
           shouldEmitHeat = true;
         }
         break;
       case "Heat":
         if (fields[1] === "HeatNumber") {
-          this.currentHeatSubject.value.heat = Number(fields[2]);
+          this.timingStateService.mutateCurrentHeat(heat => {
+            heat.heat = Number(fields[2]);
+          });
           shouldEmitHeat = true;
         }
         if (fields[1] === "DistanceM") {
-          this.currentHeatSubject.value.distance = Number(fields[2]);
+          this.timingStateService.mutateCurrentHeat(heat => {
+            heat.distance = Number(fields[2]);
+          });
           shouldEmitHeat = true;
         }
         if (fields[1] === "Laps") {
-          this.currentHeatSubject.value.laps = Number(fields[2]);
+          this.timingStateService.mutateCurrentHeat(heat => {
+            heat.laps = Number(fields[2]);
+          });
           shouldEmitHeat = true;
         }
         break;
@@ -152,24 +159,13 @@ export class AlgeService {
     // Emit the heat update after all modifications to trigger change detection
     if (shouldEmitHeat) {
       this.ngZone.run(() => {
-        this.currentHeatSubject.next(this.currentHeatSubject.value);
+        this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
       });
     }
   }
 
   getOrCreateCompetitor(lane: number): Competitor {
-    if (!this.currentHeatSubject.value.competitors.has(lane)) {
-      this.currentHeatSubject.value.competitors.set(lane, {
-        lane: lane,
-        first_name: "",
-        last_name: "",
-        team: "",
-        lap: 0,
-        lapM: 0,
-        splits: new Map<number, number>()
-      } as Competitor);
-    }
-    return this.currentHeatSubject.value.competitors.get(lane)!;
+    return this.timingStateService.getOrCreateCompetitor(lane);
   }
 
   receivePing() {
@@ -187,7 +183,7 @@ export class AlgeService {
 
   setCurrentHeat(runningHeat: CurrentHeatModel) {
     this.ngZone.run(() => {
-      this.currentHeatSubject.next(runningHeat);
+      this.timingStateService.setCurrentHeat(runningHeat);
     });
   }
 
@@ -240,7 +236,7 @@ export class AlgeService {
       try {
         const latestHeat = await ipcRenderer.invoke('alge:get-current-heat');
         this.ngZone.run(() => {
-          this.currentHeatSubject.next(this.deserializeHeat(latestHeat));
+          this.timingStateService.setCurrentHeat(this.deserializeHeat(latestHeat));
         });
       } catch (error) {
         console.error('[AlgeService] Error fetching latest heat:', error);
@@ -250,7 +246,7 @@ export class AlgeService {
     ipcRenderer.on('alge:state-changed:state', (event: any, state: any) => {
       console.log('[AlgeService] State changed:', state);
       this.ngZone.run(() => {
-        this.stateSubject.next(state);
+        this.timingStateService.setState(state);
       });
     });
 
@@ -285,11 +281,11 @@ export class AlgeService {
 
       // Run all state updates inside NgZone to trigger change detection
       this.ngZone.run(() => {
-        if (initialHeat && Object.keys(initialHeat).length > 0) {
-          this.currentHeatSubject.next(this.deserializeHeat(initialHeat));
+          if (initialHeat && Object.keys(initialHeat).length > 0) {
+            this.timingStateService.setCurrentHeat(this.deserializeHeat(initialHeat));
         }
         if (initialState) {
-          this.stateSubject.next(initialState);
+            this.timingStateService.setState(initialState);
         }
         if (initialAlgeState) {
           this.algeStateSubject.next(initialAlgeState);

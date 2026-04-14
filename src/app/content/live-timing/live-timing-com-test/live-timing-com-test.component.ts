@@ -130,6 +130,7 @@ export class LiveTimingComTestComponent implements OnDestroy {
     this.messages = [{
       message,
       hexDump: '',
+      bytes: [],
       byteLength: message.length,
       timestamp: new Date().toISOString()
     }, ...this.messages].slice(0, this.maxMessages);

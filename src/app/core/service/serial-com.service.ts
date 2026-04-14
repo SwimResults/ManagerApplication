@@ -24,6 +24,7 @@ export interface SerialPortConfig {
 export interface SerialMessage {
   message: string;
   hexDump: string;
+  bytes: number[];
   byteLength: number;
   timestamp: string;
 }
@@ -128,15 +129,16 @@ export class SerialComService {
     ipcRenderer.on('serial:message', (event: any, payload: Partial<SerialMessage>) => {
       const message = typeof payload.message === 'string' ? payload.message : '';
       const hexDump = typeof payload.hexDump === 'string' ? payload.hexDump : '';
+      const bytes = Array.isArray(payload.bytes) ? payload.bytes.map(byte => Number(byte)).filter(byte => Number.isFinite(byte)) : [];
       const byteLength = Number.isFinite(payload.byteLength) ? Number(payload.byteLength) : 0;
       const timestamp = typeof payload.timestamp === 'string' ? payload.timestamp : new Date().toISOString();
 
-      if (!message && !hexDump) {
+      if (!message && !hexDump && bytes.length === 0) {
         return;
       }
 
       this.ngZone.run(() => {
-        this.messageSubject.next({message, hexDump, byteLength, timestamp});
+        this.messageSubject.next({message, hexDump, bytes, byteLength, timestamp});
       });
     });
 

@@ -1,0 +1,161 @@
+<div class="live-timing-omega-container">
+	<h1>Live Timing Omega</h1>
+
+	<div class="live-timing-grid">
+		<sr-group-box boxTitle="{{'LIVETIMING_CONTROLS.TITLE' | translate}}">
+			<div class="control-section">
+				<div class="form-field">
+					<label for="running_event">{{'LIVETIMING_CONTROLS.RUNNING_HEAT' | translate}}:</label>
+					<input id="running_event" type="number" [(ngModel)]="currentHeat.heat">
+				</div>
+				<div class="form-field">
+					<label for="running_heat">{{'LIVETIMING_CONTROLS.RUNNING_EVENT' | translate}}:</label>
+					<input id="running_heat" type="number" [(ngModel)]="currentHeat.event">
+				</div>
+				<div class="form-field">
+					<label for="running_heat_state">{{'LIVETIMING_CONTROLS.RUNNING_HEAT_STATE' | translate}}:</label>
+					<select id="running_heat_state" [(ngModel)]="state">
+						<option value="NOT_RUNNING">{{'STATE.NOT_RUNNING' | translate}}</option>
+						<option value="READY">{{'STATE.READY' | translate}}</option>
+						<option value="RUNNING">{{'STATE.RUNNING' | translate}}</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="service-controls">
+				<div class="service-control">
+					<span class="service-label">OMEGA:</span>
+					<div class="button-group">
+						<button [disabled]="status.isListening || isBusy" (click)="startOmega()">Start</button>
+						<button [disabled]="!status.isListening || isBusy" (click)="stopOmega()">Stop</button>
+					</div>
+					<span class="status-badge {{status.isListening ? 'success' : 'error'}}">{{status.isListening ? 'LISTENING' : 'STOPPED'}}</span>
+				</div>
+
+				<div class="service-control">
+					<span class="service-label">Live Timing:</span>
+					<div class="button-group">
+						<button [disabled]="!status.isListening || liveTimingActive" (click)="startLiveTiming()">Start</button>
+						<button [disabled]="!liveTimingActive" (click)="stopLiveTiming()">Stop</button>
+					</div>
+					<span class="status-badge {{liveTimingActive ? 'success' : 'error'}}">{{'STATE.' + (liveTimingActive ? 'RUNNING' : 'STOPPED') | translate}}</span>
+				</div>
+			</div>
+		</sr-group-box>
+
+		<sr-group-box boxTitle="{{'SETTINGS.LIVE_TIMING.TITLE' | translate}}">
+			<div class="settings-section">
+				<h4>Serial</h4>
+				<div class="form-field">
+					<label for="com-port">Port</label>
+					<select id="com-port" [(ngModel)]="selectedPortPath" [disabled]="status.isListening || isBusy || isLoadingPorts">
+						<option value="" disabled>Select a COM port</option>
+						@for (port of ports; track trackByPort($index, port)) {
+							<option [value]="port.path">{{ port.path }}{{ port.manufacturer ? ' (' + port.manufacturer + ')' : '' }}</option>
+						}
+					</select>
+				</div>
+				<div class="form-field">
+					<label for="baud-rate">Baud Rate</label>
+					<input id="baud-rate" type="number" min="1" [(ngModel)]="baudRate" [disabled]="status.isListening || isBusy">
+				</div>
+				<div class="form-field">
+					<label for="data-bits">Data Bits</label>
+					<select id="data-bits" [(ngModel)]="dataBits" [disabled]="status.isListening || isBusy">
+						@for (option of dataBitOptions; track option) {
+							<option [ngValue]="option">{{ option }}</option>
+						}
+					</select>
+				</div>
+				<div class="form-field">
+					<label for="stop-bits">Stop Bits</label>
+					<select id="stop-bits" [(ngModel)]="stopBits" [disabled]="status.isListening || isBusy">
+						@for (option of stopBitOptions; track option) {
+							<option [ngValue]="option">{{ option }}</option>
+						}
+					</select>
+				</div>
+				<div class="form-field">
+					<label for="parity">Parity</label>
+					<select id="parity" [(ngModel)]="parity" [disabled]="status.isListening || isBusy">
+						@for (option of parityOptions; track option) {
+							<option [value]="option">{{ option }}</option>
+						}
+					</select>
+				</div>
+
+				<div class="service-control com-actions">
+					<span class="service-label">Serial:</span>
+					<div class="button-group">
+						<button type="button" (click)="refreshPorts()" [disabled]="isLoadingPorts || isBusy || status.isListening">
+							{{ isLoadingPorts ? 'Refreshing...' : 'Refresh' }}
+						</button>
+						<button type="button" (click)="startOmega()" [disabled]="!selectedPortPath || status.isListening || isBusy">
+							Start
+						</button>
+						<button type="button" (click)="stopOmega()" [disabled]="!status.isListening || isBusy">
+							Stop
+						</button>
+						<button type="button" (click)="clearMessages()" [disabled]="messages.length === 0">
+							Clear
+						</button>
+					</div>
+					<span class="status-badge {{status.isListening ? 'success' : 'error'}}">{{ status.isListening ? 'LISTENING' : 'STOPPED' }}</span>
+				</div>
+
+				@if (status.error) {
+					<div class="status-error">Error: {{ status.error }}</div>
+				}
+
+				<div class="section-divider"></div>
+
+				<h4>SwimResults</h4>
+				<div class="form-field">
+					<label for="sr_server">{{'SETTINGS.LIVE_TIMING.SERVER' | translate}}:</label>
+					<input [disabled]="liveTimingActive" id="sr_server" type="text" [(ngModel)]="importConfig.apiUrl">
+				</div>
+
+				<button [disabled]="liveTimingActive" class="save-btn" (click)="saveConfig()">{{'SETTINGS.LIVE_TIMING.SAVE_BUTTON' | translate}}</button>
+			</div>
+		</sr-group-box>
+
+		<sr-group-box boxTitle="Status" class="status-box-wide">
+			<div class="connection-statuses">
+				<div class="connection-status">
+					<span class="connection-label">OMEGA:</span>
+					<span class="status-badge {{getClassForConnectionState(omegaState)}}">{{'STATE.' + omegaState | translate}}</span>
+				</div>
+				<div class="connection-status">
+					<span class="connection-label">SwimResults:</span>
+					<span class="status-badge {{getClassForConnectionState(srState)}}">{{'STATE.' + srState | translate}}</span>
+				</div>
+			</div>
+			<button (click)="openDisplay()">Anzeige Öffnen</button>
+		</sr-group-box>
+
+		<div class="additional-controls">
+			<details class="language-settings">
+				<summary>{{'SETTINGS.LANGUAGE.TITLE' | translate}}</summary>
+				<div class="details-content">
+					<button (click)="changeLanguage('de')">{{'SETTINGS.LANGUAGE.GERMAN' | translate}}</button>
+					<button (click)="changeLanguage('en')">{{'SETTINGS.LANGUAGE.ENGLISH' | translate}}</button>
+				</div>
+			</details>
+
+			<details class="log-settings">
+				<summary>Log</summary>
+				<div class="details-content">
+					<div class="log-controls">
+						<button (click)="toggleLog()">{{'SETTINGS.LOG.TOGGLE_BUTTON' | translate}}</button>
+						<span class="status-badge">{{'STATE.' + (collectLog ? 'ACTIVE' : 'INACTIVE') | translate}}</span>
+					</div>
+					<ul class="log-list">
+						@for (message of messages; track trackByMessage($index, message)) {
+							<li>{{message}}</li>
+						}
+					</ul>
+				</div>
+			</details>
+		</div>
+	</div>
+</div>
