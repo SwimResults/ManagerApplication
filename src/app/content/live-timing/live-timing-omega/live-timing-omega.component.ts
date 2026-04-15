@@ -17,7 +17,6 @@ import {createEmptyCurrentHeat} from '../../../core/service/timing-state.service
 @Component({
   selector: 'sr-live-timing-omega',
   imports: [
-    DatePipe,
     FormsModule,
     GroupBoxComponent,
     TranslatePipe

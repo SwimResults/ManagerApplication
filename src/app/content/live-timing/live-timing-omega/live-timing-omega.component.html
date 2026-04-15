@@ -46,6 +46,10 @@
 		<sr-group-box boxTitle="{{'SETTINGS.LIVE_TIMING.TITLE' | translate}}">
 			<div class="settings-section">
 				<h4>Serial</h4>
+
+                <button type="button" style="float: right; margin-left: 4px" (click)="refreshPorts()" [disabled]="isLoadingPorts || isBusy || status.isListening">
+                    {{ isLoadingPorts ? 'Refreshing...' : 'Refresh' }}
+                </button>
 				<div class="form-field">
 					<label for="com-port">Port</label>
 					<select id="com-port" [(ngModel)]="selectedPortPath" [disabled]="status.isListening || isBusy || isLoadingPorts">
@@ -82,25 +86,6 @@
 							<option [value]="option">{{ option }}</option>
 						}
 					</select>
-				</div>
-
-				<div class="service-control com-actions">
-					<span class="service-label">Serial:</span>
-					<div class="button-group">
-						<button type="button" (click)="refreshPorts()" [disabled]="isLoadingPorts || isBusy || status.isListening">
-							{{ isLoadingPorts ? 'Refreshing...' : 'Refresh' }}
-						</button>
-						<button type="button" (click)="startOmega()" [disabled]="!selectedPortPath || status.isListening || isBusy">
-							Start
-						</button>
-						<button type="button" (click)="stopOmega()" [disabled]="!status.isListening || isBusy">
-							Stop
-						</button>
-						<button type="button" (click)="clearMessages()" [disabled]="messages.length === 0">
-							Clear
-						</button>
-					</div>
-					<span class="status-badge {{status.isListening ? 'success' : 'error'}}">{{ status.isListening ? 'LISTENING' : 'STOPPED' }}</span>
 				</div>
 
 				@if (status.error) {
@@ -147,6 +132,10 @@
 				<div class="details-content">
 					<div class="log-controls">
 						<button (click)="toggleLog()">{{'SETTINGS.LOG.TOGGLE_BUTTON' | translate}}</button>
+                        <button type="button" (click)="clearMessages()" [disabled]="messages.length === 0">
+                            Clear
+                        </button>
+
 						<span class="status-badge">{{'STATE.' + (collectLog ? 'ACTIVE' : 'INACTIVE') | translate}}</span>
 					</div>
 					<ul class="log-list">
