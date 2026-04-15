@@ -5,7 +5,7 @@
     } @else {
         <app-status-bar-element [status]="StatusBarStatus.WARNING" text="Keine Veranstaltung ausgewählt"></app-status-bar-element>
     }
-    <app-status-bar-element [status]="StatusBarStatus.WARNING" text="OMEGA"></app-status-bar-element>
+    <app-status-bar-element [status]="getOmegaState()" text="OMEGA"></app-status-bar-element>
     <app-status-bar-element [status]="getAlgeState()" text="ALGE"></app-status-bar-element>
     <app-status-bar-element [status]="getSrState()" text="SwimResults"></app-status-bar-element>
 </div>
