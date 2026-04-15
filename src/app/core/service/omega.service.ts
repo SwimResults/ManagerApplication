@@ -191,7 +191,7 @@ export class OmegaService {
     competitor.lapM = frame.lap;
     competitor.splits.set(frame.lap, frame.time);
 
-    const done = this.isFinishFrame(part1);
+    const done = part1.timeKind === 'A';
     this.importService.laneTime(frame.lane, frame.time, frame.lap, done);
     this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
     this.messageSubject.next(`OMEGA: lane ${frame.lane}, lap ${frame.lap}, time ${frame.time}${done ? ' (final)' : ''}`);
