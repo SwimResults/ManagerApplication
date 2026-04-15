@@ -151,6 +151,19 @@ export class OmegaService {
     this.applyHeatMetadata(part1);
 
     const competitor = this.timingStateService.getOrCreateCompetitor(frame.lane);
+
+    // OMEGA can repeat the same lane/lap line; keep only the first received value.
+    if (competitor.splits.has(frame.lap)) {
+      this.messageSubject.next(`OMEGA: duplicate ignored lane ${frame.lane}, lap ${frame.lap}, time ${frame.time}`);
+      this.pendingPart1 = null;
+
+      if (this.pendingFinishAfterPart2) {
+        this.finishHeat();
+        this.pendingFinishAfterPart2 = false;
+      }
+      return;
+    }
+
     competitor.lap = frame.lap;
     competitor.lapM = frame.lap;
     competitor.splits.set(frame.lap, frame.time);
@@ -251,19 +264,48 @@ export class OmegaService {
       return null;
     }
 
-    const stxCount = bytes.filter(byte => byte === 0x02).length;
-    const isLikelyPart2 = stxCount >= 2;
-    this.messageSubject.next(`[DEBUG] STX count=${stxCount}, isLikelyPart2=${isLikelyPart2}`);
+    const detectedKind = this.detectFrameKind(bytes);
+    this.messageSubject.next(`[DEBUG] Detected frame kind=${detectedKind}`);
 
-    if (isLikelyPart2 || text.includes(':')) {
+    if (detectedKind === 'part2') {
       this.messageSubject.next(`[DEBUG] Attempting Part 2 parse`);
       const part2 = this.parsePart2(text);
       return part2 ? {kind: 'part2', frame: part2} : null;
     }
 
-    this.messageSubject.next(`[DEBUG] No ':', attempting Part 1 parse`);
-    const part1 = this.parsePart1(text);
-    return part1 ? {kind: 'part1', frame: part1} : null;
+    if (detectedKind === 'part1') {
+      this.messageSubject.next(`[DEBUG] Attempting Part 1 parse`);
+      const part1 = this.parsePart1(text);
+      return part1 ? {kind: 'part1', frame: part1} : null;
+    }
+
+    this.messageSubject.next(`[DEBUG] Could not determine frame kind from structure`);
+    return null;
+  }
+
+  private detectFrameKind(bytes: number[]): 'part1' | 'part2' | null {
+    // OSM6 docs: Part1 = [SOH][STX][HOME]... [EOT], Part2 = [SOH][STX][HOME][LF]... [STX]... [EOT]
+    // Future-proof decision: classify by control-byte structure, never by payload characters like ':'.
+    const firstStxIndex = bytes.indexOf(0x02);
+    const secondStxIndex = firstStxIndex >= 0 ? bytes.indexOf(0x02, firstStxIndex + 1) : -1;
+    const homeIndex = firstStxIndex >= 0 ? bytes.indexOf(0x08, firstStxIndex + 1) : -1;
+
+    if (firstStxIndex < 0 || homeIndex < 0) {
+      this.messageSubject.next(`[DEBUG] detectFrameKind: missing STX/HOME (firstSTX=${firstStxIndex}, HOME=${homeIndex})`);
+      return null;
+    }
+
+    if (secondStxIndex >= 0) {
+      const marker = homeIndex + 1 < bytes.length ? bytes[homeIndex + 1] : -1;
+      const hasPart2LfMarker = marker === 0x10 || marker === 0x0A;
+      this.messageSubject.next(
+        `[DEBUG] detectFrameKind: second STX at ${secondStxIndex}, marker after HOME=0x${marker.toString(16).padStart(2, '0')}, hasPart2LfMarker=${hasPart2LfMarker}`
+      );
+      return 'part2';
+    }
+
+    this.messageSubject.next(`[DEBUG] detectFrameKind: only one STX -> part1`);
+    return 'part1';
   }
 
   private parsePart1(text: string): OSM6Part1Frame | null {
