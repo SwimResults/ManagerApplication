@@ -113,6 +113,20 @@ export class ElectronService {
     return result.filePaths[0];
   }
 
+  async getAppVersion(): Promise<string> {
+    if (!this.isElectron || !this.ipcRenderer) {
+      return 'unknown';
+    }
+
+    try {
+      const version = await this.ipcRenderer.invoke('app:get-version');
+      return typeof version === 'string' && version.trim() ? version : 'unknown';
+    } catch (error) {
+      console.error('Error reading app version:', error);
+      return 'unknown';
+    }
+  }
+
   getFileStats(filePath: string): fs.Stats | null {
     if (!this.isElectron || !filePath) {
       return null;

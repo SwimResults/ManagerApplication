@@ -577,6 +577,10 @@ ipcMain.handle('dialog:openFile', async () => {
     return result;
 });
 
+ipcMain.handle('app:get-version', async () => {
+    return app.getVersion();
+});
+
 // === NEW REQUEST-RESPONSE PATTERN FOR STATE ===
 // Renderers query the state instead of constantly receiving broadcasts
 

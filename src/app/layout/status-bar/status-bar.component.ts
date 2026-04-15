@@ -7,6 +7,7 @@ import {AlgeService} from '../../core/service/alge.service';
 import {ImportService} from '../../core/service/import.service';
 import {CurrentMeetingService} from '../../core/service/current-meeting.service';
 import {OmegaService} from '../../core/service/omega.service';
+import {ElectronService} from '../../core/service/electron.service';
 
 @Component({
     selector: 'app-status-bar',
@@ -21,6 +22,7 @@ export class StatusBarComponent implements OnDestroy {
     private omegaService = inject(OmegaService)
     private importService = inject(ImportService)
     private currentMeetingService = inject(CurrentMeetingService)
+    private electronService = inject(ElectronService)
 
     algeStateSubscription: Subscription;
     omegaStateSubscription: Subscription;
@@ -31,12 +33,15 @@ export class StatusBarComponent implements OnDestroy {
     omegaState: ConnectionState = ConnectionState.DISCONNECTED;
     srState: ConnectionState | string = ConnectionState.DISCONNECTED;
     meeting?: MeetingImpl
+    appVersion: string = '...';
 
     constructor() {
         this.algeStateSubscription = this.algeService.algeState.subscribe(algeState => this.algeState = algeState);
         this.omegaStateSubscription = this.omegaService.omegaState.subscribe(omegaState => this.omegaState = omegaState);
         this.srStateSubscription = this.importService.srState.subscribe(srState => this.srState = srState);
         this.meetingSubscription = this.currentMeetingService.currentMeeting.subscribe(meeting => this.meeting = meeting);
+
+        this.loadAppVersion();
     }
 
     ngOnDestroy() {
@@ -85,6 +90,10 @@ export class StatusBarComponent implements OnDestroy {
             default:
                 return StatusBarStatus.UNKNOWN;
         }
+    }
+
+    private async loadAppVersion() {
+        this.appVersion = await this.electronService.getAppVersion();
     }
 
     protected readonly StatusBarStatus = StatusBarStatus;
