@@ -128,6 +128,13 @@ export class OmegaService {
       case 'part1':
         this.pendingPart1 = frame.frame;
         this.pendingFinishAfterPart2 = this.isFinishFrame(frame.frame);
+
+        if (frame.frame.messageType === '0') {
+          this.messageSubject.next('OMEGA: ready signal received, finishing previous heat first');
+          this.finishHeat();
+          this.pendingFinishAfterPart2 = false;
+        }
+
         this.applyHeatMetadata(frame.frame);
         this.messageSubject.next(`OMEGA: heat ${frame.frame.event}/${frame.frame.heat} (${frame.frame.messageType}/${frame.frame.timeKind})`);
 
