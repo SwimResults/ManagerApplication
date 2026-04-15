@@ -213,7 +213,7 @@ export class OmegaService {
   }
 
   private isFinishFrame(frame: OSM6Part1Frame): boolean {
-    return frame.messageType === '1' || frame.timeKind === 'A' || frame.timeKind === 'B';
+    return frame.messageType === '1';
   }
 
   private decodeFrame(bytes: number[]): OSM6Frame | null {
