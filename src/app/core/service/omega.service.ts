@@ -191,10 +191,7 @@ export class OmegaService {
   }
 
   private beginHeat() {
-    if (this.timingStateService.stateValue === State.RUNNING) {
-      return;
-    }
-
+    this.messageSubject.next('OMEGA: start signal received, resetting heat times');
     this.pendingFinishAfterPart2 = false;
     this.timingStateService.setState(State.RUNNING);
     this.timingStateService.currentHeatValue.competitors.forEach(competitor => {
@@ -222,7 +219,7 @@ export class OmegaService {
   }
 
   private isStartFrame(frame: OSM6Part1Frame): boolean {
-    return frame.messageType === '2' || frame.timeKind === 'S';
+    return frame.timeKind === 'S';
   }
 
   private isFinishFrame(frame: OSM6Part1Frame): boolean {
