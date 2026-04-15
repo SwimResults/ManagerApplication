@@ -117,6 +117,14 @@ export class OmegaService {
 
     const frame = this.decodeFrame(bytes);
     if (!frame) {
+      if (this.shouldFinishOnBlankPart2(bytes)) {
+        this.messageSubject.next('OMEGA: blank finish payload received, finishing heat');
+        this.finishHeat();
+        this.pendingPart1 = null;
+        this.pendingFinishAfterPart2 = false;
+        return;
+      }
+
       this.messageSubject.next(`OMEGA: Unparsed frame (${message.byteLength} bytes)`);
       return;
     }
@@ -191,6 +199,19 @@ export class OmegaService {
       this.finishHeat();
       this.pendingFinishAfterPart2 = false;
     }
+  }
+
+  private shouldFinishOnBlankPart2(bytes: number[]): boolean {
+    const part1 = this.pendingPart1;
+    if (!part1 || !this.isFinishFrame(part1)) {
+      return false;
+    }
+
+    const rawText = this.bytesToText(bytes);
+    const strippedText = rawText.replace(/[\u0001\u0002\u0004\u0008\u000a\u000d\u0010\u0012\u0014]/g, '');
+    const isBlank = strippedText.trim().length === 0;
+    this.messageSubject.next(`[DEBUG] blank finish check: raw=${JSON.stringify(rawText)} stripped=${JSON.stringify(strippedText)} blank=${isBlank}`);
+    return isBlank;
   }
 
   private applyHeatMetadata(frame: OSM6Part1Frame) {
