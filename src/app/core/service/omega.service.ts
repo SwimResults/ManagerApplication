@@ -31,6 +31,8 @@ type OSM6Frame =
   providedIn: 'root'
 })
 export class OmegaService {
+  private static readonly OMEGA_TIMEOUT_MS = 20_000;
+
   private messageSubject = new ReplaySubject<string>();
   message = this.messageSubject.asObservable();
 
@@ -489,7 +491,7 @@ export class OmegaService {
 
   private setupTimeoutCheck() {
     this.pingSubject.pipe(
-      switchMap(() => timer(1000))
+      switchMap(() => timer(OmegaService.OMEGA_TIMEOUT_MS))
     ).subscribe(() => {
       this.ngZone.run(() => {
         this.omegaStateSubject.next(ConnectionState.DISCONNECTED);
