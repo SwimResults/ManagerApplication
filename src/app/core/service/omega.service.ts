@@ -108,6 +108,7 @@ export class OmegaService {
 
   private processSerialMessage(message: SerialMessage) {
     const bytes = Array.isArray(message.bytes) ? message.bytes : [];
+    this.messageSubject.next(`[DEBUG] processSerialMessage: received ${bytes.length} bytes, byteLength=${message.byteLength}`);
     if (bytes.length === 0) {
       return;
     }
@@ -216,59 +217,120 @@ export class OmegaService {
   }
 
   private decodeFrame(bytes: number[]): OSM6Frame | null {
+    const hexDump = bytes.map(b => '0x' + b.toString(16).padStart(2, '0')).join(' ');
+    this.messageSubject.next(`[DEBUG] Raw bytes (${bytes.length}): ${hexDump}`);
+
     if (this.isHeartbeatFrame(bytes)) {
+      this.messageSubject.next(`[DEBUG] Identified as heartbeat frame`);
       return {kind: 'heartbeat'};
     }
 
-    if (bytes.length < 4 || bytes[0] !== 0x01 || bytes[bytes.length - 1] !== 0x04) {
+    // Check frame boundaries
+    if (bytes.length < 4) {
+      this.messageSubject.next(`[DEBUG] Frame too short (${bytes.length} < 4)`);
+      return null;
+    }
+    if (bytes[0] !== 0x01) {
+      this.messageSubject.next(`[DEBUG] Missing SOH at start (got 0x${bytes[0].toString(16).padStart(2, '0')})`);
+      return null;
+    }
+    if (bytes[bytes.length - 1] !== 0x04) {
+      this.messageSubject.next(`[DEBUG] Missing EOT at end (got 0x${bytes[bytes.length - 1].toString(16).padStart(2, '0')})`);
       return null;
     }
 
-    const text = this.bytesToText(bytes)
-      .replace(/[\u0001\u0002\u0004\u0008\u000a\u0010\u0012\u0014\s]/g, '');
+    const rawText = this.bytesToText(bytes);
+    this.messageSubject.next(`[DEBUG] Raw text: ${JSON.stringify(rawText)}`);
+
+    // Keep ASCII spaces because OSM6 uses fixed-width fields where spaces are meaningful.
+    const text = rawText.replace(/[\u0001\u0002\u0004\u0008\u000a\u000d\u0010\u0012\u0014]/g, '');
+    this.messageSubject.next(`[DEBUG] After stripping controls: ${JSON.stringify(text)} (len=${text.length})`);
 
     if (!text) {
+      this.messageSubject.next(`[DEBUG] Text empty after stripping`);
       return null;
     }
 
-    if (text.includes(':')) {
+    const stxCount = bytes.filter(byte => byte === 0x02).length;
+    const isLikelyPart2 = stxCount >= 2;
+    this.messageSubject.next(`[DEBUG] STX count=${stxCount}, isLikelyPart2=${isLikelyPart2}`);
+
+    if (isLikelyPart2 || text.includes(':')) {
+      this.messageSubject.next(`[DEBUG] Attempting Part 2 parse`);
       const part2 = this.parsePart2(text);
       return part2 ? {kind: 'part2', frame: part2} : null;
     }
 
+    this.messageSubject.next(`[DEBUG] No ':', attempting Part 1 parse`);
     const part1 = this.parsePart1(text);
     return part1 ? {kind: 'part1', frame: part1} : null;
   }
 
   private parsePart1(text: string): OSM6Part1Frame | null {
     const normalized = text.slice(0, 14);
+    this.messageSubject.next(`[DEBUG] Part1: normalized=${JSON.stringify(normalized)} (len=${normalized.length})`);
+
     if (normalized.length < 14) {
+      this.messageSubject.next(`[DEBUG] Part1: too short (${normalized.length} < 14)`);
       return null;
     }
 
+    const messageType = normalized.charAt(0);
+    const timeKind = normalized.charAt(1);
+    const timeType = normalized.charAt(2);
+    const eventStr = normalized.slice(7, 10);
+    const heatStr = normalized.slice(10, 12);
+    const lapNumberStr = normalized.slice(5, 7);
+    const rankStr = normalized.slice(12, 14);
+
+    const event = Number(eventStr);
+    const heat = Number(heatStr);
+    const lapNumber = Number(lapNumberStr);
+    const rank = Number(rankStr);
+
+    this.messageSubject.next(
+      `[DEBUG] Part1 parsed: type='${messageType}' kind='${timeKind}' ttype='${timeType}' ` +
+      `event=${event}('${eventStr}') heat=${heat}('${heatStr}') ` +
+      `lap=${lapNumber}('${lapNumberStr}') rank=${rank}('${rankStr}')`
+    );
+
     return {
-      messageType: normalized.charAt(0),
-      timeKind: normalized.charAt(1),
-      timeType: normalized.charAt(2),
-      event: Number(normalized.slice(7, 10)),
-      heat: Number(normalized.slice(10, 12)),
-      lapNumber: Number(normalized.slice(5, 7)),
-      rank: Number(normalized.slice(12, 14))
+      messageType,
+      timeKind,
+      timeType,
+      event,
+      heat,
+      lapNumber,
+      rank
     };
   }
 
   private parsePart2(text: string): OSM6Part2Frame | null {
     let laneLength = 1;
-    if (text.startsWith('10')) {
-      laneLength = 2;
-    }
 
-    const lane = Number(text.slice(0, laneLength));
-    const lap = Number(text.slice(laneLength, laneLength + 2));
-    const timeText = text.slice(laneLength + 2);
+    const laneStr = text.charAt(0);
+    const lapStr = text.slice(1, 3);
+    const timeText = text.slice(3);
+
+    const lane = Number(laneStr);
+    const lap = Number(lapStr);
     const time = this.parseOsm6Time(timeText);
 
-    if (!Number.isFinite(lane) || !Number.isFinite(lap) || !Number.isFinite(time)) {
+    this.messageSubject.next(
+      `[DEBUG] Part2: laneLen=${laneLength} lane=${lane}('${laneStr}') lap=${lap}('${lapStr}') ` +
+      `timeText='${timeText}' time=${time}`
+    );
+
+    if (!Number.isFinite(lane)) {
+      this.messageSubject.next(`[DEBUG] Part2: lane not finite (${lane})`);
+      return null;
+    }
+    if (!Number.isFinite(lap)) {
+      this.messageSubject.next(`[DEBUG] Part2: lap not finite (${lap})`);
+      return null;
+    }
+    if (!Number.isFinite(time)) {
+      this.messageSubject.next(`[DEBUG] Part2: time not finite (${time})`);
       return null;
     }
 
@@ -277,12 +339,16 @@ export class OmegaService {
 
   private parseOsm6Time(timeText: string): number {
     const trimmed = timeText.trim();
+    this.messageSubject.next(`[DEBUG] parseOsm6Time input: '${timeText}' trimmed: '${trimmed}'`);
     if (!trimmed) {
+      this.messageSubject.next(`[DEBUG] parseOsm6Time: empty after trim`);
       return NaN;
     }
 
     const segments = trimmed.split(':');
-    if (segments.length < 2 || segments.length > 3) {
+    this.messageSubject.next(`[DEBUG] parseOsm6Time segments: [${segments.map(s => `'${s}'`).join(', ')}] (count=${segments.length})`);
+    if (segments.length < 1 || segments.length > 3) {
+      this.messageSubject.next(`[DEBUG] parseOsm6Time: invalid segment count`);
       return NaN;
     }
 
@@ -294,27 +360,36 @@ export class OmegaService {
       hours = Number(segments[0]);
       minutes = Number(segments[1]);
       secondsPart = segments[2];
-    } else {
+    } else if (segments.length === 2) {
       minutes = Number(segments[0]);
       secondsPart = segments[1];
+    } else {
+      // OSM6 can send second-only values like "43.27".
+      secondsPart = segments[0];
     }
 
+    this.messageSubject.next(`[DEBUG] parseOsm6Time: hh=${hours} mm=${minutes} ss.ms='${secondsPart}'`);
     if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+      this.messageSubject.next(`[DEBUG] parseOsm6Time: hrs/mins not finite`);
       return NaN;
     }
 
     const [secondsText, fractionText = '0'] = secondsPart.split(/[.,]/);
     const seconds = Number(secondsText);
     if (!Number.isFinite(seconds)) {
+      this.messageSubject.next(`[DEBUG] parseOsm6Time: seconds not finite ('${secondsText}')`);
       return NaN;
     }
 
     const fractionMs = Number(fractionText.padEnd(3, '0').slice(0, 3));
     if (!Number.isFinite(fractionMs)) {
+      this.messageSubject.next(`[DEBUG] parseOsm6Time: fraction not finite ('${fractionText}')`);
       return NaN;
     }
 
-    return (((hours * 60) + minutes) * 60 + seconds) * 1000 + fractionMs;
+    const result = (((hours * 60) + minutes) * 60 + seconds) * 1000 + fractionMs;
+    this.messageSubject.next(`[DEBUG] parseOsm6Time result: ${result}ms`);
+    return result * 10;
   }
 
   private isHeartbeatFrame(bytes: number[]): boolean {
