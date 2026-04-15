@@ -148,6 +148,12 @@ export class OmegaService {
       return;
     }
 
+    if (this.isStartFrame(part1)) {
+      this.messageSubject.next(`OMEGA: ignored start time-of-day payload (${frame.time})`);
+      this.pendingPart1 = null;
+      return;
+    }
+
     this.applyHeatMetadata(part1);
 
     const competitor = this.timingStateService.getOrCreateCompetitor(frame.lane);
