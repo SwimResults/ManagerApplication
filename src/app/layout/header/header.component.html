@@ -1,17 +1,5 @@
 <h1 class="header-title">
     SwimResults Manager
-
-    <ng-container *srIsAuthed="true">
-        @if (kcUser && kcUser['given_name'] && kcUser['family_name']) {
-            <span class="header-user-info">
-                <span>Angemeldet:</span>
-                <b>{{ kcUser["given_name"] + " " + kcUser["family_name"] }}</b>
-            </span>
-        }
-    </ng-container>
-    <div *srIsAuthed="false" class="no-login">
-        Nicht eingeloggt!
-    </div>
 </h1>
 
 @if (meetings) {
@@ -30,6 +18,18 @@
         <span>Einloggen, um Veranstaltung auszuwählen!</span>
     }
 }
+
+<ng-container *srIsAuthed="true">
+    @if (kcUser && kcUser['given_name'] && kcUser['family_name']) {
+        <span class="header-user-info">
+                <span>Angemeldet:</span>
+                <b>{{ kcUser["given_name"] + " " + kcUser["family_name"] }}</b>
+            </span>
+    }
+</ng-container>
+<div *srIsAuthed="false" class="no-login">
+    Nicht eingeloggt!
+</div>
 
 <!--app-icon-button icon="more_horiz"></app-icon-button-->
 <app-icon-button icon="login" (btnClicked)="startLogin()" *srIsAuthed="false"></app-icon-button>
