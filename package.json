@@ -1,6 +1,6 @@
 {
     "name": "swim-results-manager",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "main": "main.js",
     "description": "SwimResultsManager is a desktop application for Alge Livetiming with SwimResults.",
     "author": "Konrad Weiß",

@@ -5,10 +5,7 @@ import {ConnectionState, State} from '../model/state.model';
 import {ImportService} from './import.service';
 import {SerialComService, SerialConnectionStatus, SerialMessage, SerialPortConfig, SerialPortInfo} from './serial-com.service';
 import {TimingStateService} from './timing-state.service';
-import {EventService} from './api';
-import {MeetingEventLivetiming} from '../model/meeting/meeting-event-livetiming.model';
 import {OmegaLivetimingSettingsImpl} from '../model/omega-livetiming-settings.model';
-import {CurrentMeetingService} from './current-meeting.service';
 
 interface OSM6Part1Frame {
   messageType: string;
@@ -54,8 +51,6 @@ export class OmegaService {
   private pingSubject = new Subject<void>();
   private pendingPart1: OSM6Part1Frame | null = null;
   private pendingFinishAfterPart2 = false;
-  private currentEvent: MeetingEventLivetiming | null = null;
-  private currentEventNumber: number | null = null;
   private livetimingSettings = new OmegaLivetimingSettingsImpl();
 
   private serialStatusSubscription: Subscription;
@@ -65,9 +60,7 @@ export class OmegaService {
     private importService: ImportService,
     private serialComService: SerialComService,
     private timingStateService: TimingStateService,
-    private ngZone: NgZone,
-    private eventService: EventService,
-    private currentMeetingService: CurrentMeetingService
+    private ngZone: NgZone
   ) {
     this.serialStatus = this.serialComService.status;
     this.currentHeat = this.timingStateService.currentHeat;
@@ -162,11 +155,6 @@ export class OmegaService {
           this.messageSubject.next('OMEGA: ready signal received, finishing previous heat first');
           this.finishHeat();
           this.pendingFinishAfterPart2 = false;
-        }
-
-        // Load event details if event number changed
-        if (frame.frame.event !== this.currentEventNumber) {
-          this.loadEventDetails(frame.frame.event, frame.frame.heat);
         }
 
         this.applyHeatMetadata(frame.frame);
@@ -279,33 +267,6 @@ export class OmegaService {
     });
     this.importService.stopHeat(this.timingStateService.currentHeatValue.event, this.timingStateService.currentHeatValue.heat);
     this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
-  }
-
-  private loadEventDetails(eventNumber: number, heat: number) {
-    const currentMeeting = this.currentMeetingService.currentMeetingValue;
-    if (!currentMeeting?.meet_id) {
-      this.messageSubject.next(`[OMEGA] Cannot load event: no current meeting`);
-      return;
-    }
-
-    this.currentEventNumber = eventNumber;
-    this.messageSubject.next(`[OMEGA] Loading event details for event ${eventNumber}...`);
-
-    this.eventService.getEventByMeetingAndNumberForLivetiming(currentMeeting.meet_id, eventNumber).subscribe({
-      next: (event: MeetingEventLivetiming) => {
-        this.currentEvent = event;
-        this.timingStateService.mutateCurrentHeat(heat => {
-          heat.distance = event.event.distance;
-        });
-        this.messageSubject.next(
-          `[OMEGA] Loaded event: ${eventNumber}, distance=${event.event.distance}m, lap interval=${this.livetimingSettings.lapIntervalMeters}m`
-        );
-      },
-      error: (error: any) => {
-        this.messageSubject.next(`[OMEGA] Failed to load event ${eventNumber}: ${error?.message || String(error)}`);
-        this.currentEvent = null;
-      }
-    });
   }
 
   private isStartFrame(frame: OSM6Part1Frame): boolean {
