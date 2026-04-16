@@ -33,6 +33,7 @@ export class LiveTimingOmegaComponent {
   dataBits: 5 | 6 | 7 | 8 = 8;
   stopBits: 1 | 2 = 1;
   parity: SerialParity = 'none';
+  lapIntervalMeters = 100;
 
   isLoadingPorts = false;
   isBusy = false;
@@ -101,6 +102,8 @@ export class LiveTimingOmegaComponent {
     this.srStateSubscription = this.importService.srState.subscribe(state => {
       this.srState = state;
     });
+
+    this.lapIntervalMeters = this.omegaService.getLapIntervalMeters();
 
     this.importConfigSubscription = this.importService.config.subscribe(config => {
       this.importConfig = config;
@@ -187,6 +190,10 @@ export class LiveTimingOmegaComponent {
 
   changeLanguage(lang: string) {
     this.translateService.use(lang);
+  }
+
+  updateLapIntervalMeters() {
+    this.omegaService.setLapIntervalMeters(Number(this.lapIntervalMeters));
   }
 
   toggleLog() {

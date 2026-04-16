@@ -376,6 +376,7 @@
         "RUNNING_HEAT": "Aktueller Lauf",
         "RUNNING_EVENT": "Aktueller WK",
         "RUNNING_HEAT_STATE": "Aktueller Laufstatus",
+        "LAP_INTERVAL_METERS": "Rundenlänge (m)",
         "TITLE": "Live Timing Steuerung"
     },
     "SETTINGS": {

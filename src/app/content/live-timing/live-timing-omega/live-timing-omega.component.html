@@ -20,6 +20,10 @@
 						<option value="RUNNING">{{'STATE.RUNNING' | translate}}</option>
 					</select>
 				</div>
+				<div class="form-field">
+					<label for="lap_interval_meters">{{'LIVETIMING_CONTROLS.LAP_INTERVAL_METERS' | translate}}:</label>
+					<input id="lap_interval_meters" type="number" min="1" step="1" [(ngModel)]="lapIntervalMeters" (ngModelChange)="updateLapIntervalMeters()">
+				</div>
 			</div>
 
 			<div class="service-controls">
@@ -47,7 +51,7 @@
 			<div class="settings-section">
 				<h4>Serial</h4>
 
-                <button type="button" style="float: right; margin-left: 4px" (click)="refreshPorts()" [disabled]="isLoadingPorts || isBusy || status.isListening">
+                <button type="button" style="float: right; margin-left: 4px; margin-top: -28px" (click)="refreshPorts()" [disabled]="isLoadingPorts || isBusy || status.isListening">
                     {{ isLoadingPorts ? 'Refreshing...' : 'Refresh' }}
                 </button>
 				<div class="form-field">

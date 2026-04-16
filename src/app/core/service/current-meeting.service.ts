@@ -11,6 +11,10 @@ export class CurrentMeetingService {
     public currentMeeting = this.currentMeetingSubject.asObservable().pipe(distinctUntilChanged());
 
     private router = inject(Router)
+    get currentMeetingValue(): MeetingImpl {
+        return this.currentMeetingSubject.value;
+    }
+
 
     setCurrentMeeting(meeting: MeetingImpl, refresh?: boolean) {
         console.log("set currentMeeting", meeting.meet_id);

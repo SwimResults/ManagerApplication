@@ -372,6 +372,7 @@
         "RUNNING_HEAT": "Running Heat",
         "RUNNING_EVENT": "Running Event",
         "RUNNING_HEAT_STATE": "Running Heat State",
+        "LAP_INTERVAL_METERS": "Lap Interval (m)",
         "TITLE": "Live Timing Controls"
     },
     "SETTINGS": {
