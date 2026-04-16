@@ -1,15 +1,16 @@
 <ul>
-    <li><app-icon-button icon="access_alarm" btnRouterLink="/old"></app-icon-button></li>
-    <li><app-icon-button icon="access_alarm" btnRouterLink="/omega"></app-icon-button></li>
-    <li><app-icon-button icon="usb" btnRouterLink="/com-test"></app-icon-button></li>
+    <li><app-icon-button icon="access_alarm" btnRouterLink="/old" tooltip="Live Timing ALGE"></app-icon-button></li>
+    <li><app-icon-button icon="access_alarm" btnRouterLink="/omega" tooltip="Live Timing OMEGA"></app-icon-button></li>
     <ng-container *srActiveViewMode="['advanced', 'expert']">
+        <li><app-icon-button icon="usb" btnRouterLink="/com-test" tooltip="COM Test"></app-icon-button></li>
         <hr>
-        <li><app-icon-button icon="flag" btnRouterLink="/schedule"></app-icon-button></li>
+        <li><app-icon-button icon="flag" btnRouterLink="/schedule" tooltip="Zeitplan"></app-icon-button></li>
     </ng-container>
 
     <ng-container *srActiveViewMode="['expert']">
         <hr>
-        <li><app-icon-button icon="cloud_upload" btnRouterLink="/import"></app-icon-button></li>
+        <li><app-icon-button icon="cloud_sync" btnRouterLink="/import" tooltip="Auto-Import"></app-icon-button></li>
+        <li><app-icon-button icon="cloud_upload" btnRouterLink="/import" tooltip="Manueller Import"></app-icon-button></li>
     </ng-container>
 <!--  <li><app-icon-button icon="settings"></app-icon-button></li>-->
   <!--li><app-icon-button icon="person"></app-icon-button></li-->

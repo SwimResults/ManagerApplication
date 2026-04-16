@@ -16,5 +16,5 @@ export enum StatusBarStatus {
 })
 export class StatusBarElementComponent {
   @Input() text: string = "";
-  @Input() status: StatusBarStatus = StatusBarStatus.UNKNOWN;
+  @Input() status?: StatusBarStatus;
 }

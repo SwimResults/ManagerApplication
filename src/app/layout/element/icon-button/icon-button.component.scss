@@ -17,11 +17,11 @@ button {
     text-align: center;
 
     &:hover {
-        filter: brightness(1.3);
+        filter: brightness(1.1);
     }
 
     &.active {
-        color: var(--color-secondary);
+        filter: brightness(1.3);
     }
 
     .mat-icon {

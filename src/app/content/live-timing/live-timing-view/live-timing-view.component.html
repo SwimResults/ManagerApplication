@@ -1,5 +1,5 @@
 <div class="live-timing-container">
-    <sr-group-box boxTitle="Live Timing">
+    <!--sr-group-box boxTitle="Live Timing"-->
         <div class="live-status">
             <div class="status-info">
                 <div class="info-item">
@@ -11,6 +11,11 @@
                     <span class="value">{{currentHeat.heat}}</span>
                 </div>
             </div>
+
+            <div class="status-title">
+                <h2>Live Timing</h2>
+            </div>
+
             <div class="status-indicators">
                 <span class="status-badge {{getClassForState(state)}}">{{"STATE." + state | translate}}</span>
                 <span class="time-display">{{currentHeat.runningTime | algeTime}}</span>
@@ -51,5 +56,5 @@
                 </tbody>
             </table>
         </div>
-    </sr-group-box>
+    <!--/sr-group-box-->
 </div>
