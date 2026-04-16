@@ -10,6 +10,7 @@ import {CurrentMeetingService} from './current-meeting.service';
     providedIn: 'root',
 })
 export class ImportService implements OnDestroy {
+    private audioContext: AudioContext | null = null;
     private configSubject = new BehaviorSubject<ImportConfig>({
         apiUrl: "https://api.swimresults.de/",
         password: ""
@@ -71,9 +72,55 @@ export class ImportService implements OnDestroy {
         }
     }
 
+    private playImportSound(kind: 'start' | 'lane' | 'stop') {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const AudioContextCtor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioContextCtor) {
+            return;
+        }
+
+        if (!this.audioContext) {
+            this.audioContext = new AudioContextCtor();
+        }
+
+        const context = this.audioContext;
+        if (context.state === 'suspended') {
+            context.resume().catch(() => undefined);
+        }
+
+        const frequencies: Record<'start' | 'lane' | 'stop', number> = {
+            start: 880,
+            lane: 660,
+            stop: 520
+        };
+
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const now = context.currentTime;
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequencies[kind];
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 0.16);
+        oscillator.onended = () => {
+            oscillator.disconnect();
+            gain.disconnect();
+        };
+    }
+
 
     startHeat(event: number, heat: number) {
         this.log(`start heat: E: ${event} H: ${heat}`);
+        this.playImportSound('start');
 
         let json = {
             'password': this.configSubject.value.password,
@@ -93,6 +140,7 @@ export class ImportService implements OnDestroy {
     laneTime(lane: number, time: number, meter: number, done: boolean) {
         let doneString = done ? "yes" : "";
         this.log(`lane time (${lane}): ${time} ${meter}m ${doneString}`)
+        this.playImportSound('lane');
 
         let json = {
             'password': this.configSubject.value.password,
@@ -108,6 +156,7 @@ export class ImportService implements OnDestroy {
 
     stopHeat(event: number, heat: number) {
         this.log(`stop heat: E: ${event} H: ${heat}`)
+        this.playImportSound('stop');
 
         let json = {
             'password': this.configSubject.value.password,
