@@ -9,6 +9,7 @@ import {EventViewComponent} from './content/event/event-view/event-view.componen
 import {WindowLiveTimingDisplayComponent} from './layout/window/window-live-timing-display/window-live-timing-display.component';
 import {LiveTimingComTestComponent} from './content/live-timing/live-timing-com-test/live-timing-com-test.component';
 import {LiveTimingOmegaComponent} from './content/live-timing/live-timing-omega/live-timing-omega.component';
+import {AutoImportViewComponent} from './content/import/auto-import-view/auto-import-view.component';
 
 export let routes: Routes;
 routes = [
@@ -29,6 +30,7 @@ routes = [
     {path: 'auth', component: AuthComponent},
     {path: 'auth/logout', component: LogoutComponent},
     {path: "import", component: ImportViewComponent},
+    {path: "auto-import", component: AutoImportViewComponent},
     {path: "schedule", component: EventListViewComponent},
     { path: "event/:event_number",  component: EventViewComponent },
     {

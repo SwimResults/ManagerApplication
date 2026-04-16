@@ -3,12 +3,14 @@ import {FileMetadata, FileWatcherService} from '../../../core/service/file-watch
 import {Subscription} from 'rxjs';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatIcon} from "@angular/material/icon";
+import {GroupBoxComponent} from '../../../layout/group-box/group-box.component';
 
 @Component({
   selector: 'sr-auto-import-tool',
     imports: [
         MatSlideToggle,
-        MatIcon
+        MatIcon,
+        GroupBoxComponent
     ],
   templateUrl: './auto-import-tool.component.html',
   styleUrl: './auto-import-tool.component.scss'

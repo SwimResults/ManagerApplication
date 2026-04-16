@@ -1,20 +1,18 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnDestroy} from '@angular/core';
 import {ImportToolComponent} from './import-tool/import-tool.component';
 import {CurrentMeetingService} from '../../../core/service/current-meeting.service';
 import {Subscription} from 'rxjs';
 import {MeetingImpl} from '../../../core/model/meeting/meeting.model';
-import {AutoImportToolComponent} from '../auto-import-tool/auto-import-tool.component';
 
 @Component({
-  selector: 'app-import-view',
+    selector: 'app-import-view',
     imports: [
-        ImportToolComponent,
-        AutoImportToolComponent
+        ImportToolComponent
     ],
-  templateUrl: './import-view.component.html',
-  styleUrl: './import-view.component.scss'
+    templateUrl: './import-view.component.html',
+    styleUrl: './import-view.component.scss'
 })
-export class ImportViewComponent {
+export class ImportViewComponent implements OnDestroy {
     private currentMeetingService = inject(CurrentMeetingService);
 
     private meetingSubscription: Subscription;
@@ -26,4 +24,9 @@ export class ImportViewComponent {
             this.meeting = meeting;
         })
     }
+
+    ngOnDestroy() {
+        this.meetingSubscription.unsubscribe();
+    }
+
 }

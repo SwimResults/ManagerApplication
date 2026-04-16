@@ -1,46 +1,48 @@
 <div class="auto-import-container">
-    <div class="file-info-section">
-        <div class="controls">
-            <button class="select-file-btn" (click)="selectFile()">
-                <mat-icon>folder_open</mat-icon>
-                Datei auswählen
-            </button>
-            <mat-slide-toggle (click)="toggleAutoImport()" [checked]="autoImportActive">
-                Automatischer Import
-            </mat-slide-toggle>
+    <sr-group-box boxTitle="Auto-Import">
+        <div class="file-info-section">
+            <div class="controls">
+                <button class="select-file-btn" (click)="selectFile()">
+                    <mat-icon>folder_open</mat-icon>
+                    Datei auswählen
+                </button>
+                <mat-slide-toggle (click)="toggleAutoImport()" [checked]="autoImportActive">
+                    Automatischer Import
+                </mat-slide-toggle>
+            </div>
+
+            @if (fileName || fileMeta) {
+                <div class="file-details">
+                    @if (fileName) {
+                        <div class="detail-row">
+                            <span class="label">Datei:</span>
+                            <span class="value">{{ fileName }}</span>
+                        </div>
+                    }
+                    @if (fileMeta) {
+                        <div class="detail-row">
+                            <span class="label">Geändert:</span>
+                            <span class="value">{{ fileMeta.lastModified.toLocaleString() }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Größe:</span>
+                            <span class="value">{{ fileMeta.size }}</span>
+                        </div>
+                    }
+                </div>
+            }
         </div>
 
-        @if (fileName || fileMeta) {
-            <div class="file-details">
-                @if (fileName) {
-                    <div class="detail-row">
-                        <span class="label">Datei:</span>
-                        <span class="value">{{ fileName }}</span>
-                    </div>
-                }
-                @if (fileMeta) {
-                    <div class="detail-row">
-                        <span class="label">Geändert:</span>
-                        <span class="value">{{ fileMeta.lastModified.toLocaleString() }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Größe:</span>
-                        <span class="value">{{ fileMeta.size }}</span>
-                    </div>
-                }
+        @if (changeLog.length > 0) {
+            <div class="changelog-section">
+                <h4>Änderungsprotokoll</h4>
+                <button (click)="clearLog()">Log leeren</button>
+                <ul class="changelog-list">
+                    @for (log of changeLog; track log) {
+                        <li>{{ log }}</li>
+                    }
+                </ul>
             </div>
         }
-    </div>
-
-    @if (changeLog.length > 0) {
-        <div class="changelog-section">
-            <h4>Änderungsprotokoll</h4>
-            <button (click)="clearLog()">Log leeren</button>
-            <ul class="changelog-list">
-                @for (log of changeLog; track log) {
-                    <li>{{ log }}</li>
-                }
-            </ul>
-        </div>
-    }
+    </sr-group-box>
 </div>
