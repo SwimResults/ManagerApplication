@@ -2,6 +2,20 @@
     <h1>Automatischer Import</h1>
 
     <div class="import-section">
-        <sr-auto-import-tool></sr-auto-import-tool>
+        @for (autoImporter of autoImporters; track autoImporter) {
+            <sr-group-box boxTitle="Auto-Import - {{ autoImporter }}">
+                <div class="importer-section">
+                    <sr-auto-import-tool></sr-auto-import-tool>
+                </div>
+            </sr-group-box>
+            <button class="remove-importer-btn" (click)="removeAutoImporter(autoImporter)">
+                <mat-icon>delete</mat-icon>
+                Auto-Importer entfernen
+            </button>
+        }
+        <button class="add-importer-btn" (click)="addAutoImporter()">
+            <mat-icon>add</mat-icon>
+            Auto-Importer hinzufügen
+        </button>
     </div>
 </div>
