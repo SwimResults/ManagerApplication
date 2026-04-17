@@ -13,15 +13,18 @@ export interface FileMetadata {
     providedIn: 'root'
 })
 export class FileWatcherService implements OnDestroy {
-    private currentFilePathSubject = new BehaviorSubject<string | null>(null);
-    private fileMetadataSubject = new BehaviorSubject<FileMetadata | null>(null);
-    private changeLogSubject = new BehaviorSubject<string[]>([]);
-    private autoImportActiveSubject = new BehaviorSubject<boolean>(false);
-    private watcherSubscription?: Subscription;
+    // Per-importer state
+    private filePathsMap = new Map<number, BehaviorSubject<string | null>>();
+    private fileMetadataMap = new Map<number, BehaviorSubject<FileMetadata | null>>();
+    private autoImportActiveMap = new Map<number, BehaviorSubject<boolean>>();
+    private watcherSubscriptionsMap = new Map<number, Subscription>();
+    private lastModifiedTimeMap = new Map<number, number>();
+    private autoImportInProgressMap = new Map<number, boolean>();
+    private changeLogMap = new Map<number, BehaviorSubject<string[]>>();
+
+    // Global state
     private meetingSubscription?: Subscription;
-    private streamCompletionSubscription?: Subscription;
-    private lastModifiedTime: number = 0;
-    private autoImportInProgress = false;
+    private streamCompletionSubscriptionsMap = new Map<number, Subscription>();
     private currentMeetingId: string | null = null;
     private readonly autoImportFeatures: string[] = [
         'event',
@@ -31,11 +34,6 @@ export class FileWatcherService implements OnDestroy {
         'disqualification'
     ];
     private autoImportListType = 'result_list';
-
-    currentFilePath: Observable<string | null> = this.currentFilePathSubject.asObservable();
-    fileMetadata: Observable<FileMetadata | null> = this.fileMetadataSubject.asObservable();
-    changeLog: Observable<string[]> = this.changeLogSubject.asObservable();
-    autoImportActive: Observable<boolean> = this.autoImportActiveSubject.asObservable();
 
     constructor(
         private electronService: ElectronService,
@@ -47,72 +45,122 @@ export class FileWatcherService implements OnDestroy {
         });
     }
 
-    clearChangeLog() {
-        this.changeLogSubject.next([]);
+    // Get or create observables for a specific importer
+    private getOrCreateFilePath$(importerId: number): BehaviorSubject<string | null> {
+        if (!this.filePathsMap.has(importerId)) {
+            this.filePathsMap.set(importerId, new BehaviorSubject<string | null>(null));
+        }
+        return this.filePathsMap.get(importerId)!;
     }
 
-    setAutoImportActive(active: boolean): void {
-        if (this.autoImportActiveSubject.getValue() === active) {
+    private getOrCreateFileMetadata$(importerId: number): BehaviorSubject<FileMetadata | null> {
+        if (!this.fileMetadataMap.has(importerId)) {
+            this.fileMetadataMap.set(importerId, new BehaviorSubject<FileMetadata | null>(null));
+        }
+        return this.fileMetadataMap.get(importerId)!;
+    }
+
+    private getOrCreateAutoImportActive$(importerId: number): BehaviorSubject<boolean> {
+        if (!this.autoImportActiveMap.has(importerId)) {
+            this.autoImportActiveMap.set(importerId, new BehaviorSubject<boolean>(false));
+        }
+        return this.autoImportActiveMap.get(importerId)!;
+    }
+
+    private getOrCreateChangeLog$(importerId: number): BehaviorSubject<string[]> {
+        if (!this.changeLogMap.has(importerId)) {
+            this.changeLogMap.set(importerId, new BehaviorSubject<string[]>([]));
+        }
+        return this.changeLogMap.get(importerId)!;
+    }
+
+    // Public observable getters for specific importer
+    currentFilePath$(importerId: number): Observable<string | null> {
+        return this.getOrCreateFilePath$(importerId).asObservable();
+    }
+
+    fileMetadata$(importerId: number): Observable<FileMetadata | null> {
+        return this.getOrCreateFileMetadata$(importerId).asObservable();
+    }
+
+    changeLog$(importerId: number): Observable<string[]> {
+        return this.getOrCreateChangeLog$(importerId).asObservable();
+    }
+
+    autoImportActive$(importerId: number): Observable<boolean> {
+        return this.getOrCreateAutoImportActive$(importerId).asObservable();
+    }
+
+    clearChangeLog(importerId: number): void {
+        this.getOrCreateChangeLog$(importerId).next([]);
+    }
+
+    setAutoImportActive(importerId: number, active: boolean): void {
+        const subject = this.getOrCreateAutoImportActive$(importerId);
+        if (subject.getValue() === active) {
             return;
         }
 
-        this.autoImportActiveSubject.next(active);
-        this.appendToLog(`Auto import ${active ? 'aktiviert' : 'deaktiviert'}`);
+        subject.next(active);
+        this.appendToLog(importerId, `Auto import ${active ? 'aktiviert' : 'deaktiviert'}`);
     }
 
-    enableAutoImport(): void {
-        this.setAutoImportActive(true);
+    enableAutoImport(importerId: number): void {
+        this.setAutoImportActive(importerId, true);
     }
 
-    disableAutoImport(): void {
-        this.setAutoImportActive(false);
+    disableAutoImport(importerId: number): void {
+        this.setAutoImportActive(importerId, false);
     }
 
-    toggleAutoImport(): void {
-        this.setAutoImportActive(!this.autoImportActiveSubject.getValue());
+    toggleAutoImport(importerId: number): void {
+        this.setAutoImportActive(importerId, !this.getOrCreateAutoImportActive$(importerId).getValue());
     }
 
-    async openFileDialog(): Promise<void> {
+    async openFileDialog(importerId: number): Promise<void> {
         const filePath = await this.electronService.openFileDialog();
 
         if (filePath) {
-            this.setFile(filePath);
+            this.setFile(importerId, filePath);
         }
     }
 
-    private setFile(filePath: string): void {
-        // Stop any existing watcher
-        this.stopWatching();
+    private setFile(importerId: number, filePath: string): void {
+        // Stop any existing watcher for this importer
+        this.stopWatching(importerId);
 
         // Update current file path
-        this.currentFilePathSubject.next(filePath);
+        this.getOrCreateFilePath$(importerId).next(filePath);
 
         // Initialize metadata
-        this.updateFileMetadata(filePath);
+        this.updateFileMetadata(importerId, filePath);
 
         // Start watching the file
-        this.startWatching(filePath);
+        this.startWatching(importerId, filePath);
     }
 
-    private startWatching(filePath: string): void {
+    private startWatching(importerId: number, filePath: string): void {
         // Check file every 10 seconds
-        this.watcherSubscription = interval(10000).subscribe({
+        const subscription = interval(10000).subscribe({
             next: () => {
-                this.checkFileChanges(filePath).catch(error => {
+                this.checkFileChanges(importerId, filePath).catch(error => {
                     console.error('Error while checking file changes:', error);
                 });
             }
         });
+
+        this.watcherSubscriptionsMap.set(importerId, subscription);
     }
 
-    private stopWatching(): void {
-        if (this.watcherSubscription) {
-            this.watcherSubscription.unsubscribe();
-            this.watcherSubscription = undefined;
+    private stopWatching(importerId: number): void {
+        const subscription = this.watcherSubscriptionsMap.get(importerId);
+        if (subscription) {
+            subscription.unsubscribe();
+            this.watcherSubscriptionsMap.delete(importerId);
         }
     }
 
-    private updateFileMetadata(filePath: string): void {
+    private updateFileMetadata(importerId: number, filePath: string): void {
         const stats = this.electronService.getFileStats(filePath);
 
         if (stats) {
@@ -121,14 +169,14 @@ export class FileWatcherService implements OnDestroy {
                 lastModified: stats.mtime
             };
 
-            this.appendToLog(`Dateiupdate erkannt um ${metadata.lastModified.toLocaleString()}`);
+            this.appendToLog(importerId, `Dateiupdate erkannt um ${metadata.lastModified.toLocaleString()}`);
 
-            this.fileMetadataSubject.next(metadata);
-            this.lastModifiedTime = stats.mtimeMs;
+            this.getOrCreateFileMetadata$(importerId).next(metadata);
+            this.lastModifiedTimeMap.set(importerId, stats.mtimeMs);
         }
     }
 
-    private async checkFileChanges(filePath: string): Promise<void> {
+    private async checkFileChanges(importerId: number, filePath: string): Promise<void> {
         const stats = this.electronService.getFileStats(filePath);
 
         if (!stats) {
@@ -136,14 +184,16 @@ export class FileWatcherService implements OnDestroy {
             return;
         }
 
+        const lastModified = this.lastModifiedTimeMap.get(importerId) || 0;
+
         // Check if file has been modified
-        if (stats.mtimeMs !== this.lastModifiedTime) {
+        if (stats.mtimeMs !== lastModified) {
             console.log('File changed detected!');
 
             // Update metadata
-            this.updateFileMetadata(filePath);
+            this.updateFileMetadata(importerId, filePath);
 
-            await this.handleAutoImport(filePath);
+            await this.handleAutoImport(importerId, filePath);
 
             // Read and print first 10 lines
             const lines = this.electronService.readFileLines(filePath, 10);
@@ -154,30 +204,40 @@ export class FileWatcherService implements OnDestroy {
         }
     }
 
-    private async handleAutoImport(filePath: string): Promise<void> {
-        if (!this.autoImportActiveSubject.getValue()) {
+    private async handleAutoImport(importerId: number, filePath: string): Promise<void> {
+        if (!this.getOrCreateAutoImportActive$(importerId).getValue()) {
             return;
         }
 
-        if (this.autoImportInProgress) {
-            this.appendToLog('Automatischer Import übersprungen, da bereits ein Import läuft');
+        if (this.autoImportInProgressMap.get(importerId)) {
+            this.appendToLog(importerId, 'Automatischer Import übersprungen, da bereits ein Import läuft');
             return;
         }
 
         if (!this.currentMeetingId) {
-            this.appendToLog('Automatischer Import übersprungen, da kein Wettkampf ausgewählt ist');
+            this.appendToLog(importerId, 'Automatischer Import übersprungen, da kein Wettkampf ausgewählt ist');
             return;
         }
 
         const fileExtension = this.detectFileExtension(filePath);
         if (!fileExtension) {
-            this.appendToLog('Automatischer Import übersprungen, da der Dateityp nicht erkannt werden konnte');
+            this.appendToLog(importerId, 'Automatischer Import übersprungen, da der Dateityp nicht erkannt werden konnte');
             return;
         }
 
         const file = this.createFileFromPath(filePath, fileExtension);
         if (!file) {
-            this.appendToLog('Automatischer Import übersprungen, da die Datei nicht gelesen werden konnte');
+            this.appendToLog(importerId, 'Automatischer Import übersprungen, da die Datei nicht gelesen werden konnte');
+            return;
+        }
+
+        await this.executeAutoImport(importerId, file, fileExtension);
+    }
+
+    private async executeAutoImport(importerId: number, file: File, fileExtension: string): Promise<void> {
+        // Guard: ensure we have a meeting ID
+        if (!this.currentMeetingId) {
+            this.appendToLog(importerId, 'Automatischer Import übersprungen, da kein Wettkampf ausgewählt ist');
             return;
         }
 
@@ -185,8 +245,8 @@ export class FileWatcherService implements OnDestroy {
         this.importFileService.closeStream();
         const sessionId = this.importFileService.generateStreamId();
 
-        this.autoImportInProgress = true;
-        this.resetStreamCompletionWatcher();
+        this.autoImportInProgressMap.set(importerId, true);
+        this.resetStreamCompletionWatcher(importerId);
 
         const request: ImportFileRequest = {
             url: '',
@@ -202,53 +262,54 @@ export class FileWatcherService implements OnDestroy {
 
         try {
             await this.importFileService.openStream(sessionId);
-            this.setupStreamCompletionWatcher();
-            this.appendToLog('Automatischer Import gestartet');
+            this.setupStreamCompletionWatcher(importerId);
+            this.appendToLog(importerId, 'Automatischer Import gestartet');
 
             await firstValueFrom(this.importFileService.importFile(request, file));
-            //this.appendToLog('Automatischer Import abgeschlossen');
+            //this.appendToLog(importerId, 'Automatischer Import abgeschlossen');
         } catch (error) {
             console.error('Auto import failed', error);
-            this.appendToLog('Automatischer Import fehlgeschlagen; siehe Konsole für Details');
-            this.finishAutoImport(true);
-        } finally {
+            this.appendToLog(importerId, 'Automatischer Import fehlgeschlagen; siehe Konsole für Details');
+            this.finishAutoImport(importerId, true);
         }
     }
 
-    private setupStreamCompletionWatcher(): void {
+    private setupStreamCompletionWatcher(importerId: number): void {
         const sub = new Subscription();
 
         sub.add(this.importFileService.progress$.subscribe(event => {
             const pct = this.extractProgress(event);
             if (pct >= 100) {
-                this.appendToLog('Automatischer Import abgeschlossen');
-                this.finishAutoImport(true);
+                this.appendToLog(importerId, 'Automatischer Import abgeschlossen');
+                this.finishAutoImport(importerId, true);
             }
         }));
 
         sub.add(this.importFileService.connection$.subscribe(active => {
             if (!active) {
-                this.finishAutoImport(false);
+                this.finishAutoImport(importerId, false);
             }
         }));
 
-        this.streamCompletionSubscription = sub;
+        this.streamCompletionSubscriptionsMap.set(importerId, sub);
     }
 
-    private resetStreamCompletionWatcher(): void {
-        if (this.streamCompletionSubscription) {
-            this.streamCompletionSubscription.unsubscribe();
-            this.streamCompletionSubscription = undefined;
+    private resetStreamCompletionWatcher(importerId: number): void {
+        const subscription = this.streamCompletionSubscriptionsMap.get(importerId);
+        if (subscription) {
+            subscription.unsubscribe();
+            this.streamCompletionSubscriptionsMap.delete(importerId);
         }
     }
 
-    private finishAutoImport(closeStream: boolean): void {
-        if (!this.autoImportInProgress) {
+    private finishAutoImport(importerId: number, closeStream: boolean): void {
+        const autoImportInProgress = this.autoImportInProgressMap.get(importerId) || false;
+        if (!autoImportInProgress) {
             return;
         }
 
-        this.autoImportInProgress = false;
-        this.resetStreamCompletionWatcher();
+        this.autoImportInProgressMap.set(importerId, false);
+        this.resetStreamCompletionWatcher(importerId);
 
         if (closeStream) {
             this.importFileService.closeStream();
@@ -304,9 +365,10 @@ export class FileWatcherService implements OnDestroy {
             const mimeType = this.mapExtensionToMimeType(extension);
 
             // Wrap Node buffer as Uint8Array to satisfy File ctor typing
+            const lastModified = Array.from(this.lastModifiedTimeMap.values())[0] || Date.now();
             return new File([new Uint8Array(fileBuffer)], fileName, {
                 type: mimeType,
-                lastModified: this.lastModifiedTime || Date.now()
+                lastModified: lastModified
             });
         } catch (error) {
             console.error('Error preparing file for import:', error);
@@ -335,20 +397,27 @@ export class FileWatcherService implements OnDestroy {
         }
     }
 
-    private appendToLog(message: string): void {
+    private appendToLog(importerId: number, message: string): void {
         const log = `${new Date().toLocaleString()} > ${message}`;
-        this.changeLogSubject.next([...this.changeLogSubject.getValue(), log]);
+        const subject = this.getOrCreateChangeLog$(importerId);
+        subject.next([...subject.getValue(), log]);
     }
 
-    clearFile(): void {
-        this.stopWatching();
-        this.currentFilePathSubject.next(null);
-        this.fileMetadataSubject.next(null);
-        this.lastModifiedTime = 0;
+    clearFile(importerId: number): void {
+        this.stopWatching(importerId);
+        this.getOrCreateFilePath$(importerId).next(null);
+        this.getOrCreateFileMetadata$(importerId).next(null);
+        this.lastModifiedTimeMap.delete(importerId);
     }
 
     ngOnDestroy(): void {
-        this.stopWatching();
+        // Clean up all watchers
+        this.watcherSubscriptionsMap.forEach(sub => sub.unsubscribe());
+        this.watcherSubscriptionsMap.clear();
+
+        // Clean up all stream completion watchers
+        this.streamCompletionSubscriptionsMap.forEach(sub => sub.unsubscribe());
+        this.streamCompletionSubscriptionsMap.clear();
 
         if (this.meetingSubscription) {
             this.meetingSubscription.unsubscribe();

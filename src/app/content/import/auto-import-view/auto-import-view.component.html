@@ -3,15 +3,17 @@
 
     <div class="import-section">
         @for (autoImporter of autoImporters; track autoImporter) {
-            <sr-group-box boxTitle="Auto-Import - {{ autoImporter }}">
-                <div class="importer-section">
-                    <sr-auto-import-tool></sr-auto-import-tool>
-                </div>
-            </sr-group-box>
-            <button class="remove-importer-btn" (click)="removeAutoImporter(autoImporter)">
-                <mat-icon>delete</mat-icon>
-                Auto-Importer entfernen
-            </button>
+            <div class="importer-wrapper" [style.background-color]="getImporterColor(autoImporter)">
+                <sr-group-box boxTitle="Auto-Import - {{ autoImporter }}">
+                    <div class="importer-section">
+                        <sr-auto-import-tool [importerId]="autoImporter"></sr-auto-import-tool>
+                    </div>
+                    <button class="remove-importer-btn" (click)="removeAutoImporter(autoImporter)">
+                        <mat-icon>delete</mat-icon>
+                        Auto-Importer entfernen
+                    </button>
+                </sr-group-box>
+            </div>
         }
         <button class="add-importer-btn" (click)="addAutoImporter()">
             <mat-icon>add</mat-icon>

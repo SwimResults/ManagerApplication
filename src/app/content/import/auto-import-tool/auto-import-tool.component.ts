@@ -1,21 +1,21 @@
-import {Component, inject, OnDestroy} from '@angular/core';
+import {Component, Input, inject, OnDestroy, OnInit} from '@angular/core';
 import {FileMetadata, FileWatcherService} from '../../../core/service/file-watcher.service';
 import {Subscription} from 'rxjs';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatIcon} from "@angular/material/icon";
-import {GroupBoxComponent} from '../../../layout/group-box/group-box.component';
 
 @Component({
   selector: 'sr-auto-import-tool',
     imports: [
         MatSlideToggle,
-        MatIcon,
-        GroupBoxComponent
+        MatIcon
     ],
   templateUrl: './auto-import-tool.component.html',
   styleUrl: './auto-import-tool.component.scss'
 })
-export class AutoImportToolComponent implements OnDestroy {
+export class AutoImportToolComponent implements OnDestroy, OnInit {
+    @Input() importerId: number = 1;
+
     private fileWatcherService = inject(FileWatcherService);
 
     fileNameSubscription: Subscription;
@@ -31,19 +31,26 @@ export class AutoImportToolComponent implements OnDestroy {
     autoImportActive: boolean = false;
 
     constructor() {
-        this.fileNameSubscription = this.fileWatcherService.currentFilePath.subscribe(path => {
+        this.fileNameSubscription = new Subscription();
+        this.fileMetaSubscription = new Subscription();
+        this.changeLogSubscription = new Subscription();
+        this.autoImportActiveSubscription = new Subscription();
+    }
+
+    ngOnInit(): void {
+        this.fileNameSubscription = this.fileWatcherService.currentFilePath$(this.importerId).subscribe(path => {
             this.fileName = path;
         })
 
-        this.fileMetaSubscription = this.fileWatcherService.fileMetadata.subscribe(meta => {
+        this.fileMetaSubscription = this.fileWatcherService.fileMetadata$(this.importerId).subscribe(meta => {
             this.fileMeta = meta;
         })
 
-        this.changeLogSubscription = this.fileWatcherService.changeLog.subscribe(log => {
+        this.changeLogSubscription = this.fileWatcherService.changeLog$(this.importerId).subscribe(log => {
             this.changeLog = log;
         })
 
-        this.autoImportActiveSubscription = this.fileWatcherService.autoImportActive.subscribe(autoImport => {
+        this.autoImportActiveSubscription = this.fileWatcherService.autoImportActive$(this.importerId).subscribe(autoImport => {
             this.autoImportActive = autoImport;
         })
     }
@@ -56,14 +63,14 @@ export class AutoImportToolComponent implements OnDestroy {
     }
 
     selectFile() {
-        this.fileWatcherService.openFileDialog();
+        this.fileWatcherService.openFileDialog(this.importerId);
     }
 
     toggleAutoImport() {
-        this.fileWatcherService.toggleAutoImport();
+        this.fileWatcherService.toggleAutoImport(this.importerId);
     }
 
     clearLog() {
-        this.fileWatcherService.clearChangeLog();
+        this.fileWatcherService.clearChangeLog(this.importerId);
     }
 }
