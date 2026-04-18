@@ -382,6 +382,7 @@
             "PASSWORD": "Password",
             "SERVER": "Server",
             "PORT": "Port",
+            "PARSER_MODE": "Parser Mode",
             "SAVE_BUTTON": "Save"
         },
         "LANGUAGE": {

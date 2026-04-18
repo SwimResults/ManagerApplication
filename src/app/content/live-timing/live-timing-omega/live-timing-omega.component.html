@@ -91,6 +91,14 @@
 						}
 					</select>
 				</div>
+				<div class="form-field">
+					<label for="parser-mode">{{'SETTINGS.LIVE_TIMING.PARSER_MODE' | translate}}</label>
+					<select id="parser-mode" [(ngModel)]="parserMode" (ngModelChange)="updateParserMode()">
+						@for (option of parserModeOptions; track option) {
+							<option [value]="option">{{ option }}</option>
+						}
+					</select>
+				</div>
 
 				@if (status.error) {
 					<div class="status-error">Error: {{ status.error }}</div>

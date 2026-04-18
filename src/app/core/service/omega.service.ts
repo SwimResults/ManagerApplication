@@ -5,7 +5,7 @@ import {ConnectionState, State} from '../model/state.model';
 import {ImportService} from './import.service';
 import {SerialComService, SerialConnectionStatus, SerialMessage, SerialPortConfig, SerialPortInfo} from './serial-com.service';
 import {TimingStateService} from './timing-state.service';
-import {OmegaLivetimingSettingsImpl} from '../model/omega-livetiming-settings.model';
+import {OmegaLivetimingSettingsImpl, OmegaParserMode} from '../model/omega-livetiming-settings.model';
 
 interface OSM6Part1Frame {
   messageType: string;
@@ -27,6 +27,11 @@ type OSM6Frame =
   | {kind: 'heartbeat'}
   | {kind: 'part1'; frame: OSM6Part1Frame}
   | {kind: 'part2'; frame: OSM6Part2Frame};
+
+type UNT4Frame =
+  | {kind: 'set'; event: number; heat: number}
+  | {kind: 'rolling'; runningTime: number}
+  | {kind: 'split'; lane: number; time: number};
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +57,8 @@ export class OmegaService {
   private pendingPart1: OSM6Part1Frame | null = null;
   private pendingFinishAfterPart2 = false;
   private livetimingSettings = new OmegaLivetimingSettingsImpl();
+  private unt4PendingStart = false;
+  private unt4ActiveEvent: number | null = null;
 
   private serialStatusSubscription: Subscription;
   private serialMessageSubscription: Subscription;
@@ -112,6 +119,19 @@ export class OmegaService {
     this.messageSubject.next(`OMEGA: lap interval set to ${normalized}m`);
   }
 
+  getParserMode(): OmegaParserMode {
+    return this.livetimingSettings.parserMode;
+  }
+
+  setParserMode(mode: OmegaParserMode) {
+    this.livetimingSettings.parserMode = mode;
+    this.pendingPart1 = null;
+    this.pendingFinishAfterPart2 = false;
+    this.unt4PendingStart = false;
+    this.unt4ActiveEvent = null;
+    this.messageSubject.next(`OMEGA: parser mode set to ${mode}`);
+  }
+
   setCurrentHeat(runningHeat: CurrentHeatModel) {
     this.timingStateService.setCurrentHeat(runningHeat);
   }
@@ -128,6 +148,16 @@ export class OmegaService {
     }
 
     this.receivePing();
+
+    if (this.livetimingSettings.parserMode === 'UNT4') {
+      this.processUnt4Message(message, bytes);
+      return;
+    }
+
+    this.processOsm6Message(message, bytes);
+  }
+
+  private processOsm6Message(message: SerialMessage, bytes: number[]) {
 
     const frame = this.decodeFrame(bytes);
     if (!frame) {
@@ -168,6 +198,139 @@ export class OmegaService {
         this.handlePart2Frame(frame.frame);
         break;
     }
+  }
+
+  private processUnt4Message(message: SerialMessage, bytes: number[]) {
+    const frame = this.decodeUnt4Frame(bytes);
+    if (!frame) {
+      this.messageSubject.next(`UNT4: Unparsed frame (${message.byteLength} bytes)`);
+      return;
+    }
+
+    switch (frame.kind) {
+      case 'set': {
+        const currentHeat = this.timingStateService.currentHeatValue;
+        const hasCurrentEvent = currentHeat.event > 0;
+        const isNewEvent = hasCurrentEvent && currentHeat.event !== frame.event;
+
+        if (isNewEvent) {
+          this.messageSubject.next(`UNT4: new event ${frame.event} detected, finishing previous heat`);
+          this.finishHeat();
+        }
+
+        this.timingStateService.mutateCurrentHeat(heat => {
+          heat.event = frame.event;
+          heat.heat = frame.heat;
+          heat.runningTime = -1;
+        });
+        this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
+
+        this.unt4ActiveEvent = frame.event;
+        this.unt4PendingStart = true;
+        this.messageSubject.next(`UNT4: set event/heat to ${frame.event}/${frame.heat}`);
+        break;
+      }
+      case 'rolling': {
+        this.timingStateService.mutateCurrentHeat(heat => {
+          heat.runningTime = frame.runningTime;
+        });
+
+        if (this.unt4PendingStart && this.unt4ActiveEvent !== null) {
+          this.messageSubject.next(`UNT4: first rolling frame for event ${this.unt4ActiveEvent}, starting heat`);
+          this.beginHeat();
+          this.unt4PendingStart = false;
+        }
+
+        this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
+        break;
+      }
+      case 'split': {
+        const competitor = this.timingStateService.getOrCreateCompetitor(frame.lane);
+        const lap = competitor.lap + 1;
+        const meters = lap * this.livetimingSettings.lapIntervalMeters;
+
+        competitor.lap = lap;
+        competitor.lapM = meters;
+        competitor.splits.set(lap, frame.time);
+
+        this.importService.laneTime(frame.lane, frame.time, meters, false);
+        this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
+        this.messageSubject.next(`UNT4: lane ${frame.lane}, lap ${lap}, time ${frame.time}`);
+        break;
+      }
+    }
+  }
+
+  private decodeUnt4Frame(bytes: number[]): UNT4Frame | null {
+    if (bytes.length < 3 || bytes[0] !== 0x01 || bytes[bytes.length - 1] !== 0x04) {
+      return null;
+    }
+
+    if (bytes[1] === 0x08) {
+      const payload = this.cleanUnt4Payload(this.bytesToText(bytes.slice(2, bytes.length - 1)));
+      const numbers = payload.match(/\d+/g) ?? [];
+      if (numbers.length < 2) {
+        return null;
+      }
+
+      const event = Number(numbers[numbers.length - 2]);
+      const heat = Number(numbers[numbers.length - 1]);
+      if (!Number.isFinite(event) || !Number.isFinite(heat)) {
+        return null;
+      }
+
+      return {kind: 'set', event, heat};
+    }
+
+    if (bytes[1] !== 0x14 || bytes.length < 8) {
+      return null;
+    }
+
+    const frameType = String.fromCharCode(bytes[2]);
+    const firstStxIndex = bytes.indexOf(0x02);
+    const secondStxIndex = firstStxIndex >= 0 ? bytes.indexOf(0x02, firstStxIndex + 1) : -1;
+    if (secondStxIndex < 0) {
+      return null;
+    }
+
+    const payload = this.cleanUnt4Payload(this.bytesToText(bytes.slice(secondStxIndex + 1, bytes.length - 1)));
+    const tokens = payload
+      .replace(',', '.')
+      .match(/-?\d+(?:\.\d+)?/g) ?? [];
+
+    if (frameType === 'R') {
+      if (tokens.length === 0) {
+        return null;
+      }
+      const runningTime = this.parseOsm6Time(tokens[tokens.length - 1]);
+      if (!Number.isFinite(runningTime)) {
+        return null;
+      }
+      return {kind: 'rolling', runningTime};
+    }
+
+    if (frameType === 'S') {
+      if (tokens.length < 2) {
+        return null;
+      }
+
+      const lane = Number(tokens[0]);
+      const time = this.parseOsm6Time(tokens[tokens.length - 1]);
+      if (!Number.isFinite(lane) || !Number.isFinite(time)) {
+        return null;
+      }
+
+      return {kind: 'split', lane, time};
+    }
+
+    return null;
+  }
+
+  private cleanUnt4Payload(text: string): string {
+    return text
+      .replace(/[\u0001\u0002\u0004\u0008\u0014]/g, '')
+      .replace(/¬/g, ' ')
+      .trim();
   }
 
   private handlePart2Frame(frame: OSM6Part2Frame) {
@@ -457,6 +620,8 @@ export class OmegaService {
       // OSM6 can send second-only values like "43.27".
       secondsPart = segments[0];
     }
+
+    secondsPart = secondsPart.slice(0, 5);
 
     this.messageSubject.next(`[DEBUG] parseOsm6Time: hh=${hours} mm=${minutes} ss.ms='${secondsPart}'`);
     if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {

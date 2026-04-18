@@ -13,6 +13,7 @@ import {OmegaService} from '../../../core/service/omega.service';
 import {SerialConnectionStatus, SerialParity, SerialPortInfo} from '../../../core/service/serial-com.service';
 import {getClassForConnectionState} from '../../../core/function/live-timing.functions';
 import {createEmptyCurrentHeat} from '../../../core/service/timing-state.service';
+import {OmegaParserMode} from '../../../core/model/omega-livetiming-settings.model';
 
 @Component({
   selector: 'sr-live-timing-omega',
@@ -34,6 +35,7 @@ export class LiveTimingOmegaComponent {
   stopBits: 1 | 2 = 1;
   parity: SerialParity = 'none';
   lapIntervalMeters = 100;
+  parserMode: OmegaParserMode = 'OSM6';
 
   isLoadingPorts = false;
   isBusy = false;
@@ -54,6 +56,7 @@ export class LiveTimingOmegaComponent {
   readonly dataBitOptions: Array<5 | 6 | 7 | 8> = [5, 6, 7, 8];
   readonly stopBitOptions: Array<1 | 2> = [1, 2];
   readonly parityOptions: SerialParity[] = ['none', 'even', 'odd', 'mark', 'space'];
+  readonly parserModeOptions: OmegaParserMode[] = ['OSM6', 'UNT4'];
 
   private statusSubscription: Subscription;
   private messageSubscription: Subscription;
@@ -104,6 +107,7 @@ export class LiveTimingOmegaComponent {
     });
 
     this.lapIntervalMeters = this.omegaService.getLapIntervalMeters();
+    this.parserMode = this.omegaService.getParserMode();
 
     this.importConfigSubscription = this.importService.config.subscribe(config => {
       this.importConfig = config;
@@ -194,6 +198,10 @@ export class LiveTimingOmegaComponent {
 
   updateLapIntervalMeters() {
     this.omegaService.setLapIntervalMeters(Number(this.lapIntervalMeters));
+  }
+
+  updateParserMode() {
+    this.omegaService.setParserMode(this.parserMode);
   }
 
   toggleLog() {

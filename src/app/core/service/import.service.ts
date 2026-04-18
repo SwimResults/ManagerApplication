@@ -133,6 +133,12 @@ export class ImportService implements OnDestroy {
             next: value => {
                 console.log("response: " + value);
                 this.srStateSubject.next(value);
+            },
+            error: error => {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                console.error(`[ImportService] START failed for event=${event}, heat=${heat}. Parsed frames were present but import start request failed.`, error);
+                this.log(`START failed: E=${event} H=${heat} reason=${errorMessage}`);
+                this.srStateSubject.next(ConnectionState.DISCONNECTED);
             }
         })
     }
