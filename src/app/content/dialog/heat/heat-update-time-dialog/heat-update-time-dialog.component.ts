@@ -6,12 +6,10 @@ import {
     MatDialogRef,
     MatDialogTitle
 } from "@angular/material/dialog";
-import {MatFormField} from "@angular/material/form-field";
-import {MatInput, MatLabel} from "@angular/material/input";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {Heat} from '../../../../core/model/start/heat.model';
 import {HeatService} from '../../../../core/service/api';
 import {SnackBarService} from '../../../../core/service/ui/snack-bar.service';
+import {UtcDateTimeInputComponent} from '../../../../layout/element/utc-date-time-input/utc-date-time-input.component';
 
 export interface HeatUpdateTimeDialogData {
     heat: Heat;
@@ -23,11 +21,7 @@ export interface HeatUpdateTimeDialogData {
         MatDialogActions,
         MatDialogContent,
         MatDialogTitle,
-        MatFormField,
-        MatInput,
-        MatLabel,
-        ReactiveFormsModule,
-        FormsModule
+        UtcDateTimeInputComponent
     ],
   templateUrl: './heat-update-time-dialog.component.html',
   styleUrl: './heat-update-time-dialog.component.scss'

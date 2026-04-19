@@ -17,6 +17,7 @@ import {EventService} from '../../../../core/service/api';
 import {MeetingEvent} from '../../../../core/model/meeting/meeting-event.model';
 import {IncidentService} from '../../../../core/service/api/meeting/incident.service';
 import {SnackBarService} from '../../../../core/service/ui/snack-bar.service';
+import {UtcDateTimeInputComponent} from '../../../../layout/element/utc-date-time-input/utc-date-time-input.component';
 
 export interface IncidentEditDialogData {
     incident: IncidentImpl;
@@ -35,7 +36,8 @@ export interface IncidentEditDialogData {
         MatOption,
         FormsModule,
         MatInput,
-        TranslatePipe
+        TranslatePipe,
+        UtcDateTimeInputComponent
     ],
   templateUrl: './incident-edit-dialog.component.html',
   styleUrl: './incident-edit-dialog.component.scss'

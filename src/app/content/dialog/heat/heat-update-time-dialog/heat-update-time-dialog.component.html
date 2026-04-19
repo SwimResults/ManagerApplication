@@ -3,10 +3,7 @@
 
     <h2>Wettkampf {{data.heat.event}}, Lauf {{data.heat.number}}</h2>
 
-    <mat-form-field>
-        <mat-label>Start</mat-label>
-        <input matInput [(ngModel)]="data.heat.start_delay_estimation">
-    </mat-form-field>
+    <app-utc-date-time-input label="Start" [(isoValue)]="data.heat.start_delay_estimation"></app-utc-date-time-input>
 
 </mat-dialog-content>
 

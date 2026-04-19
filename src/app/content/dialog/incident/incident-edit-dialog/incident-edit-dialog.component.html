@@ -35,7 +35,7 @@
 
     <hr>
 
-    <p>Zeit muss als ISO Zeichenkette (2025-12-20T07:15:00Z) in UTC angegeben werden. Angezeigte Zeiten:</p>
+    <p>Zeit bitte als Datum + Uhrzeit eingeben. Die Werte werden automatisch als UTC-ISO gespeichert. Angezeigte Zeiten:</p>
     <span class="status-badge">
             @if (incident.type === 'EVENT') {
                 <div class="time-container">
@@ -60,15 +60,8 @@
     <br>
     <br>
 
-    <mat-form-field>
-        <mat-label>Start</mat-label>
-        <input matInput [(ngModel)]="incident.start">
-    </mat-form-field>
-
-    <mat-form-field>
-        <mat-label>Ende</mat-label>
-        <input matInput [(ngModel)]="incident.end">
-    </mat-form-field>
+    <app-utc-date-time-input label="Start" [(isoValue)]="incident.start"></app-utc-date-time-input>
+    <app-utc-date-time-input label="Ende" [(isoValue)]="incident.end" [showUtcHint]="false"></app-utc-date-time-input>
 
     <hr>
 

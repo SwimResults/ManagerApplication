@@ -1,0 +1,32 @@
+<div class="date-time-field-row">
+    <mat-form-field>
+        <mat-label>{{ label }} (Datum)</mat-label>
+        <input
+            matInput
+            type="date"
+            [(ngModel)]="dateValue"
+            [disabled]="disabled"
+            (ngModelChange)="onDateOrTimeChange()"
+            (focus)="onFieldFocus()"
+            (blur)="onFieldBlur()"
+        >
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>{{ label }} (Zeit)</mat-label>
+        <input
+            matInput
+            type="time"
+            step="1"
+            [(ngModel)]="timeValue"
+            [disabled]="disabled"
+            (ngModelChange)="onDateOrTimeChange()"
+            (focus)="onFieldFocus()"
+            (blur)="onFieldBlur()"
+        >
+    </mat-form-field>
+</div>
+
+@if (showUtcHint) {
+    <div class="utc-hint">Automatische UTC-Speicherung (Serverformat: ISO 8601)</div>
+}
