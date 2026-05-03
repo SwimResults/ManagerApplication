@@ -1,5 +1,4 @@
-import {Component} from '@angular/core';
-import {DatePipe} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Subscription} from 'rxjs';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
@@ -25,7 +24,7 @@ import {OmegaParserMode} from '../../../core/model/omega-livetiming-settings.mod
   templateUrl: './live-timing-omega.component.html',
   styleUrl: './live-timing-omega.component.scss'
 })
-export class LiveTimingOmegaComponent {
+export class LiveTimingOmegaComponent implements OnInit {
   ports: SerialPortInfo[] = [];
   messages: string[] = [];
 
@@ -66,6 +65,7 @@ export class LiveTimingOmegaComponent {
   private liveTimingActiveSubscription: Subscription;
   private importConfigSubscription: Subscription;
   private srStateSubscription: Subscription;
+  private settingsSubscription: Subscription;
 
   constructor(
     private electronService: ElectronService,
@@ -106,14 +106,24 @@ export class LiveTimingOmegaComponent {
       this.srState = state;
     });
 
-    this.lapIntervalMeters = this.omegaService.getLapIntervalMeters();
-    this.parserMode = this.omegaService.getParserMode();
+    this.settingsSubscription = this.omegaService.settings.subscribe(settings => {
+      this.selectedPortPath = settings.selectedPortPath;
+      this.baudRate = settings.baudRate;
+      this.dataBits = settings.dataBits;
+      this.stopBits = settings.stopBits;
+      this.parity = settings.parity;
+      this.lapIntervalMeters = settings.lapIntervalMeters;
+      this.parserMode = settings.parserMode;
+    });
 
     this.importConfigSubscription = this.importService.config.subscribe(config => {
       this.importConfig = config;
     });
+  }
 
-    this.refreshPorts();
+  async ngOnInit() {
+    await this.omegaService.loadSettings();
+    await this.refreshPorts();
   }
 
   ngOnDestroy() {
@@ -125,6 +135,7 @@ export class LiveTimingOmegaComponent {
     this.liveTimingActiveSubscription.unsubscribe();
     this.importConfigSubscription.unsubscribe();
     this.srStateSubscription.unsubscribe();
+    this.settingsSubscription.unsubscribe();
   }
 
   async refreshPorts() {
@@ -133,6 +144,7 @@ export class LiveTimingOmegaComponent {
       this.ports = await this.omegaService.listPorts();
       if (!this.selectedPortPath && this.ports.length > 0) {
         this.selectedPortPath = this.ports[0].path;
+        await this.persistConnectionSettings();
       }
     } finally {
       this.isLoadingPorts = false;
@@ -146,6 +158,7 @@ export class LiveTimingOmegaComponent {
 
     this.isBusy = true;
     try {
+      await this.persistConnectionSettings();
       const result = await this.omegaService.startListening({
         path: this.selectedPortPath,
         baudRate: Number(this.baudRate),
@@ -202,6 +215,16 @@ export class LiveTimingOmegaComponent {
 
   updateParserMode() {
     this.omegaService.setParserMode(this.parserMode);
+  }
+
+  persistConnectionSettings() {
+    return this.omegaService.saveSettings({
+      selectedPortPath: this.selectedPortPath,
+      baudRate: Number(this.baudRate),
+      dataBits: this.dataBits,
+      stopBits: this.stopBits,
+      parity: this.parity
+    });
   }
 
   toggleLog() {

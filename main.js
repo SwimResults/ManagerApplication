@@ -28,7 +28,16 @@ const sharedState = {
   state: 'NOT_RUNNING', // RUNNING, READY, NOT_RUNNING
   algeState: 'DISCONNECTED', // CONNECTED, DISCONNECTED
     udpActive: false,
-    viewMode: 'simple' // simple, advanced, expert
+    viewMode: 'simple', // simple, advanced, expert
+    omegaSettings: {
+        selectedPortPath: '',
+        baudRate: 9600,
+        dataBits: 8,
+        stopBits: 1,
+        parity: 'none',
+        lapIntervalMeters: 100,
+        parserMode: 'OSM6'
+    }
 };
 
 const SETTINGS_FILE_NAME = 'settings.json';
@@ -47,15 +56,81 @@ function getSettingsPath() {
     return path.join(app.getPath('userData'), SETTINGS_FILE_NAME);
 }
 
-function loadPersistedViewMode() {
+function readSettingsFile() {
     try {
         const settingsPath = getSettingsPath();
         if (!fs.existsSync(settingsPath)) {
-            return;
+            return {};
         }
 
         const raw = fs.readFileSync(settingsPath, 'utf-8');
-        const parsed = JSON.parse(raw);
+        return JSON.parse(raw);
+    } catch (error) {
+        console.warn('[MainProcess] Failed to read settings file:', error);
+        return {};
+    }
+}
+
+function writeSettingsFile(updater) {
+    const settingsPath = getSettingsPath();
+    const current = readSettingsFile();
+    const next = updater(current) ?? current;
+
+    fs.writeFileSync(settingsPath, JSON.stringify(next, null, 2), 'utf-8');
+    return next;
+}
+
+function normalizeOmegaSettings(settings) {
+    const normalized = {
+        selectedPortPath: '',
+        baudRate: 9600,
+        dataBits: 8,
+        stopBits: 1,
+        parity: 'none',
+        lapIntervalMeters: 100,
+        parserMode: 'OSM6'
+    };
+
+    if (!settings || typeof settings !== 'object') {
+        return normalized;
+    }
+
+    if (typeof settings.selectedPortPath === 'string') {
+        normalized.selectedPortPath = settings.selectedPortPath;
+    }
+
+    const baudRate = Number(settings.baudRate);
+    if (Number.isFinite(baudRate) && baudRate > 0) {
+        normalized.baudRate = Math.floor(baudRate);
+    }
+
+    if ([5, 6, 7, 8].includes(Number(settings.dataBits))) {
+        normalized.dataBits = Number(settings.dataBits);
+    }
+
+    if ([1, 2].includes(Number(settings.stopBits))) {
+        normalized.stopBits = Number(settings.stopBits);
+    }
+
+    if (['none', 'even', 'odd', 'mark', 'space'].includes(settings.parity)) {
+        normalized.parity = settings.parity;
+    }
+
+    const lapIntervalMeters = Number(settings.lapIntervalMeters);
+    if (Number.isFinite(lapIntervalMeters) && lapIntervalMeters > 0) {
+        normalized.lapIntervalMeters = Math.floor(lapIntervalMeters);
+    }
+
+    if (['OSM6', 'UNT4'].includes(settings.parserMode)) {
+        normalized.parserMode = settings.parserMode;
+    }
+
+    return normalized;
+}
+
+function loadPersistedViewMode() {
+    try {
+        const parsed = readSettingsFile();
         const mode = parsed?.viewMode;
 
         if (['simple', 'advanced', 'expert'].includes(mode)) {
@@ -67,16 +142,35 @@ function loadPersistedViewMode() {
     }
 }
 
+function loadPersistedOmegaSettings() {
+    try {
+        const parsed = readSettingsFile();
+        sharedState.omegaSettings = normalizeOmegaSettings(parsed?.omegaSettings);
+        console.log('[MainProcess] Restored persisted omega settings');
+    } catch (error) {
+        console.warn('[MainProcess] Failed to load persisted omega settings:', error);
+    }
+}
+
 function persistViewMode(mode) {
     try {
-        const settingsPath = getSettingsPath();
-        const payload = {
+        writeSettingsFile(current => ({
+            ...current,
             viewMode: mode
-        };
-
-        fs.writeFileSync(settingsPath, JSON.stringify(payload, null, 2), 'utf-8');
+        }));
     } catch (error) {
         console.warn('[MainProcess] Failed to persist view mode:', error);
+    }
+}
+
+function persistOmegaSettings(settings) {
+    try {
+        writeSettingsFile(current => ({
+            ...current,
+            omegaSettings: normalizeOmegaSettings(settings)
+        }));
+    } catch (error) {
+        console.warn('[MainProcess] Failed to persist omega settings:', error);
     }
 }
 
@@ -93,6 +187,24 @@ function setViewMode(mode) {
         createApplicationMenu();
         BrowserWindow.getAllWindows().forEach(window => {
             window.webContents.send('view-mode:changed', mode);
+        });
+    }
+
+    return true;
+}
+
+function setOmegaSettings(settings) {
+    const normalized = normalizeOmegaSettings({
+        ...sharedState.omegaSettings,
+        ...settings
+    });
+
+    if (JSON.stringify(sharedState.omegaSettings) !== JSON.stringify(normalized)) {
+        console.log('[MainProcess] Updating omega settings');
+        sharedState.omegaSettings = normalized;
+        persistOmegaSettings(normalized);
+        BrowserWindow.getAllWindows().forEach(window => {
+            window.webContents.send('omega-settings:changed', normalized);
         });
     }
 
@@ -568,13 +680,12 @@ function createWindow() {
 
 // IPC handlers
 ipcMain.handle('dialog:openFile', async () => {
-    const result = await dialog.showOpenDialog({
+    return await dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-            { name: 'All Files', extensions: ['*'] }
+            {name: 'All Files', extensions: ['*']}
         ]
     });
-    return result;
 });
 
 ipcMain.handle('app:get-version', async () => {
@@ -610,6 +721,18 @@ ipcMain.handle('view-mode:set', async (event, mode) => {
     return {
       success: updated,
       viewMode: sharedState.viewMode
+    };
+});
+
+ipcMain.handle('omega:get-settings', async () => {
+    return sharedState.omegaSettings;
+});
+
+ipcMain.handle('omega:set-settings', async (event, settings) => {
+    const updated = setOmegaSettings(settings);
+    return {
+        success: updated,
+        settings: sharedState.omegaSettings
     };
 });
 
@@ -732,6 +855,7 @@ ipcMain.handle('window:create-display', async () => {
 
 app.whenReady().then(() => {
     loadPersistedViewMode();
+    loadPersistedOmegaSettings();
     createApplicationMenu();
 
     startHttpServer().then(() => {

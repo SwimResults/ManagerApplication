@@ -2,10 +2,11 @@ import {Injectable, NgZone} from '@angular/core';
 import {BehaviorSubject, Observable, ReplaySubject, Subject, Subscription, switchMap, timer} from 'rxjs';
 import {CurrentHeatModel} from '../model/current-heat.model';
 import {ConnectionState, State} from '../model/state.model';
+import {ElectronService} from './electron.service';
 import {ImportService} from './import.service';
 import {SerialComService, SerialConnectionStatus, SerialMessage, SerialPortConfig, SerialPortInfo} from './serial-com.service';
 import {TimingStateService} from './timing-state.service';
-import {OmegaLivetimingSettingsImpl, OmegaParserMode} from '../model/omega-livetiming-settings.model';
+import {OmegaLivetimingSettings, OmegaLivetimingSettingsImpl, OmegaParserMode} from '../model/omega-livetiming-settings.model';
 
 interface OSM6Part1Frame {
   messageType: string;
@@ -53,17 +54,21 @@ export class OmegaService {
   currentHeat!: Observable<CurrentHeatModel>;
   state!: Observable<State>;
 
+  private settingsSubject = new BehaviorSubject<OmegaLivetimingSettingsImpl>(new OmegaLivetimingSettingsImpl());
+  settings = this.settingsSubject.asObservable();
+
   private pingSubject = new Subject<void>();
   private pendingPart1: OSM6Part1Frame | null = null;
   private pendingFinishAfterPart2 = false;
-  private livetimingSettings = new OmegaLivetimingSettingsImpl();
   private unt4PendingStart = false;
   private unt4ActiveEvent: number | null = null;
+  private settingsLoadPromise: Promise<OmegaLivetimingSettingsImpl> | null = null;
 
   private serialStatusSubscription: Subscription;
   private serialMessageSubscription: Subscription;
 
   constructor(
+    private electronService: ElectronService,
     private importService: ImportService,
     private serialComService: SerialComService,
     private timingStateService: TimingStateService,
@@ -73,6 +78,8 @@ export class OmegaService {
     this.currentHeat = this.timingStateService.currentHeat;
     this.state = this.timingStateService.state;
     this.setupTimeoutCheck();
+    this.initializeSettingsListeners();
+    void this.loadSettings();
     this.serialStatusSubscription = this.serialComService.status.subscribe(status => {
       this.ngZone.run(() => {
         this.serialActiveSubject.next(status.isListening);
@@ -109,22 +116,56 @@ export class OmegaService {
     return result;
   }
 
+  async loadSettings(): Promise<OmegaLivetimingSettingsImpl> {
+    if (!this.settingsLoadPromise) {
+      this.settingsLoadPromise = this.fetchSettingsFromPersistence();
+    }
+
+    return this.settingsLoadPromise;
+  }
+
+  async saveSettings(settings: Partial<OmegaLivetimingSettings>): Promise<boolean> {
+    const nextSettings = this.normalizeSettings({...this.settingsSubject.value, ...settings});
+    this.settingsSubject.next(nextSettings);
+
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) {
+      return true;
+    }
+
+    try {
+      const result = await ipcRenderer.invoke('omega:set-settings', nextSettings);
+      if (result?.success && result.settings) {
+        this.settingsSubject.next(this.normalizeSettings(result.settings));
+        return true;
+      }
+    } catch (error) {
+      console.error('[OmegaService] Failed to persist omega settings:', error);
+    }
+
+    return false;
+  }
+
+  getSettings(): OmegaLivetimingSettingsImpl {
+    return new OmegaLivetimingSettingsImpl(this.settingsSubject.value);
+  }
+
   getLapIntervalMeters(): number {
-    return this.livetimingSettings.lapIntervalMeters;
+    return this.settingsSubject.value.lapIntervalMeters;
   }
 
   setLapIntervalMeters(value: number) {
     const normalized = Number.isFinite(value) && value > 0 ? Math.floor(value) : 100;
-    this.livetimingSettings.lapIntervalMeters = normalized;
+    void this.saveSettings({lapIntervalMeters: normalized});
     this.messageSubject.next(`OMEGA: lap interval set to ${normalized}m`);
   }
 
   getParserMode(): OmegaParserMode {
-    return this.livetimingSettings.parserMode;
+    return this.settingsSubject.value.parserMode;
   }
 
   setParserMode(mode: OmegaParserMode) {
-    this.livetimingSettings.parserMode = mode;
+    void this.saveSettings({parserMode: mode});
     this.pendingPart1 = null;
     this.pendingFinishAfterPart2 = false;
     this.unt4PendingStart = false;
@@ -149,7 +190,7 @@ export class OmegaService {
 
     this.receivePing();
 
-    if (this.livetimingSettings.parserMode === 'UNT4') {
+    if (this.settingsSubject.value.parserMode === 'UNT4') {
       this.processUnt4Message(message, bytes);
       return;
     }
@@ -247,7 +288,7 @@ export class OmegaService {
       case 'split': {
         const competitor = this.timingStateService.getOrCreateCompetitor(frame.lane);
         const lap = competitor.lap + 1;
-        const meters = lap * this.livetimingSettings.lapIntervalMeters;
+        const meters = lap * this.settingsSubject.value.lapIntervalMeters;
 
         competitor.lap = lap;
         competitor.lapM = meters;
@@ -367,9 +408,9 @@ export class OmegaService {
 
     const done = part1.timeKind === 'A';
     // Calculate meters: lap * lapIntervalMeters
-    const meters = frame.lap * this.livetimingSettings.lapIntervalMeters;
+    const meters = frame.lap * this.settingsSubject.value.lapIntervalMeters;
     competitor.lapM = meters;
-    this.messageSubject.next(`[DEBUG] calculated meters: lap=${frame.lap} * interval=${this.livetimingSettings.lapIntervalMeters}m = ${meters}m`);
+    this.messageSubject.next(`[DEBUG] calculated meters: lap=${frame.lap} * interval=${this.settingsSubject.value.lapIntervalMeters}m = ${meters}m`);
     this.importService.laneTime(frame.lane, frame.time, meters, done);
     this.timingStateService.setCurrentHeat(this.timingStateService.currentHeatValue);
     this.messageSubject.next(`OMEGA: lane ${frame.lane}, lap ${frame.lap}, time ${frame.time}${done ? ' (final)' : ''}`);
@@ -645,6 +686,98 @@ export class OmegaService {
     const result = (((hours * 60) + minutes) * 60 + seconds) * 1000 + fractionMs;
     this.messageSubject.next(`[DEBUG] parseOsm6Time result: ${result}ms`);
     return result * 10;
+  }
+
+  private initializeSettingsListeners() {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) {
+      return;
+    }
+
+    ipcRenderer.on('omega-settings:changed', (_event: any, settings: unknown) => {
+      this.ngZone.run(() => {
+        this.settingsSubject.next(this.normalizeSettings(settings));
+      });
+    });
+  }
+
+  private async fetchSettingsFromPersistence(): Promise<OmegaLivetimingSettingsImpl> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) {
+      return this.settingsSubject.value;
+    }
+
+    try {
+      const settings = await ipcRenderer.invoke('omega:get-settings');
+      const normalized = this.normalizeSettings(settings);
+      this.ngZone.run(() => {
+        this.settingsSubject.next(normalized);
+      });
+      return normalized;
+    } catch (error) {
+      console.warn('[OmegaService] Failed to fetch persisted omega settings:', error);
+      return this.settingsSubject.value;
+    }
+  }
+
+  private normalizeSettings(settings: unknown): OmegaLivetimingSettingsImpl {
+    const normalized = new OmegaLivetimingSettingsImpl();
+
+    if (!settings || typeof settings !== 'object') {
+      return normalized;
+    }
+
+    const typedSettings = settings as Partial<OmegaLivetimingSettings>;
+
+    if (typeof typedSettings.selectedPortPath === 'string') {
+      normalized.selectedPortPath = typedSettings.selectedPortPath;
+    }
+
+    const baudRate = Number(typedSettings.baudRate);
+    if (Number.isFinite(baudRate) && baudRate > 0) {
+      normalized.baudRate = Math.floor(baudRate);
+    }
+
+    const dataBits = Number(typedSettings.dataBits);
+    if ([5, 6, 7, 8].includes(dataBits as 5 | 6 | 7 | 8)) {
+      normalized.dataBits = dataBits as 5 | 6 | 7 | 8;
+    }
+
+    const stopBits = Number(typedSettings.stopBits);
+    if ([1, 2].includes(stopBits as 1 | 2)) {
+      normalized.stopBits = stopBits as 1 | 2;
+    }
+
+    if (this.isSerialParity(typedSettings.parity)) {
+      normalized.parity = typedSettings.parity;
+    }
+
+    const lapIntervalMeters = Number(typedSettings.lapIntervalMeters);
+    if (Number.isFinite(lapIntervalMeters) && lapIntervalMeters > 0) {
+      normalized.lapIntervalMeters = Math.floor(lapIntervalMeters);
+    }
+
+    if (this.isOmegaParserMode(typedSettings.parserMode)) {
+      normalized.parserMode = typedSettings.parserMode;
+    }
+
+    return normalized;
+  }
+
+  private getIpcRenderer(): any {
+    if (!this.electronService.isElectron || !this.electronService.ipcRenderer) {
+      return null;
+    }
+
+    return this.electronService.ipcRenderer;
+  }
+
+  private isSerialParity(parity: unknown): parity is 'none' | 'even' | 'odd' | 'mark' | 'space' {
+    return parity === 'none' || parity === 'even' || parity === 'odd' || parity === 'mark' || parity === 'space';
+  }
+
+  private isOmegaParserMode(mode: unknown): mode is OmegaParserMode {
+    return mode === 'OSM6' || mode === 'UNT4';
   }
 
   private isHeartbeatFrame(bytes: number[]): boolean {
