@@ -1,6 +1,6 @@
 {
     "name": "swim-results-manager",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "main": "main.js",
     "description": "SwimResultsManager is a desktop application for Alge Livetiming with SwimResults.",
     "author": "Konrad Weiß",
@@ -17,6 +17,7 @@
         "electron": "electron .",
         "electron-build": "ng build --base-href ./ && electron .",
         "electron-build-test": "ng build --base-href ./ --configuration test && electron .",
+        "electron-build-local": "ng build --base-href ./ --configuration development && electron .",
         "package": "electron-forge package",
         "make": "electron-forge make",
         "make-win32": "electron-forge make --platform win32"
