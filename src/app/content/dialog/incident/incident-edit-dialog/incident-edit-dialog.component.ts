@@ -64,10 +64,14 @@ export class IncidentEditDialogComponent implements OnInit {
 
     constructor() {
         if (!this.data.incident) {
+            let date = new Date();
+            if (this.data.meeting && this.data.meeting.date_start) {
+                date = new Date(this.data.meeting.date_start);
+            }
             this.incident = new IncidentImpl({
                 type: "EVENT",
-                start: "2025-12-20T07:15:00Z",
-                end: "2025-12-20T08:15:00Z",
+                start: date.toISOString(),
+                end: date.toISOString(),
                 meeting: this.data.meeting.meet_id
             } as Incident);
         } else {
