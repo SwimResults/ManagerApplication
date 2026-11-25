@@ -1,129 +1,111 @@
-# AI Agent Project Summary
+# Architecture
 
-Last updated: 2026-03-27
-Scope: Angular + Electron architecture overview, routing behavior, and Electron integration points.
+Last reviewed: 2026-11-25 (v0.3.3)
 
-## High-Level Architecture
+## Process model
 
-- Desktop app built with Angular (standalone bootstrap) packaged via Electron Forge.
-- Electron main process starts a local Express server on `127.0.0.1:3000` and loads Angular through `BrowserWindow.loadURL`.
-- Angular production build output is served from `dist/swim-results-manager/browser`.
-- Main process keeps shared runtime state for live timing so multiple windows stay synchronized.
+```
+┌──────────────────────── Electron main process (main.js) ────────────────────────┐
+│ Express on 127.0.0.1:3000 serves dist/swim-results-manager/browser              │
+│ sharedState: live-timing heat/state, viewMode, omegaSettings                     │
+│ settings.json in app.getPath('userData')  ← persisted viewMode + omega settings  │
+│ SerialPort (optional native dep) → EOT framing → 'serial:message' to renderer    │
+│ ipcMain handlers (table below)                                                   │
+└───────────────▲───────────────────────────────────────────▲──────────────────────┘
+                │ IPC                                       │ IPC
+┌───────────────┴──────────── Main window ────┐   ┌────────┴── Display window ─────┐
+│ Angular app (hash routing), full shell      │   │ same app at #/display          │
+│ ALGE: UDP via node:dgram in the renderer    │   │ shell hidden, live board only  │
+│ OMEGA: serial frames from main              │   │ reads shared heat state        │
+└──────────────────────┬──────────────────────┘   └────────────────────────────────┘
+                       │ HTTPS (JWT / OAuth2 PKCE via Keycloak)
+              SwimResults backend APIs (api.swimresults.de/*)
+```
 
-## Core Files to Read First
+- Renderer windows run with `nodeIntegration: true` and `contextIsolation: false`, so Angular reaches Node through `window.require(...)` inside [`electron.service.ts`](../src/app/core/service/electron.service.ts). `electron/preload.js` exists but is **not wired** into any window.
+- Angular also runs in a plain browser (`npm run serve`). Every Electron-only code path is guarded with `electronService.isElectron`.
 
-- `main.js` (Electron main process, IPC handlers, Express hosting, display window creation)
-- `src/app/core/service/electron.service.ts` (renderer-side Electron API wrapper)
-- `src/app/core/service/alge.service.ts` (live timing state model + IPC sync logic)
-- `src/app/app.routes.ts` (route definitions)
-- `src/app/app.config.ts` (router provider uses hash location)
-- `src/app/app.component.ts` + `src/app/app.component.html` (display mode vs normal shell)
+## Key files
 
-## Routing Model
+| Concern | File |
+| --- | --- |
+| Main process (windows, IPC, Express, serial, settings) | [`main.js`](../main.js) |
+| Renderer → Node/IPC wrapper, UDP listener | [`electron.service.ts`](../src/app/core/service/electron.service.ts) |
+| Routes | [`app.routes.ts`](../src/app/app.routes.ts) |
+| Providers (hash router, i18n, OAuth, interceptors) | [`app.config.ts`](../src/app/app.config.ts) |
+| Shell vs display layout switch | [`app.component.ts`](../src/app/app.component.ts) |
+| Shared timing state (heat, running state) | [`timing-state.service.ts`](../src/app/core/service/timing-state.service.ts) |
+| ALGE parsing + cross-window IPC sync | [`alge.service.ts`](../src/app/core/service/alge.service.ts) |
+| OMEGA parsing (OSM6 / UNT4) | [`omega.service.ts`](../src/app/core/service/omega.service.ts) |
+| Serial port renderer API | [`serial-com.service.ts`](../src/app/core/service/serial-com.service.ts) |
+| Push timing to SwimResults (`START` / `time` / `STOP`) | [`import.service.ts`](../src/app/core/service/import.service.ts) |
+| File (result list) auto-import / watcher | [`file-watcher.service.ts`](../src/app/core/service/file-watcher.service.ts) |
+| Selected meeting (+ theme colours) | [`current-meeting.service.ts`](../src/app/core/service/current-meeting.service.ts) |
+| simple / advanced / expert UI modes | [`view-mode.service.ts`](../src/app/core/service/view-mode.service.ts), `active-view-mode.directive.ts` |
+| Backend REST clients | [`src/app/core/service/api/`](../src/app/core/service/api/) |
+| API base URLs, OAuth issuer | [`src/environments/`](../src/environments/) |
 
-- Angular router uses hash routing: `provideRouter(routes, withHashLocation())`.
-- Important routes:
-  - `/display` -> dedicated display window component
-  - `/auth` and `/auth/logout` -> OAuth callback/logout handling
-  - default route `""` -> main shell component
-- `display` route is intentionally declared first so it matches before default route.
-- Root component toggles layout via `isDisplayMode` by checking whether URL includes `/display`:
-  - Normal mode: header + sidebar + status bar + split layout
-  - Display mode: only `router-outlet` content
+## Source layout
 
-## Electron <-> Angular Interaction
+```
+src/app/
+  content/        feature pages
+    live-timing/  old-view (ALGE), omega, com-test, display, view
+    import/       manual import (file/text), auto-import (file watchers), logs/progress
+    event/        schedule (event list) and event detail
+    starts/       start list components
+    dialog/       heat time / incident edit dialogs
+    auth/         OAuth callback + logout
+  core/           services, models, directives, guards, interceptors, pipes, functions
+  layout/         shell (header, sidebar, status bar, main), reusable UI elements, windows
+public/i18n/      translations actually loaded at runtime (de, en)
+```
 
-### Renderer abstraction: ElectronService
+`src/assets/i18n/` (cs, de, en, ru, ua) is **not** in the Angular `assets` config and looks unused.
 
-`src/app/core/service/electron.service.ts` exposes:
+## Routes (hash routing: `#/...`)
 
-- Environment detection (`isElectron`)
-- IPC usage (`ipcRenderer.invoke(...)`) for:
-  - `dialog:openFile`
-  - `window:create-display`
-- Node API access via `window.require` for:
-  - `fs` (file stats and reads)
-  - `child_process`
-  - `node:dgram` (UDP listener)
-- UDP lifecycle methods:
-  - `startUdpListener(port, address)`
-  - `stopUdpListener()`
+| Path | Component | Purpose |
+| --- | --- | --- |
+| `display` | WindowLiveTimingDisplayComponent | second-window live display (shell hidden) |
+| `old` | LiveTimingOldViewComponent | ALGE UDP live timing |
+| `omega` | LiveTimingOmegaComponent | OMEGA serial live timing |
+| `com-test` | LiveTimingComTestComponent | raw serial port tester |
+| `import` / `auto-import` | Import / AutoImport views | upload or watch result files |
+| `schedule`, `event/:event_number` | Event list / detail | meeting schedule, heats, incidents |
+| `auth`, `auth/logout` | Auth / Logout | OAuth callbacks |
+| `""` | MainComponent | home |
 
-### Main-process IPC handlers
+Express rewrites `/auth` → `/#/auth?...` and `/auth/logout` → `/#/auth/logout`, so the redirect URIs (`window.location.origin + '/auth'`) work with hash routing.
 
-`main.js` handles:
+## Live-timing data flow
 
-- `dialog:openFile` -> native open-file dialog
-- `window:create-display` -> opens second BrowserWindow and navigates to `#/display`
-- Live timing shared-state channels:
-  - request/response reads: `alge:get-*`
-  - updates from renderer: `alge:update-*`
-  - broadcasts to all windows: `alge:state-changed:*`
+**ALGE (UDP):** UDP socket in the renderer (`ElectronService.startUdpListener`) → `AlgeService.processUdpMessage` → `TimingStateService` → `ImportService` POSTs to `{apiUrl}import/v1/alge/meet/{meet_id}`.
 
-## Multi-Window Live Timing Sync
+**OMEGA (serial):** main process opens `SerialPort` and frames bytes by EOT → `serial:message` → `SerialComService` → `OmegaService` parses OSM6 or UNT4 → `ImportService.startHeat/laneTime/stopHeat` (same endpoint). Protocol: [protocols/omega-osm6.md](protocols/omega-osm6.md).
 
-`src/app/core/service/alge.service.ts` is the renderer-side state service and IPC sync layer.
+**Display window:** the renderer sends `alge:update-*` to main. Main stores the value and broadcasts `alge:state-changed:*`, and every window re-reads with `alge:get-*`. Details: [ipc-communication.md](ipc-communication.md).
 
-- Owns local RxJS subjects for:
-  - current heat data
-  - timing state
-  - connection state
-  - UDP active flag
-- Sends state updates to main process (`alge:update-*`).
-- Listens for state-changed broadcasts and then queries authoritative latest state from main (`alge:get-*`).
-- Fetches initial state on startup so secondary windows get current values immediately.
+## IPC channels (`main.js`)
 
-## Display Window Flow
+| Kind | Channels |
+| --- | --- |
+| `handle` (invoke) | `dialog:openFile`, `app:get-version`, `window:create-display`, `alge:get-current-heat`, `alge:get-state`, `alge:get-alge-state`, `alge:get-udp-active`, `view-mode:get`, `view-mode:set`, `omega:get-settings`, `omega:set-settings`, `serial:list-ports`, `serial:get-status`, `serial:start-listening`, `serial:stop-listening` |
+| `on` (renderer → main) | `alge:update-current-heat`, `alge:update-state`, `alge:update-alge-state`, `alge:update-udp-active` |
+| main → renderer | `alge:state-changed:<type>`, `view-mode:changed`, `serial:message`, `serial:status`, `serial:error` |
 
-1. UI action calls `electronService.openDisplayWindow()` (from live timing old view).
-2. Renderer invokes `window:create-display`.
-3. Main creates new BrowserWindow and loads base URL.
-4. After `did-finish-load`, main executes JS to set `window.location.hash = '#/display'`.
-5. Angular route resolves display component, root shell switches to display mode layout.
+When you add a channel, update both sides and this table.
 
-## OAuth Callback Behavior with Hash Routing
+## Change checklists
 
-- OAuth config uses redirect URIs based on origin:
-  - `window.location.origin + '/auth'`
-  - `window.location.origin + '/auth/logout'`
-- Express in `main.js` rewrites those endpoints to hash-based Angular routes:
-  - `/auth` -> `/#/auth?...query`
-  - `/auth/logout` -> `/#/auth/logout`
-- This bridges provider callback URLs with Angular hash routing.
+- **Routing:** keep `withHashLocation()`, the Express `/auth` rewrites, and `display` declared before `""`.
+- **Live-timing state:** change `alge.service.ts`/`timing-state.service.ts` and the `sharedState` + handlers in `main.js` together.
+- **Settings to persist:** add them to `sharedState`, the load/persist helpers and the `settings.json` writer in `main.js`, then add get/set IPC.
+- **Native deps:** `serialport` loads optionally (the app still starts without it). Forge's `auto-unpack-natives` plugin handles packaging.
 
-## Known Caveats / Technical Debt
+## Known technical debt
 
-- BrowserWindows currently use:
-  - `nodeIntegration: true`
-  - `contextIsolation: false`
-  - `webSecurity: false`
-- Renderer directly uses `window.require(...)` instead of a hardened preload API.
-- A preload file exists (`electron/preload.js`) but is not currently wired in BrowserWindow `webPreferences`.
-
-## Where Electron Features Are Triggered in UI
-
-- `src/app/content/live-timing/live-timing-old-view/live-timing-old-view.component.ts`
-  - Starts/stops UDP listener
-  - Opens display window
-- `src/app/core/service/file-watcher.service.ts`
-  - Opens native file dialog via ElectronService
-  - Reads file metadata/contents through ElectronService
-
-## Practical Onboarding Checklist for Future Agents
-
-1. Confirm whether run target is Electron runtime or browser-only dev server.
-2. Check `isElectron` guard paths before changing services that depend on Node APIs.
-3. When touching routing, re-verify:
-   - `withHashLocation()` behavior
-   - `/auth` and `/auth/logout` Express redirects
-   - `/display` route and root layout switch logic
-4. When touching live timing state, review both sides:
-   - `alge.service.ts` (renderer)
-   - `main.js` shared state and IPC handlers (main process)
-5. If working on security/hardening, plan migration from `window.require` to `contextBridge` + preload-exposed APIs.
-
-## Build/Run Notes
-
-- Main dev command: `npm start` (Electron Forge start).
-- Angular build command used by scripts: `ng build --base-href ./`.
-- Angular output path configured in `angular.json` under `outputPath.base`.
+- Insecure `webPreferences` (`nodeIntegration`, no context isolation, `webSecurity: false`). Hardening means moving `window.require` usage behind a `contextBridge` preload.
+- Timing pushes authenticate with a password in the request body (`ImportConfig`), not a JWT.
+- `environment.ts` (dev) mixes localhost and api-dev URLs, so check it before debugging API errors.
+- Many `*.spec.ts` files are untouched CLI scaffolds.
