@@ -6,5 +6,5 @@ import {map} from 'rxjs';
 export const meetingSelectedGuard: CanActivateFn = (route, state) => {
     const currentMeetingService = inject(CurrentMeetingService);
 
-    return currentMeetingService.currentMeeting.pipe(map(meeting => meeting.meet_id !== undefined));
+    return currentMeetingService.currentMeeting.pipe(map(meeting => !!meeting.meet_id));
 };

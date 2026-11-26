@@ -61,7 +61,7 @@ export class EventListComponent implements OnInit {
         )
 
         this.heatService.getHeatsByMeetingForEventList(this.meeting.meet_id).subscribe(heatInfos => {
-            this.heatInfos = new Map(heatInfos.events.map(e => [e.event_number, new EventListHeatImpl(e)]));
+            this.heatInfos = new Map(heatInfos.events.map(e => [e.event_number ?? 0, new EventListHeatImpl(e)]));
         });
 
         this.incidents = new Map<number, IncidentImpl[]>();

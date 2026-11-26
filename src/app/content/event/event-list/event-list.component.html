@@ -24,17 +24,17 @@
 
                 @for (event of part.events; track event._id) {
                     @if (incidents) {
-                        @for (incident of incidents.get(event.number); track incident) {
+                        @for (incident of incidents.get(event.number ?? 0); track incident) {
                             @if (incident.next_event === event.number) {
                                 <tr sr-event-list-incident-row [incident]="incident"></tr>
                             }
                         }
                     }
 
-                    <tr sr-event-list-event-row [event]="event" [heatInfo]="heatInfos.get(event.number)"></tr>
+                    <tr sr-event-list-event-row [event]="event" [heatInfo]="heatInfos.get(event.number ?? 0)"></tr>
 
                     @if (incidents) {
-                        @for (incident of incidents.get(event.number); track incident) {
+                        @for (incident of incidents.get(event.number ?? 0); track incident) {
                             @if (incident.prev_event === event.number) {
                                 <tr sr-event-list-incident-row [incident]="incident"></tr>
                             }
