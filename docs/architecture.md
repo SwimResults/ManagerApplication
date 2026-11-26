@@ -42,8 +42,8 @@ Last reviewed: 2026-11-25 (v0.3.3)
 | File (result list) auto-import / watcher | [`file-watcher.service.ts`](../src/app/core/service/file-watcher.service.ts) |
 | Selected meeting (+ theme colours) | [`current-meeting.service.ts`](../src/app/core/service/current-meeting.service.ts) |
 | simple / advanced / expert UI modes | [`view-mode.service.ts`](../src/app/core/service/view-mode.service.ts), `active-view-mode.directive.ts` |
-| Backend REST clients | [`src/app/core/service/api/`](../src/app/core/service/api/) |
-| API data models (based on [`@swimresults/api`](https://github.com/SwimResults/swimresults-api), the generated OpenAPI types; the app only adds UI fields and narrower literal types) | [`src/app/core/model/`](../src/app/core/model/) |
+| Backend REST clients + API data models | [`@swimresults/angular`](https://github.com/SwimResults/swimresults-angular) (shared with the WebApplication; models based on the generated `@swimresults/api` types). Configured in [`app.config.ts`](../src/app/app.config.ts) (`SWIMRESULTS_API_CONFIG`: `environment.api_urls` + OAuth header for the import SSE stream) |
+| App-only models (ALGE/OMEGA settings, state, import config) | [`src/app/core/model/`](../src/app/core/model/) |
 | API base URLs, OAuth issuer | [`src/environments/`](../src/environments/) |
 
 ## Source layout

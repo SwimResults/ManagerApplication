@@ -2,7 +2,7 @@ import {Component, inject, OnDestroy} from '@angular/core';
 import {ImportToolComponent} from './import-tool/import-tool.component';
 import {CurrentMeetingService} from '../../../core/service/current-meeting.service';
 import {Subscription} from 'rxjs';
-import {MeetingImpl} from '../../../core/model/meeting/meeting.model';
+import {MeetingImpl} from '@swimresults/angular';
 
 @Component({
     selector: 'app-import-view',

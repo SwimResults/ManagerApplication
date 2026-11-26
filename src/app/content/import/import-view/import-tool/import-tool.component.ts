@@ -1,8 +1,5 @@
 import {Component, Input, OnInit, inject} from '@angular/core';
-import {EventService, FileService} from "../../../../core/service/api";
-import {MeetingEvent} from "../../../../core/model/meeting/meeting-event.model";
 import {FormBuilder, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {ImportFileRequest, ImportFileService} from "../../../../core/service/api/import/import-file.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ImportTextDialogComponent} from "./import-text-dialog.component";
 import {MatIcon} from '@angular/material/icon';
@@ -10,9 +7,9 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {TranslateModule} from '@ngx-translate/core';
 import {BtnComponent} from '../../../../layout/element/buttons/btn/btn.component';
 import {GroupBoxComponent} from '../../../../layout/group-box/group-box.component';
-import {MeetingImpl} from '../../../../core/model/meeting/meeting.model';
 import {MatCheckbox, MatCheckboxChange} from '@angular/material/checkbox';
 import {SpinnerComponent} from '../../../../layout/element/spinner/spinner.component';
+import {EventService, FileService, MeetingEvent, ImportFileRequest, ImportFileService, MeetingImpl} from '@swimresults/angular';
 
 interface FileList {
     name: string,

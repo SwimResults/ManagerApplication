@@ -9,18 +9,10 @@ import {MatButtonToggle, MatButtonToggleGroup} from "@angular/material/button-to
 import {SpinnerComponent} from "../../../layout/element/spinner/spinner.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {ActivatedRoute} from "@angular/router";
-import {EventService, FileService, StartService} from "../../../core/service/api";
 import {RouteService} from "../../../core/service/route.service";
 import {UserDataService} from "../../../core/service/user-data.service";
-import {MeetingImpl} from "../../../core/model/meeting/meeting.model";
-import {MeetingEvent} from "../../../core/model/meeting/meeting-event.model";
-import {AthleteRelation} from "../../../core/model/user/follower.model";
-import {Start, StartImpl} from "../../../core/model/start/start.model";
-import {HeatImpl} from "../../../core/model/start/heat.model";
-import {StartListTileConfig} from "../../../core/model/start/start-list-tile-config.model";
-import {StartResults} from "../../../core/model/start/start-results.model";
-import {FetchingModel} from "../../../core/model/common/fetching.model";
 import {CurrentMeetingService} from "../../../core/service/current-meeting.service";
+import {EventService, FileService, StartService, MeetingImpl, MeetingEvent, AthleteRelation, Start, StartImpl, HeatImpl, StartListTileConfig, StartResults, FetchingModel} from '@swimresults/angular';
 
 @Component({
     selector: 'sr-event-view',

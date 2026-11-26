@@ -6,10 +6,9 @@ import {
     MatDialogRef,
     MatDialogTitle
 } from "@angular/material/dialog";
-import {Heat} from '../../../../core/model/start/heat.model';
-import {HeatService} from '../../../../core/service/api';
 import {SnackBarService} from '../../../../core/service/ui/snack-bar.service';
 import {UtcDateTimeInputComponent} from '../../../../layout/element/utc-date-time-input/utc-date-time-input.component';
+import {Heat, HeatService} from '@swimresults/angular';
 
 export interface HeatUpdateTimeDialogData {
     heat: Heat;

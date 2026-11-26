@@ -3,8 +3,8 @@ import {BehaviorSubject, Observable, PartialObserver, Subscription, throwError} 
 import {ImportConfig} from '../model/import-config.model';
 import {ConnectionState} from '../model/state.model';
 import {HttpClient} from '@angular/common/http';
-import {MeetingImpl} from '../model/meeting/meeting.model';
 import {CurrentMeetingService} from './current-meeting.service';
+import {MeetingImpl} from '@swimresults/angular';
 
 @Injectable({
     providedIn: 'root',

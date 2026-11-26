@@ -6,18 +6,14 @@ import {
     MatDialogRef,
     MatDialogTitle
 } from '@angular/material/dialog';
-import {Incident, IncidentImpl} from '../../../../core/model/meeting/incident.model';
 import {MatLabel, MatFormField} from '@angular/material/form-field';
 import {MatSelect, MatOption} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {MatInput} from '@angular/material/input';
 import {TranslatePipe} from '@ngx-translate/core';
-import {MeetingImpl} from '../../../../core/model/meeting/meeting.model';
-import {EventService} from '../../../../core/service/api';
-import {MeetingEvent} from '../../../../core/model/meeting/meeting-event.model';
-import {IncidentService} from '../../../../core/service/api/meeting/incident.service';
 import {SnackBarService} from '../../../../core/service/ui/snack-bar.service';
 import {UtcDateTimeInputComponent} from '../../../../layout/element/utc-date-time-input/utc-date-time-input.component';
+import {Incident, IncidentImpl, MeetingImpl, EventService, MeetingEvent, IncidentService} from '@swimresults/angular';
 
 export interface IncidentEditDialogData {
     incident: IncidentImpl;

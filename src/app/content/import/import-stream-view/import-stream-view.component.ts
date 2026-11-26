@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {ImportLogComponent} from '../import-log/import-log.component';
 import {ImportProgressComponent} from '../import-progress/import-progress.component';
-import {ImportFileService, LogEvent, ProgressEvent} from '../../../core/service/api/import/import-file.service';
 import {Subject, takeUntil} from 'rxjs';
 import {BtnComponent} from '../../../layout/element/buttons/btn/btn.component';
 import {MatIcon} from '@angular/material/icon';
 import {CommonModule} from '@angular/common';
+import {ImportFileService, LogEvent, ProgressEvent} from '@swimresults/angular';
 
 @Component({
   selector: 'sr-import-stream-view',
