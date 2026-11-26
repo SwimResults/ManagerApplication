@@ -43,6 +43,7 @@ Last reviewed: 2026-11-25 (v0.3.3)
 | Selected meeting (+ theme colours) | [`current-meeting.service.ts`](../src/app/core/service/current-meeting.service.ts) |
 | simple / advanced / expert UI modes | [`view-mode.service.ts`](../src/app/core/service/view-mode.service.ts), `active-view-mode.directive.ts` |
 | Backend REST clients | [`src/app/core/service/api/`](../src/app/core/service/api/) |
+| API data models (based on [`@swimresults/api`](https://github.com/SwimResults/swimresults-api), the generated OpenAPI types; the app only adds UI fields and narrower literal types) | [`src/app/core/model/`](../src/app/core/model/) |
 | API base URLs, OAuth issuer | [`src/environments/`](../src/environments/) |
 
 ## Source layout
