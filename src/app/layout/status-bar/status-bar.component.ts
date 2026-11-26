@@ -2,12 +2,12 @@ import {Component, inject, OnDestroy} from '@angular/core';
 import {StatusBarElementComponent, StatusBarStatus} from '../status-bar-element/status-bar-element.component';
 import {Subscription} from 'rxjs';
 import {ConnectionState} from '../../core/model/state.model';
-import {MeetingImpl} from '../../core/model/meeting/meeting.model';
 import {AlgeService} from '../../core/service/alge.service';
 import {ImportService} from '../../core/service/import.service';
 import {CurrentMeetingService} from '../../core/service/current-meeting.service';
 import {OmegaService} from '../../core/service/omega.service';
 import {ElectronService} from '../../core/service/electron.service';
+import {MeetingImpl} from '@swimresults/angular';
 
 @Component({
     selector: 'app-status-bar',

@@ -1,11 +1,9 @@
 import {Component, inject, Input} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
-import {MeetingEvent} from '../../../core/model/meeting/meeting-event.model';
-import {EventListHeatImpl} from '../../../core/model/start/event-list-heat.model';
-import {EventService} from '../../../core/service/api';
 import {SnackBarService} from '../../../core/service/ui/snack-bar.service';
 import {DialogService} from '../../../core/service/dialog/dialog.service';
 import {Router, RouterLink} from '@angular/router';
+import {MeetingEvent, EventListHeatImpl, EventService} from '@swimresults/angular';
 
 @Component({
     selector: 'tr[sr-event-list-event-row]',

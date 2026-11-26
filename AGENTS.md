@@ -11,7 +11,8 @@ Electron + Angular 20 desktop app ("SwimResults Manager"). Pool-side timing hard
 ## Where things are
 
 - `main.js`: the whole Electron main process (windows, Express :3000, IPC, serial, `settings.json` persistence)
-- `src/app/core/service/`: logic. `alge.service` (ALGE), `omega.service` (OMEGA), `import.service` (push timing), `file-watcher.service` (auto import), `electron.service` (Node/IPC bridge), `api/*` (REST clients)
+- `src/app/core/service/`: logic. `alge.service` (ALGE), `omega.service` (OMEGA), `import.service` (push timing), `file-watcher.service` (auto import), `electron.service` (Node/IPC bridge)
+- REST clients and API models: the shared library `@swimresults/angular` (github.com/SwimResults/swimresults-angular), configured in `app.config.ts`. Only app-specific models stay in `src/app/core/model/`
 - `src/app/content/`: feature pages. `src/app/layout/`: shell + reusable UI elements
 - `src/environments/`: API URLs / OAuth issuer (dev points partly at localhost)
 - `public/i18n/{de,en}.json`: translations in use (`src/assets/i18n` is unused)

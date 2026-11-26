@@ -1,8 +1,8 @@
 import {Component, inject, OnDestroy} from '@angular/core';
-import {MeetingImpl} from '../../core/model/meeting/meeting.model';
 import {Subscription} from 'rxjs';
 import {CurrentMeetingService} from '../../core/service/current-meeting.service';
 import {MatIcon} from '@angular/material/icon';
+import {MeetingImpl} from '@swimresults/angular';
 
 @Component({
   selector: 'app-main',

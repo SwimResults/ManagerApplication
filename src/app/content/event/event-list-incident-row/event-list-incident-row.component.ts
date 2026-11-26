@@ -1,9 +1,8 @@
 import {Component, inject, Input} from '@angular/core';
-import {IncidentImpl} from '../../../core/model/meeting/incident.model';
 import {TranslatePipe} from '@ngx-translate/core';
 import {DialogService} from '../../../core/service/dialog/dialog.service';
-import {IncidentService} from '../../../core/service/api/meeting/incident.service';
 import {SnackBarService} from '../../../core/service/ui/snack-bar.service';
+import {IncidentImpl, IncidentService} from '@swimresults/angular';
 
 @Component({
   selector: 'tr[sr-event-list-incident-row]',

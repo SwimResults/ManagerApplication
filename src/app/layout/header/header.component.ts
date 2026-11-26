@@ -1,13 +1,12 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {IconButtonComponent} from '../element/icon-button/icon-button.component';
-import {MeetingService} from '../../core/service/api';
-import {MeetingImpl} from '../../core/model/meeting/meeting.model';
 import {MatSelect, MatOption, MatSelectChange, MatFormField} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {CurrentMeetingService} from '../../core/service/current-meeting.service';
 import {AuthService} from '../../core/service/auth.service';
 import {IsAuthedDirective} from '../../core/directive/is-authed.directive';
 import {OAuthService} from 'angular-oauth2-oidc';
+import {MeetingService, MeetingImpl} from '@swimresults/angular';
 
 @Component({
     selector: 'app-header',

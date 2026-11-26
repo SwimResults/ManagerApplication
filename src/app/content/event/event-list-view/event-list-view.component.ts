@@ -1,8 +1,8 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {MeetingImpl} from '../../../core/model/meeting/meeting.model';
 import {Subscription} from 'rxjs';
 import {CurrentMeetingService} from '../../../core/service/current-meeting.service';
 import {EventListComponent} from '../event-list/event-list.component';
+import {MeetingImpl} from '@swimresults/angular';
 
 @Component({
   selector: 'sr-event-list-view',

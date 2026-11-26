@@ -1,8 +1,8 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject, firstValueFrom, interval, Observable, Subscription} from 'rxjs';
 import {ElectronService} from './electron.service';
-import {ImportFileRequest, ImportFileService} from './api/import/import-file.service';
 import {CurrentMeetingService} from './current-meeting.service';
+import {ImportFileRequest, ImportFileService} from '@swimresults/angular';
 
 export interface FileMetadata {
     size: number;

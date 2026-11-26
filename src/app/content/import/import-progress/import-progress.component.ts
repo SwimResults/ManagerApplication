@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import {ProgressEvent} from '../../../core/service/api/import/import-file.service';
 import {MatProgressBar} from '@angular/material/progress-bar';
 import {CommonModule} from '@angular/common';
+import {ProgressEvent} from '@swimresults/angular';
 
 @Component({
   selector: 'sr-import-progress',

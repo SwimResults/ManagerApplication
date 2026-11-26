@@ -1,13 +1,9 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import {MeetingImpl} from '../../../core/model/meeting/meeting.model';
-import {EventService, HeatService, MeetingService} from '../../../core/service/api';
-import {MeetingPart} from '../../../core/model/meeting/meeting-part.model';
-import {IncidentImpl} from '../../../core/model/meeting/incident.model';
 import {EventListEventRowComponent} from '../event-list-event-row/event-list-event-row.component';
 import {EventListIncidentRowComponent} from '../event-list-incident-row/event-list-incident-row.component';
-import {EventListHeatImpl} from '../../../core/model/start/event-list-heat.model';
 import {HeadingButton, HeadingRowComponent} from '../../../layout/element/heading-row/heading-row.component';
 import {DialogService} from '../../../core/service/dialog/dialog.service';
+import {MeetingImpl, EventService, HeatService, MeetingService, MeetingPart, IncidentImpl, EventListHeatImpl} from '@swimresults/angular';
 
 @Component({
     selector: 'sr-event-list',

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import {LogEvent} from '../../../core/service/api/import/import-file.service';
 import {CommonModule} from '@angular/common';
 import {MatIcon} from '@angular/material/icon';
+import {LogEvent} from '@swimresults/angular';
 
 @Component({
   selector: 'sr-import-log',

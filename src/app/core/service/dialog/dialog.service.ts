@@ -1,17 +1,15 @@
 import {inject, Injectable, OnDestroy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {Incident, IncidentImpl} from '../../model/meeting/incident.model';
 import {
     IncidentEditDialogComponent, IncidentEditDialogData
 } from '../../../content/dialog/incident/incident-edit-dialog/incident-edit-dialog.component';
 import {CurrentMeetingService} from '../current-meeting.service';
-import {MeetingImpl} from '../../model/meeting/meeting.model';
 import {Subject, Subscription} from 'rxjs';
-import {Heat} from '../../model/start/heat.model';
 import {
     HeatUpdateTimeDialogComponent,
     HeatUpdateTimeDialogData
 } from '../../../content/dialog/heat/heat-update-time-dialog/heat-update-time-dialog.component';
+import {Incident, IncidentImpl, MeetingImpl, Heat} from '@swimresults/angular';
 
 @Injectable({
     providedIn: 'root'
